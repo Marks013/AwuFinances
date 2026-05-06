@@ -15,6 +15,26 @@ const release = process.env.SENTRY_RELEASE;
 const clientDsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
 const serverDsn = process.env.SENTRY_DSN ?? clientDsn;
 
+function parseSampleRate(value: string | undefined, fallback: number) {
+  if (!value) {
+    return fallback;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return fallback;
+  }
+
+  return Math.min(1, Math.max(0, parsed));
+}
+
+const defaultTraceSampleRate = environment === "production" ? 0.2 : 1;
+const clientTraceSampleRate = parseSampleRate(
+  process.env.NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE,
+  defaultTraceSampleRate
+);
+const serverTraceSampleRate = parseSampleRate(process.env.SENTRY_TRACES_SAMPLE_RATE, defaultTraceSampleRate);
+
 const ignoredErrors = [
   "Unauthorized",
   "Forbidden",
@@ -54,6 +74,7 @@ export function getClientSentryOptions(): BrowserOptions {
     release,
     sendDefaultPii: false,
     sampleRate: 1,
+    tracesSampleRate: clientTraceSampleRate,
     maxBreadcrumbs: 50,
     normalizeDepth: 5,
     normalizeMaxBreadth: 100,
@@ -70,6 +91,7 @@ export function getServerSentryOptions(): NodeOptions | EdgeOptions {
     release,
     sendDefaultPii: false,
     sampleRate: 1,
+    tracesSampleRate: serverTraceSampleRate,
     maxBreadcrumbs: 50,
     normalizeDepth: 5,
     normalizeMaxBreadth: 100,

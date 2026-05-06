@@ -39,6 +39,19 @@ type CaptureRequestErrorOptions = Omit<CaptureUnexpectedErrorOptions, "route" | 
 };
 
 const recentClientCaptures = new Map<string, number>();
+const safeRequestHeaderNames = new Set([
+  "accept",
+  "content-type",
+  "host",
+  "origin",
+  "referer",
+  "user-agent",
+  "x-forwarded-for",
+  "x-forwarded-host",
+  "x-forwarded-proto",
+  "x-request-id",
+  "x-vercel-id"
+]);
 
 function buildClientLocation() {
   if (typeof window === "undefined") {
@@ -86,6 +99,167 @@ function resolveRequestRoute(request: Pick<Request, "url"> | null | undefined) {
   }
 }
 
+function getErrorName(error: unknown) {
+  return error instanceof Error ? error.name : typeof error;
+}
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === "string") {
+    return error;
+  }
+
+  return "Non-Error value thrown";
+}
+
+function getErrorCause(error: unknown) {
+  if (!(error instanceof Error) || !("cause" in error) || error.cause === undefined) {
+    return null;
+  }
+
+  const cause = error.cause;
+  if (cause instanceof Error) {
+    return {
+      name: cause.name,
+      message: cause.message
+    };
+  }
+
+  return {
+    name: typeof cause,
+    message: String(cause)
+  };
+}
+
+function parseLikelySourceFrame(error: unknown) {
+  if (!(error instanceof Error) || !error.stack) {
+    return null;
+  }
+
+  const frame = error.stack
+    .split("\n")
+    .map((line) => line.trim())
+    .find((line) => line.includes("/app/") || line.includes("web/") || line.includes("@/"));
+
+  if (!frame) {
+    return null;
+  }
+
+  const match = frame.match(/^at\s+(?<functionName>.*?)\s+\((?<location>.*):(?<line>\d+):(?<column>\d+)\)$/) ??
+    frame.match(/^at\s+(?<location>.*):(?<line>\d+):(?<column>\d+)$/);
+
+  if (!match?.groups) {
+    return { raw: frame };
+  }
+
+  return {
+    function: match.groups.functionName ?? null,
+    file: match.groups.location,
+    line: Number(match.groups.line),
+    column: Number(match.groups.column)
+  };
+}
+
+function sanitizeRequestUrl(url: string | undefined) {
+  if (!url) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(url);
+    parsed.search = sanitizeSearch(parsed.search) ?? "";
+    return {
+      full: parsed.toString(),
+      origin: parsed.origin,
+      pathname: parsed.pathname,
+      query: parsed.search || null
+    };
+  } catch {
+    return {
+      full: url,
+      origin: null,
+      pathname: url,
+      query: null
+    };
+  }
+}
+
+function getSafeRequestHeaders(headers: Headers | undefined) {
+  if (!headers) {
+    return {};
+  }
+
+  const safeHeaders: Record<string, string> = {};
+  for (const [key, value] of headers.entries()) {
+    const lowerKey = key.toLowerCase();
+    if (safeRequestHeaderNames.has(lowerKey)) {
+      safeHeaders[lowerKey] = value;
+    }
+  }
+
+  return safeHeaders;
+}
+
+function getInvestigationHint(input: {
+  errorName: string;
+  errorMessage: string;
+  route?: string;
+  operation?: string;
+  feature?: string;
+  likelySource: ReturnType<typeof parseLikelySourceFrame>;
+}) {
+  const source = input.likelySource && "file" in input.likelySource ? `${input.likelySource.file}:${input.likelySource.line}` : null;
+
+  return {
+    summary: `${input.errorName} em ${input.operation ?? "operation"} ${input.route ?? "unknown route"}`,
+    likely_owner: input.feature ?? "unknown",
+    first_file_to_open: source,
+    error_message: input.errorMessage,
+    what_to_check: [
+      "Abra o primeiro arquivo indicado e revise a linha/função apontada pelo stack trace.",
+      "Compare os dados em request_context com as validações esperadas da rota.",
+      "Se houver prisma/error code em error_context, confira schema, constraints e dados de entrada.",
+      "Use requestId/x-vercel-id para correlacionar com logs do servidor quando existir."
+    ]
+  };
+}
+
+function buildCopyPasteDiagnostic(input: {
+  errorName: string;
+  errorMessage: string;
+  route?: string;
+  operation?: string;
+  feature?: string;
+  requestId?: string | null;
+  tenantId?: string | null;
+  userId?: string | null;
+  likelySource: ReturnType<typeof parseLikelySourceFrame>;
+}) {
+  const source = input.likelySource && "file" in input.likelySource
+    ? `${input.likelySource.file}:${input.likelySource.line}:${input.likelySource.column}`
+    : "unknown";
+
+  return [
+    `Erro: ${input.errorName}`,
+    `Mensagem: ${input.errorMessage}`,
+    `Rota: ${input.operation ?? "unknown"} ${input.route ?? "unknown"}`,
+    `Feature: ${input.feature ?? "unknown"}`,
+    `Primeiro arquivo para abrir: ${source}`,
+    `Tenant: ${input.tenantId ?? "unknown"}`,
+    `Usuario: ${input.userId ?? "unknown"}`,
+    `Request ID: ${input.requestId ?? "unknown"}`,
+    "",
+    "O que corrigir:",
+    "1. Abra o primeiro arquivo indicado e revise a linha/função do stack trace.",
+    "2. Compare request_context com as validacoes esperadas da rota.",
+    "3. Se houver prismaCode/cause em error_context, confira schema, constraints e dados de entrada.",
+    "4. Use Request ID ou x-vercel-id para correlacionar com logs do servidor."
+  ].join("\n");
+}
+
 export function syncSentryAccessScope(input: AccessScopeInput | null | undefined) {
   if (!input?.id) {
     Sentry.setUser(null);
@@ -129,10 +303,26 @@ export function captureUnexpectedError(error: unknown, options: CaptureUnexpecte
   }
 
   Sentry.withScope((scope) => {
+    const errorName = getErrorName(error);
+    const errorMessage = getErrorMessage(error);
+    const likelySource = parseLikelySourceFrame(error);
+    const copyPasteDiagnostic = buildCopyPasteDiagnostic({
+      errorName,
+      errorMessage,
+      route: options.route,
+      operation: options.operation,
+      feature: options.feature,
+      requestId: options.requestId,
+      tenantId: options.tenantId,
+      userId: options.userId,
+      likelySource
+    });
+
     setOptionalTag(scope, "surface", options.surface);
     setOptionalTag(scope, "route", options.route);
     setOptionalTag(scope, "operation", options.operation);
     setOptionalTag(scope, "feature", options.feature);
+    setOptionalTag(scope, "errorName", errorName);
     setOptionalTag(scope, "requestId", options.requestId);
     setOptionalTag(scope, "tenantId", options.tenantId);
     setOptionalTag(scope, "userId", options.userId);
@@ -164,6 +354,28 @@ export function captureUnexpectedError(error: unknown, options: CaptureUnexpecte
       scope.setFingerprint(options.fingerprint);
     }
 
+    scope.setContext("error_context", {
+      name: errorName,
+      message: errorMessage,
+      cause: getErrorCause(error),
+      likelySource,
+      prismaCode: typeof error === "object" && error !== null && "code" in error ? String(error.code) : null
+    });
+
+    scope.setContext("investigation", getInvestigationHint({
+      errorName,
+      errorMessage,
+      route: options.route,
+      operation: options.operation,
+      feature: options.feature,
+      likelySource
+    }));
+
+    scope.setContext("diagnostic", {
+      copy_paste: copyPasteDiagnostic
+    });
+    scope.setExtra("copy_paste_diagnostic", copyPasteDiagnostic);
+
     const clientLocation = buildClientLocation();
     if (clientLocation) {
       scope.setContext("client_location", clientLocation);
@@ -181,6 +393,7 @@ export function captureRequestError(error: unknown, options: CaptureRequestError
   const route = options.route ?? resolveRequestRoute(options.request);
   const operation = options.operation ?? options.request?.method;
   const requestId = options.request?.headers.get("x-request-id") ?? options.request?.headers.get("x-vercel-id") ?? null;
+  const sanitizedRequestUrl = sanitizeRequestUrl(options.request?.url);
 
   captureUnexpectedError(error, {
     ...options,
@@ -188,18 +401,22 @@ export function captureRequestError(error: unknown, options: CaptureRequestError
     route,
     operation,
     requestId,
+    tags: {
+      httpMethod: operation,
+      ...(options.tags ?? {})
+    },
     extra: {
-      ...(options.request?.url
+      ...(sanitizedRequestUrl
         ? {
-            url: (() => {
-              try {
-                const url = new URL(options.request.url);
-                url.search = sanitizeSearch(url.search) ?? "";
-                return url.toString();
-              } catch {
-                return options.request.url;
-              }
-            })()
+            request_context: {
+              method: operation ?? null,
+              route: route ?? null,
+              url: sanitizedRequestUrl.full,
+              origin: sanitizedRequestUrl.origin,
+              pathname: sanitizedRequestUrl.pathname,
+              query: sanitizedRequestUrl.query,
+              headers: getSafeRequestHeaders(options.request?.headers)
+            }
           }
         : {}),
       ...(options.extra ?? {})

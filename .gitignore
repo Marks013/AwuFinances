@@ -27,3 +27,7 @@ terminal.txt
 .deploy/releases/*
 !.deploy/releases/.gitkeep
 .deploy/runtime.env
+
+# Local dev server logs
+web/.next-dev*.log
+web/*.log

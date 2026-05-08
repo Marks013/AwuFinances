@@ -376,7 +376,7 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
       })
   });
   const tenants = tenantsQuery.data?.items ?? [];
-  const activeTenantBillingId = expandedTenantBillingId ?? (isPlatformAdmin ? tenants[0]?.id : null);
+  const activeTenantBillingId = expandedTenantBillingId;
   const tenantBillingDetailsQuery = useQuery({
     queryKey: ["admin-tenant-billing", activeTenantBillingId],
     queryFn: () => getTenantBillingDetails(activeTenantBillingId!),
@@ -1727,7 +1727,9 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
                 }
                 onApplyTrialDays={() => submitTenantTrialDays(tenant)}
                 onDeleteTenant={() => submitTenantDeletion(tenant)}
-                onOpenBillingDetails={() => setExpandedTenantBillingId(tenant.id)}
+                onOpenBillingDetails={() =>
+                  setExpandedTenantBillingId((currentTenantId) => (currentTenantId === tenant.id ? null : tenant.id))
+                }
                 onProcessQueue={() =>
                   adminTenantBillingMutation.mutate({
                     tenantId: tenant.id,

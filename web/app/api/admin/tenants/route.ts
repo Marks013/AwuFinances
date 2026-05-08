@@ -5,6 +5,9 @@ import { ensureTenantDefaultCategories } from "@/lib/finance/default-categories"
 import { applyPlanDefaultsToTenant, ensureDefaultPlans } from "@/lib/licensing/default-plans";
 import { prisma } from "@/lib/prisma/client";
 
+const HIDDEN_PLATFORM_TENANT_NAMES = ["Save Point"];
+const HIDDEN_PLATFORM_TENANT_SLUGS = ["save-point"];
+
 function slugify(value: string) {
   return value
     .normalize("NFD")
@@ -38,6 +41,14 @@ export async function GET(request: Request) {
     const tenants = await prisma.tenant.findMany({
       where: {
         ...(admin.isPlatformAdmin ? {} : { id: admin.tenantId }),
+        ...(admin.isPlatformAdmin
+          ? {
+              NOT: [
+                ...HIDDEN_PLATFORM_TENANT_NAMES.map((name) => ({ name: { equals: name, mode: "insensitive" as const } })),
+                ...HIDDEN_PLATFORM_TENANT_SLUGS.map((slug) => ({ slug }))
+              ]
+            }
+          : {}),
         ...(plan === "free" || plan === "pro"
           ? {
               planConfig: {

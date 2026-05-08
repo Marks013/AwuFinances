@@ -148,19 +148,21 @@ export function BillingSettingsCard() {
 
   return (
     <section className="surface content-section">
-      <div className="admin-section-header">
-        <div className="min-w-0 flex-1">
-          <div className="eyebrow">Billing comercial</div>
-          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">Preços, cupons e promoções</h2>
-          <p className="mt-2 text-sm leading-7 text-[var(--color-muted-foreground)]">
-            Ajuste valores, cupons visiveis e cupons secretos que funcionam somente quando o cliente digita o codigo.
-          </p>
-        </div>
-        <article className="metric-card admin-section-metric">
-          <p className="metric-label">Anual</p>
-          <p className="metric-value">{formatMoney(draft.annualAmount, draft.currencyId)}</p>
-        </article>
-      </div>
+      <details className="admin-disclosure">
+        <summary className="admin-disclosure-summary">
+          <div className="min-w-0 flex-1">
+            <div className="eyebrow">Billing comercial</div>
+            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">Preços, cupons e promoções</h2>
+            <p className="mt-2 text-sm leading-7 text-[var(--color-muted-foreground)]">
+              Ajuste valores, cupons visiveis e cupons secretos que funcionam somente quando o cliente digita o codigo.
+            </p>
+          </div>
+          <article className="metric-card admin-section-metric">
+            <p className="metric-label">Anual</p>
+            <p className="metric-value">{formatMoney(draft.annualAmount, draft.currencyId)}</p>
+          </article>
+        </summary>
+        <div className="admin-disclosure-body">
 
       <div className="mt-6 grid gap-4 lg:grid-cols-4">
         <div className="space-y-2">
@@ -391,6 +393,8 @@ export function BillingSettingsCard() {
           </>
         )}
       </Button>
+        </div>
+      </details>
     </section>
   );
 }

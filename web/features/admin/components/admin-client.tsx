@@ -2140,7 +2140,7 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
               Acompanhe alterações sensíveis em pessoas, convites, contas e planos.
             </p>
           </div>
-          <article className="metric-card w-full sm:w-auto">
+          <article className="metric-card admin-audit-metric">
             <p className="metric-label">No recorte</p>
             <p className="metric-value">{auditItems.length}</p>
             <p className="text-xs text-[var(--color-muted-foreground)]">máx. {auditLimit} linhas</p>

@@ -596,12 +596,23 @@ button {
 
 .admin-disclosure-summary {
   display: flex;
+  flex-wrap: wrap;
   cursor: pointer;
   list-style: none;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem 1.15rem;
+}
+
+.admin-disclosure-summary > :first-child {
+  min-width: min(100%, 18rem);
+}
+
+.admin-disclosure-metric,
+.admin-audit-metric {
+  width: min(100%, 13rem);
+  min-width: min(100%, 12rem);
 }
 
 .admin-disclosure-summary::-webkit-details-marker {

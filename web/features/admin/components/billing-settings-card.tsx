@@ -157,7 +157,7 @@ export function BillingSettingsCard() {
               Ajuste valores, cupons visiveis e cupons secretos que funcionam somente quando o cliente digita o codigo.
             </p>
           </div>
-          <article className="metric-card admin-section-metric">
+          <article className="metric-card admin-section-metric admin-disclosure-metric">
             <p className="metric-label">Anual</p>
             <p className="metric-value">{formatMoney(draft.annualAmount, draft.currencyId)}</p>
           </article>

@@ -1,8 +1,6 @@
-import { z } from "zod";
-
 const dateKeyPattern = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
 
-function isRealDateKey(value: string) {
+export function isRealDateKey(value: string) {
   if (!dateKeyPattern.test(value)) {
     return false;
   }
@@ -16,12 +14,6 @@ function isRealDateKey(value: string) {
     parsed.getDate() === day
   );
 }
-
-export const dateKeySchema = z.string().refine(isRealDateKey, "Data invalida");
-export const optionalDateKeySchema = z.preprocess(
-  (value) => (value === "" ? null : value),
-  dateKeySchema.optional().nullable()
-);
 
 export function formatDateKey(date: Date) {
   const year = date.getFullYear();

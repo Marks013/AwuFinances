@@ -1,12 +1,10 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
@@ -15,14 +13,14 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { FOOD_BENEFIT_CATEGORY_SYSTEM_KEYS, isAllowedBenefitFoodCategory } from "@/lib/finance/benefit-wallet-rules";
 import { formatDateDisplay, formatDateKey, normalizeCalendarDate } from "@/lib/date";
+import { transactionFormResolver } from "@/lib/client-form-resolvers";
 import { formatMonthKeyLabel, normalizeMonthKey } from "@/lib/month";
 import { ensureApiResponse } from "@/lib/observability/http";
 import { cn, formatCurrency } from "@/lib/utils";
-import {
-  transactionFormSchema,
-  type TransactionFiltersValues,
-  type TransactionFormValues,
-  type TransactionUpdateValues
+import type {
+  TransactionFiltersValues,
+  TransactionFormValues,
+  TransactionUpdateValues
 } from "@/features/transactions/schemas/transaction-schema";
 
 type CategoryItem = {
@@ -309,8 +307,8 @@ export function TransactionsClient() {
     return () => window.clearTimeout(timeout);
   };
 
-  const form = useForm<z.input<typeof transactionFormSchema>, unknown, TransactionFormValues>({
-    resolver: zodResolver(transactionFormSchema),
+  const form = useForm<TransactionFormValues>({
+    resolver: transactionFormResolver,
     defaultValues: buildEmptyTransactionValues(month) // Pass the 'month' variable
   });
 

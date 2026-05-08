@@ -1,11 +1,9 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
@@ -13,7 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PresetChip } from "@/components/ui/preset-chip";
 import { Select } from "@/components/ui/select";
-import { categoryFormSchema, type CategoryFormValues } from "@/features/categories/schemas/category-schema";
+import type { CategoryFormValues } from "@/features/categories/schemas/category-schema";
+import { categoryFormResolver } from "@/lib/client-form-resolvers";
 import { categoryColorPresets, findPreset } from "@/lib/finance/presets";
 import { ensureApiResponse } from "@/lib/observability/http";
 
@@ -95,8 +94,8 @@ export function CategoriesClient() {
   const categories = categoriesQuery.data?.items ?? [];
   const expenseCategories = categories.filter((category) => category.type === "expense").length;
   const incomeCategories = categories.filter((category) => category.type === "income").length;
-  const form = useForm<z.input<typeof categoryFormSchema>, unknown, CategoryFormValues>({
-    resolver: zodResolver(categoryFormSchema),
+  const form = useForm<CategoryFormValues>({
+    resolver: categoryFormResolver,
     defaultValues: {
       name: "",
       icon: "tag",

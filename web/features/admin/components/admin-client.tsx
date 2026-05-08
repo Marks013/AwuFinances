@@ -2,11 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +26,8 @@ import { AdminTenantCard } from "@/features/admin/components/admin-tenant-card";
 import { AdminUserCard } from "@/features/admin/components/admin-user-card";
 import { BillingSettingsCard } from "@/features/admin/components/billing-settings-card";
 import { PopupCampaignManager } from "@/features/admin/components/popup-campaign-manager";
-import { invitationSchema, type InvitationValues } from "@/features/password/schemas/password-schema";
+import type { InvitationValues } from "@/features/password/schemas/password-schema";
+import { invitationResolver } from "@/lib/client-form-resolvers";
 import { formatDateDisplay, formatDateTimeDisplay, parseBrazilianDateToDateKey } from "@/lib/date";
 import { formatRoleFilterLabel } from "@/lib/users/role-label";
 
@@ -353,8 +352,8 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
   const [tenantDeleteConfirmDrafts, setTenantDeleteConfirmDrafts] = useState<Record<string, string>>({});
   const [userPasswordDrafts, setUserPasswordDrafts] = useState<Record<string, string>>({});
   const [userDeleteConfirmDrafts, setUserDeleteConfirmDrafts] = useState<Record<string, string>>({});
-  const invitationForm = useForm<z.input<typeof invitationSchema>, unknown, InvitationValues>({
-    resolver: zodResolver(invitationSchema),
+  const invitationForm = useForm<InvitationValues>({
+    resolver: invitationResolver,
     defaultValues: {
       email: "",
       name: "",

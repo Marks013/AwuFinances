@@ -1,6 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
@@ -8,13 +7,13 @@ import { signIn } from "next-auth/react";
 import { useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import { publicRegistrationSchema, type PublicRegistrationValues } from "@/features/password/schemas/password-schema";
+import type { PublicRegistrationValues } from "@/features/password/schemas/password-schema";
+import { publicRegistrationResolver } from "@/lib/client-form-resolvers";
 import {
   PRIVACY_POLICY_PATH,
   PRIVACY_POLICY_VERSION,
@@ -43,8 +42,8 @@ const planCopy: Record<RegistrationPlan, string> = {
 export function PublicRegistrationForm({ initialPlan }: PublicRegistrationFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const form = useForm<z.input<typeof publicRegistrationSchema>, unknown, PublicRegistrationValues>({
-    resolver: zodResolver(publicRegistrationSchema),
+  const form = useForm<PublicRegistrationValues>({
+    resolver: publicRegistrationResolver,
     defaultValues: {
       plan: initialPlan,
       name: "",

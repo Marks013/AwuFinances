@@ -1,11 +1,9 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
@@ -13,7 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PresetChip } from "@/components/ui/preset-chip";
 import { Select } from "@/components/ui/select";
-import { goalFormSchema, type GoalFormValues } from "@/features/goals/schemas/goal-schema";
+import type { GoalFormValues } from "@/features/goals/schemas/goal-schema";
+import { goalFormResolver } from "@/lib/client-form-resolvers";
 import { formatDateDisplay, formatDateKey } from "@/lib/date";
 import { categoryColorPresets, findPreset } from "@/lib/finance/presets";
 import { ensureApiResponse } from "@/lib/observability/http";
@@ -93,8 +92,8 @@ export function GoalsClient() {
   const reservedAmount = goals.reduce((sum, goal) => sum + goal.currentAmount, 0);
   const targetAmount = goals.reduce((sum, goal) => sum + goal.targetAmount, 0);
   const completedGoals = goals.filter((goal) => goal.isCompleted).length;
-  const form = useForm<z.input<typeof goalFormSchema>, unknown, GoalFormValues>({
-    resolver: zodResolver(goalFormSchema),
+  const form = useForm<GoalFormValues>({
+    resolver: goalFormResolver,
     defaultValues: {
       name: "",
       targetAmount: 0,

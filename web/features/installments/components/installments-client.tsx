@@ -2,11 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
@@ -14,10 +12,8 @@ import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import {
-  installmentGroupUpdateSchema,
-  type InstallmentGroupUpdateValues
-} from "@/features/installments/schemas/installment-schema";
+import type { InstallmentGroupUpdateValues } from "@/features/installments/schemas/installment-schema";
+import { installmentGroupUpdateResolver } from "@/lib/client-form-resolvers";
 import { formatDateDisplay } from "@/lib/date";
 import { formatMonthKeyLabel, getMonthRange, normalizeMonthKey } from "@/lib/month";
 import { ensureApiResponse } from "@/lib/observability/http";
@@ -99,8 +95,8 @@ export function InstallmentsClient() {
   const totalAmount = groups.reduce((sum, item) => sum + item.totalAmount, 0);
   const overdueItems = groups.reduce((sum, item) => sum + item.overdueOpenInstallments, 0);
   const remainingInstallments = groups.reduce((sum, item) => sum + item.installmentsRemaining, 0);
-  const form = useForm<z.input<typeof installmentGroupUpdateSchema>, unknown, InstallmentGroupUpdateValues>({
-    resolver: zodResolver(installmentGroupUpdateSchema),
+  const form = useForm<InstallmentGroupUpdateValues>({
+    resolver: installmentGroupUpdateResolver,
     defaultValues: {
       description: "",
       amount: undefined,

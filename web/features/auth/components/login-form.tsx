@@ -1,17 +1,16 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { loginSchema, type LoginSchema } from "@/features/auth/schemas/login-schema";
+import type { LoginSchema } from "@/features/auth/schemas/login-schema";
+import { loginFormResolver } from "@/lib/client-form-resolvers";
 
 export function LoginForm() {
   const router = useRouter();
@@ -21,8 +20,8 @@ export function LoginForm() {
     register,
     handleSubmit,
     formState: { errors }
-  } = useForm<z.input<typeof loginSchema>, unknown, LoginSchema>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<LoginSchema>({
+    resolver: loginFormResolver,
     defaultValues: {
       email: "",
       password: ""

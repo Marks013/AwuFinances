@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { dateKeySchema } from "@/lib/date";
+import { dateKeySchema } from "@/lib/date-schemas";
 
 export const subscriptionFormSchema = z
   .object({

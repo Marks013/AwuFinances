@@ -1,12 +1,10 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
@@ -14,7 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PresetChip } from "@/components/ui/preset-chip";
 import { Select } from "@/components/ui/select";
-import { accountFormSchema, type AccountFormValues } from "@/features/accounts/schemas/account-schema";
+import type { AccountFormValues } from "@/features/accounts/schemas/account-schema";
+import { accountFormResolver } from "@/lib/client-form-resolvers";
 import { accountColorPresets, brazilianInstitutions, findPreset } from "@/lib/finance/presets";
 import { formatMonthKeyLabel, normalizeMonthKey } from "@/lib/month";
 import { ensureApiResponse } from "@/lib/observability/http";
@@ -92,8 +91,8 @@ export function AccountsClient() {
   const openingBalance = accounts.reduce((sum, account) => sum + account.openingBalance, 0);
   const periodNet = accounts.reduce((sum, account) => sum + account.periodNet, 0);
   const accumulatedNet = accounts.reduce((sum, account) => sum + account.accumulatedNet, 0);
-  const form = useForm<z.input<typeof accountFormSchema>, unknown, AccountFormValues>({
-    resolver: zodResolver(accountFormSchema),
+  const form = useForm<AccountFormValues>({
+    resolver: accountFormResolver,
     defaultValues: {
       name: "",
       type: "checking",

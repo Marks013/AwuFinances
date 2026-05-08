@@ -1,15 +1,13 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { invitationSchema } from "@/features/password/schemas/password-schema";
+import { sharingInviteResolver, type SharingInviteValues } from "@/lib/client-form-resolvers";
 import { formatDateDisplay } from "@/lib/date";
 import { ensureApiResponse } from "@/lib/observability/http";
 
@@ -60,11 +58,6 @@ type SharingState = {
   invitations: SharingInvitation[];
 };
 
-type SharingInviteValues = {
-  name: string;
-  email: string;
-};
-
 type SharingInviteResponse = {
   inviteUrl: string;
   emailDelivery?: {
@@ -73,11 +66,6 @@ type SharingInviteResponse = {
     attemptedAt: string | null;
   };
 };
-
-const sharingInviteSchema = invitationSchema.pick({
-  name: true,
-  email: true
-});
 
 async function getProfile() {
   const response = await fetch("/api/profile", { cache: "no-store" });
@@ -117,8 +105,8 @@ export function SharingClient() {
   const queryClient = useQueryClient();
   const profileQuery = useQuery({ queryKey: ["profile"], queryFn: getProfile, staleTime: 30_000 });
   const sharingQuery = useQuery({ queryKey: ["sharing-state"], queryFn: getSharingState, staleTime: 15_000 });
-  const form = useForm<z.input<typeof sharingInviteSchema>, unknown, SharingInviteValues>({
-    resolver: zodResolver(sharingInviteSchema),
+  const form = useForm<SharingInviteValues>({
+    resolver: sharingInviteResolver,
     defaultValues: {
       name: "",
       email: ""

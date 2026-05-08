@@ -1,17 +1,16 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { acceptInvitationSchema, type AcceptInvitationValues } from "@/features/password/schemas/password-schema";
+import type { AcceptInvitationValues } from "@/features/password/schemas/password-schema";
+import { acceptInvitationResolver } from "@/lib/client-form-resolvers";
 import {
   PRIVACY_POLICY_PATH,
   PRIVACY_POLICY_VERSION,
@@ -51,8 +50,8 @@ export function AcceptInvitationForm({ initialToken = "" }: AcceptInvitationForm
   const [invitation, setInvitation] = useState<InvitationPayload | null>(null);
   const normalizedToken = sanitizeToken(initialToken);
   const [isLoading, setIsLoading] = useState(() => Boolean(normalizedToken));
-  const form = useForm<z.input<typeof acceptInvitationSchema>, unknown, AcceptInvitationValues>({
-    resolver: zodResolver(acceptInvitationSchema),
+  const form = useForm<AcceptInvitationValues>({
+    resolver: acceptInvitationResolver,
     defaultValues: {
       token: normalizedToken,
       name: "",

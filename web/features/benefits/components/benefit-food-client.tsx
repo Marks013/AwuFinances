@@ -1,12 +1,10 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
@@ -14,6 +12,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { formatDateKey } from "@/lib/date";
+import {
+  benefitConsumeResolver,
+  benefitRechargeResolver,
+  benefitRecurringRechargeResolver,
+  benefitWalletResolver,
+  type BenefitConsumeValues,
+  type BenefitRechargeValues,
+  type BenefitRecurringRechargeValues,
+  type BenefitWalletValues
+} from "@/lib/client-form-resolvers";
 import { FOOD_BENEFIT_CATEGORY_SYSTEM_KEYS } from "@/lib/finance/benefit-wallet-rules";
 import { formatMonthKeyLabel, normalizeMonthKey } from "@/lib/month";
 import { ensureApiResponse } from "@/lib/observability/http";
@@ -68,35 +76,6 @@ type ProfilePreferencesPayload = {
   };
 };
 
-const walletSchema = z.object({
-  name: z.string().trim().min(2, "Informe um nome"),
-  balance: z.coerce.number().min(0).default(0)
-});
-
-const rechargeSchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Informe uma data"),
-  amount: z.coerce.number().positive("Informe um valor"),
-  description: z.string().trim().min(2, "Informe uma descrição"),
-  paymentMethod: z.enum(["pix", "money"]).default("pix"),
-  applyTithe: z.boolean().default(false)
-});
-
-const consumeSchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Informe uma data"),
-  amount: z.coerce.number().positive("Informe um valor"),
-  description: z.string().trim().min(2, "Informe uma descrição"),
-  paymentMethod: z.enum(["pix", "money", "debit_card"]).default("debit_card"),
-  categoryId: z.string().trim().optional().default("")
-});
-
-const recurringRechargeSchema = z.object({
-  name: z.string().trim().min(2, "Informe um nome"),
-  amount: z.coerce.number().positive("Informe um valor"),
-  billingDay: z.coerce.number().int().min(1).max(31).default(5),
-  nextBillingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Informe a próxima data"),
-  autoTithe: z.boolean().default(false)
-});
-
 async function getAccounts(month: string) {
   const response = await fetch(`/api/accounts?month=${month}`, { cache: "no-store" });
   await ensureApiResponse(response, { fallbackMessage: "Falha ao carregar contas", method: "GET", path: "/api/accounts" });
@@ -135,7 +114,7 @@ async function getProfilePreferences() {
   return (await response.json()) as ProfilePreferencesPayload;
 }
 
-async function createBenefitWallet(values: z.infer<typeof walletSchema>) {
+async function createBenefitWallet(values: BenefitWalletValues) {
   const response = await fetch("/api/accounts", {
     method: "POST",
     headers: {
@@ -155,7 +134,7 @@ async function createBenefitWallet(values: z.infer<typeof walletSchema>) {
   return response.json();
 }
 
-async function updateBenefitWallet(accountId: string, values: z.infer<typeof walletSchema>) {
+async function updateBenefitWallet(accountId: string, values: BenefitWalletValues) {
   const response = await fetch(`/api/accounts/${accountId}`, {
     method: "PATCH",
     headers: {
@@ -190,7 +169,7 @@ async function deleteBenefitWallet(accountId: string) {
   });
 }
 
-async function createRecharge(accountId: string, values: z.infer<typeof rechargeSchema>) {
+async function createRecharge(accountId: string, values: BenefitRechargeValues) {
   const response = await fetch("/api/transactions", {
     method: "POST",
     headers: {
@@ -215,7 +194,7 @@ async function createRecharge(accountId: string, values: z.infer<typeof recharge
   return response.json();
 }
 
-async function createConsumption(accountId: string, values: z.infer<typeof consumeSchema>) {
+async function createConsumption(accountId: string, values: BenefitConsumeValues) {
   const response = await fetch("/api/transactions", {
     method: "POST",
     headers: {
@@ -240,7 +219,7 @@ async function createConsumption(accountId: string, values: z.infer<typeof consu
   return response.json();
 }
 
-async function createRecurringRecharge(accountId: string, values: z.infer<typeof recurringRechargeSchema>) {
+async function createRecurringRecharge(accountId: string, values: BenefitRecurringRechargeValues) {
   const response = await fetch("/api/subscriptions", {
     method: "POST",
     headers: {
@@ -277,15 +256,15 @@ export function BenefitFoodClient() {
   const month = normalizeMonthKey(searchParams.get("month"));
   const [selectedAccountId, setSelectedAccountId] = useState("");
   const today = useMemo(() => formatDateKey(new Date()), []);
-  const walletForm = useForm<z.input<typeof walletSchema>, unknown, z.infer<typeof walletSchema>>({
-    resolver: zodResolver(walletSchema),
+  const walletForm = useForm<BenefitWalletValues>({
+    resolver: benefitWalletResolver,
     defaultValues: {
       name: "Auxílio Alimentação",
       balance: 0
     }
   });
-  const rechargeForm = useForm<z.input<typeof rechargeSchema>, unknown, z.infer<typeof rechargeSchema>>({
-    resolver: zodResolver(rechargeSchema),
+  const rechargeForm = useForm<BenefitRechargeValues>({
+    resolver: benefitRechargeResolver,
     defaultValues: {
       date: today,
       amount: 0,
@@ -294,8 +273,8 @@ export function BenefitFoodClient() {
       applyTithe: false
     }
   });
-  const consumeForm = useForm<z.input<typeof consumeSchema>, unknown, z.infer<typeof consumeSchema>>({
-    resolver: zodResolver(consumeSchema),
+  const consumeForm = useForm<BenefitConsumeValues>({
+    resolver: benefitConsumeResolver,
     defaultValues: {
       date: today,
       amount: 0,
@@ -304,12 +283,8 @@ export function BenefitFoodClient() {
       categoryId: ""
     }
   });
-  const recurringForm = useForm<
-    z.input<typeof recurringRechargeSchema>,
-    unknown,
-    z.infer<typeof recurringRechargeSchema>
-  >({
-    resolver: zodResolver(recurringRechargeSchema),
+  const recurringForm = useForm<BenefitRecurringRechargeValues>({
+    resolver: benefitRecurringRechargeResolver,
     defaultValues: {
       name: "Recarga mensal Vale Alimentação",
       amount: 0,
@@ -390,7 +365,7 @@ export function BenefitFoodClient() {
   };
 
   const walletMutation = useMutation({
-    mutationFn: (values: z.infer<typeof walletSchema>) =>
+    mutationFn: (values: BenefitWalletValues) =>
       selectedAccount ? updateBenefitWallet(selectedAccount.id, values) : createBenefitWallet(values),
     onSuccess: async () => {
       toast.success(selectedAccount ? "Carteira de Vale Alimentação atualizada" : "Carteira de Vale Alimentação criada");
@@ -421,7 +396,7 @@ export function BenefitFoodClient() {
   });
 
   const rechargeMutation = useMutation({
-    mutationFn: (values: z.infer<typeof rechargeSchema>) => createRecharge(activeAccountId, values),
+    mutationFn: (values: BenefitRechargeValues) => createRecharge(activeAccountId, values),
     onSuccess: async () => {
       toast.success("Recarga registrada");
       rechargeForm.reset({
@@ -441,7 +416,7 @@ export function BenefitFoodClient() {
   });
 
   const consumptionMutation = useMutation({
-    mutationFn: (values: z.infer<typeof consumeSchema>) => createConsumption(activeAccountId, values),
+    mutationFn: (values: BenefitConsumeValues) => createConsumption(activeAccountId, values),
     onSuccess: async () => {
       toast.success("Consumo registrado");
       consumeForm.reset({
@@ -461,7 +436,7 @@ export function BenefitFoodClient() {
   });
 
   const recurringMutation = useMutation({
-    mutationFn: (values: z.infer<typeof recurringRechargeSchema>) => createRecurringRecharge(activeAccountId, values),
+    mutationFn: (values: BenefitRecurringRechargeValues) => createRecurringRecharge(activeAccountId, values),
     onSuccess: async () => {
       toast.success("Recorrencia de recarga criada");
       recurringForm.reset({

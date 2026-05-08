@@ -1,19 +1,18 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import { subscriptionFormSchema, type SubscriptionFormValues } from "@/features/subscriptions/schemas/subscription-schema";
+import type { SubscriptionFormValues } from "@/features/subscriptions/schemas/subscription-schema";
+import { subscriptionFormResolver } from "@/lib/client-form-resolvers";
 import { isAllowedBenefitFoodCategory } from "@/lib/finance/benefit-wallet-rules";
 import { formatDateDisplay, formatDateKey } from "@/lib/date";
 import {
@@ -180,8 +179,8 @@ export function SubscriptionsClient() {
     .filter((item) => item.type === "income")
     .reduce((sum, item) => sum + item.amount, 0);
 
-  const form = useForm<z.input<typeof subscriptionFormSchema>, unknown, SubscriptionFormValues>({
-    resolver: zodResolver(subscriptionFormSchema),
+  const form = useForm<SubscriptionFormValues>({
+    resolver: subscriptionFormResolver,
     defaultValues: buildEmptySubscriptionValues()
   });
 

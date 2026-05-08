@@ -1,12 +1,10 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, CheckCircle2, Clock3, History, MailCheck, SendHorizonal, Star } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,11 +13,11 @@ import { Select } from "@/components/ui/select";
 import {
   supportPriorityLabels,
   supportPriorityValues,
-  supportRequestSchema,
   supportTopicLabels,
-  supportTopicValues,
-  type SupportRequestValues
-} from "@/features/support/schemas/support-schema";
+  supportTopicValues
+} from "@/features/support/support-constants";
+import type { SupportRequestValues } from "@/features/support/schemas/support-schema";
+import { supportRequestResolver } from "@/lib/client-form-resolvers";
 import { formatDateTimeDisplay } from "@/lib/date";
 import { ensureApiResponse } from "@/lib/observability/http";
 
@@ -178,8 +176,8 @@ export function SupportClient({ initialEmail, initialName }: SupportClientProps)
   const queryClient = useQueryClient();
   const [ratingDrafts, setRatingDrafts] = useState<Record<string, { rating: number; problemResolved: boolean; reason: string; improvement: string }>>({});
   const [reopenDrafts, setReopenDrafts] = useState<Record<string, string>>({});
-  const form = useForm<z.input<typeof supportRequestSchema>, unknown, SupportRequestValues>({
-    resolver: zodResolver(supportRequestSchema),
+  const form = useForm<SupportRequestValues>({
+    resolver: supportRequestResolver,
     defaultValues: {
       topic: "technical",
       priority: "normal",

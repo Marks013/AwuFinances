@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { optionalDateKeySchema } from "@/lib/date";
+import { optionalDateKeySchema } from "@/lib/date-schemas";
 
 export const goalFormSchema = z.object({
   name: z.string().trim().min(2, "Informe um nome"),

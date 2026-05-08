@@ -1,12 +1,10 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
@@ -15,7 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PresetChip } from "@/components/ui/preset-chip";
 import { Select } from "@/components/ui/select";
-import { cardFormSchema, type CardFormValues } from "@/features/cards/schemas/card-schema";
+import type { CardFormValues } from "@/features/cards/schemas/card-schema";
+import { cardFormResolver } from "@/lib/client-form-resolvers";
 import { brazilianInstitutions, cardBrandPresets, cardColorPresets, findPreset } from "@/lib/finance/presets";
 import { formatMonthKeyLabel, normalizeMonthKey } from "@/lib/month";
 import { ensureApiResponse } from "@/lib/observability/http";
@@ -320,8 +319,8 @@ export function CardsClient() {
       });
     }
   });
-  const form = useForm<z.input<typeof cardFormSchema>, unknown, CardFormValues>({
-    resolver: zodResolver(cardFormSchema),
+  const form = useForm<CardFormValues>({
+    resolver: cardFormResolver,
     defaultValues: {
       name: "",
       brand: cardBrandPresets[0].value,

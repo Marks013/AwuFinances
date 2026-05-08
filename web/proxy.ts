@@ -61,7 +61,8 @@ function buildContentSecurityPolicy(nonce: string, options: { allowMercadoPagoCh
     `img-src 'self' data: blob: ${mercadoPagoSources}`,
     "font-src 'self' data:",
     isProduction ? `connect-src 'self' ${mercadoPagoSources}` : "connect-src 'self' ws: wss: http: https:",
-    isProduction ? `script-src 'self' 'nonce-${nonce}'` : `script-src 'self' 'nonce-${nonce}' 'unsafe-eval'`,
+    // Zod and some client-side validation bundles probe runtime code generation with Function("").
+    `script-src 'self' 'nonce-${nonce}' 'unsafe-eval'`,
     scriptElementPolicy,
     "script-src-attr 'none'",
     "style-src 'self' 'unsafe-inline'",

@@ -3,6 +3,8 @@ import { revalidateTag, unstable_cache } from "next/cache";
 
 import { prisma } from "@/lib/prisma/client";
 
+const HIDDEN_ADMIN_USER_EMAILS = ["smoke-family@savepoint.local", "owner@savepoint.local", "admin@savepointfinanca.site"];
+
 type AdminUsersQueryInput = {
   tenantId?: string;
   role?: string | null;
@@ -75,6 +77,7 @@ export async function getCachedAdminUsers(input: AdminUsersQueryInput) {
       const recentLoginSince = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
       const where: Prisma.UserWhereInput = {
         ...(input.isPlatformAdmin ? (tenantId ? { tenantId } : {}) : tenantId ? { tenantId } : {}),
+        email: { notIn: HIDDEN_ADMIN_USER_EMAILS, mode: Prisma.QueryMode.insensitive },
         ...(role === "admin" || role === "member" ? { role } : {}),
         ...(status === "active" ? { isActive: true } : status === "inactive" ? { isActive: false } : {}),
         ...(lastLogin === "never"

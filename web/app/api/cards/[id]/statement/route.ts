@@ -5,9 +5,7 @@ import { z } from "zod";
 import { requireSessionUser } from "@/lib/auth/session";
 import {
   getCardStatementSnapshot,
-  getStatementDisplayMonth,
   getStatementTransactionWhere,
-  resolveStatementMonthForDisplay,
   statementMonthSchema
 } from "@/lib/cards/statement";
 import { ensureTenantCardStatementSnapshots, recomputeCardStatementSnapshots } from "@/lib/cards/snapshot-sync";
@@ -64,18 +62,10 @@ export async function GET(request: Request, context: Params) {
       return NextResponse.json({ message: "Card not found" }, { status: 404 });
     }
 
-    const statementMonth = query.month
-      ? await resolveStatementMonthForDisplay({
-          tenantId: user.tenantId,
-          card,
-          displayMonth: query.month,
-          client: prisma
-        })
-      : undefined;
     const statement = await getCardStatementSnapshot({
       tenantId: user.tenantId,
       card,
-      month: statementMonth,
+      month: query.month,
       client: prisma
     });
 
@@ -145,7 +135,7 @@ export async function GET(request: Request, context: Params) {
         dueDay: card.dueDay,
         statementMonthAnchor: card.statementMonthAnchor
       },
-      month: getStatementDisplayMonth(statement),
+      month: statement.month,
       summary: {
         statementMonth: statement.month,
         totalAmount: statement.totalAmount,
@@ -222,12 +212,7 @@ export async function PATCH(request: Request, context: Params) {
       return NextResponse.json({ message: "Card not found" }, { status: 404 });
     }
 
-    const statementMonth = await resolveStatementMonthForDisplay({
-      tenantId: user.tenantId,
-      card,
-      displayMonth: body.month,
-      client: prisma
-    });
+    const statementMonth = body.month;
     const cycle = await prisma.cardStatementCycle.upsert({
       where: {
         tenantId_cardId_month: {

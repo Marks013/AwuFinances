@@ -6,8 +6,6 @@ import { revalidateFinanceReports } from "@/lib/cache/finance-read-models";
 import {
   getCardStatementSnapshot,
   getNextPayableStatementSnapshot,
-  getStatementDisplayMonth,
-  resolveStatementMonthForDisplay,
   statementMonthSchema
 } from "@/lib/cards/statement";
 import { ensureTenantCardStatementSnapshots } from "@/lib/cards/snapshot-sync";
@@ -41,18 +39,10 @@ export async function GET(request: Request) {
     });
     const items = await Promise.all(
       cards.map(async (card) => {
-        const statementMonth = month
-          ? await resolveStatementMonthForDisplay({
-              tenantId: user.tenantId,
-              card,
-              displayMonth: month,
-              client: prisma
-            })
-          : undefined;
         const statement = await getCardStatementSnapshot({
           tenantId: user.tenantId,
           card,
-          month: statementMonth,
+          month,
           client: prisma
         });
         const payableStatement = await getNextPayableStatementSnapshot({
@@ -80,11 +70,11 @@ export async function GET(request: Request) {
           statementAmount: statement.totalAmount,
           statementOutstandingAmount: statement.statementOutstandingAmount,
           outstandingAmount: statement.outstandingAmount,
-          statementMonth: getStatementDisplayMonth(statement),
+          statementMonth: statement.month,
           closeDate: statement.closeDate.toISOString(),
           dueDate: statement.dueDate.toISOString(),
           payableStatementAmount: payableStatement.statementOutstandingAmount,
-          payableStatementMonth: getStatementDisplayMonth(payableStatement),
+          payableStatementMonth: payableStatement.month,
           payableDueDate: payableStatement.dueDate.toISOString(),
           payableOverdue: payableStatement.statementOutstandingAmount > 0 && payableDaysLate > 0,
           payableDaysLate,

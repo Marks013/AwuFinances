@@ -6,7 +6,6 @@ import { requireSessionUser } from "@/lib/auth/session";
 import { revalidateFinanceReports } from "@/lib/cache/finance-read-models";
 import { BenefitWalletRuleError, validateBenefitWalletTransaction } from "@/lib/finance/benefit-wallet";
 import { resolveTransactionClassification } from "@/lib/finance/transaction-classification";
-import { getCardAwareMonthTransactionFilter } from "@/lib/finance/card-aware-period";
 import { assertTenantTransactionReferences, TenantReferenceError } from "@/lib/finance/tenant-reference-guard";
 import { getMonthRange, normalizeMonthKey } from "@/lib/month";
 import { captureRequestError, captureUnexpectedError } from "@/lib/observability/sentry";
@@ -57,7 +56,10 @@ export async function GET(request: Request) {
               subscriptionId: {
                 in: subscriptions.map((subscription) => subscription.id)
               },
-              ...getCardAwareMonthTransactionFilter(month)
+              date: {
+                gte: monthRange!.start,
+                lte: monthRange!.end
+              }
             },
             select: {
               subscriptionId: true,

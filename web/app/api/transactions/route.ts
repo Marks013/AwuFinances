@@ -9,7 +9,6 @@ import { buildCardBillingSnapshotForDate } from "@/lib/cards/statement";
 import { BenefitWalletRuleError, validateBenefitWalletTransaction } from "@/lib/finance/benefit-wallet";
 import { FOOD_BENEFIT_CATEGORY_SYSTEM_KEYS } from "@/lib/finance/benefit-wallet-rules";
 import { ensureTenantCardStatementSnapshots } from "@/lib/cards/snapshot-sync";
-import { getCardAwareMonthTransactionFilter } from "@/lib/finance/card-aware-period";
 import { resolveTransactionClassification } from "@/lib/finance/transaction-classification";
 import { assertTenantTransactionReferences, TenantReferenceError } from "@/lib/finance/tenant-reference-guard";
 import { ensureTitheCategory, syncTitheForMonthKeys } from "@/lib/finance/tithe";
@@ -43,24 +42,16 @@ export async function GET(request: Request) {
 
     const month = filters.month ?? format(new Date(), "yyyy-MM");
 
-    const andFilters: Prisma.TransactionWhereInput[] = [
-      filters.cardId
-        ? getCardAwareMonthTransactionFilter(month)
-        : {
-            competence: month
-          }
-    ];
     const where: Prisma.TransactionWhereInput = {
       tenantId: user.tenantId,
+      competence: month,
       ...(filters.type ? { type: filters.type } : {}),
       ...(filters.categoryId ? { categoryId: filters.categoryId } : {}),
       ...(filters.cardId ? { cardId: filters.cardId } : {})
     };
 
     if (filters.accountId) {
-      andFilters.push({
-        OR: [{ accountId: filters.accountId }, { destinationAccountId: filters.accountId }]
-      });
+      where.OR = [{ accountId: filters.accountId }, { destinationAccountId: filters.accountId }];
     }
 
     if (filters.accountUsage) {
@@ -68,11 +59,7 @@ export async function GET(request: Request) {
         { financialAccount: { is: { usage: filters.accountUsage } } },
         { destinationAccount: { is: { usage: filters.accountUsage } } }
       ];
-      andFilters.push({ OR: usageFilter });
-    }
-
-    if (andFilters.length > 0) {
-      where.AND = andFilters;
+      where.AND = [...(Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : []), { OR: usageFilter }];
     }
 
     const [transactions, totalsByType, totalCount] = await Promise.all([

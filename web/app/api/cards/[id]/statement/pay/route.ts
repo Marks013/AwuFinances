@@ -5,11 +5,7 @@ import { z } from "zod";
 
 import { requireSessionUser } from "@/lib/auth/session";
 import { revalidateFinanceReports } from "@/lib/cache/finance-read-models";
-import {
-  getCardStatementSnapshot,
-  resolveStatementMonthForDisplay,
-  statementMonthSchema
-} from "@/lib/cards/statement";
+import { getCardStatementSnapshot, statementMonthSchema } from "@/lib/cards/statement";
 import { ensureTenantCardStatementSnapshots } from "@/lib/cards/snapshot-sync";
 import { captureRequestError } from "@/lib/observability/sentry";
 import { prisma } from "@/lib/prisma/client";
@@ -54,12 +50,7 @@ export async function POST(request: Request, context: Params) {
       return NextResponse.json({ message: "Account not found" }, { status: 404 });
     }
 
-    const statementMonth = await resolveStatementMonthForDisplay({
-      tenantId: user.tenantId,
-      card,
-      displayMonth: body.month,
-      client: prisma
-    });
+    const statementMonth = body.month;
     const existingPayment = await prisma.statementPayment.findUnique({
       where: {
         tenantId_cardId_month: {

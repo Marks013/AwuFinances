@@ -442,8 +442,7 @@ export function CardsClient() {
     return () => window.clearTimeout(timeout);
   };
 
-  const getDefaultStatementMonth = (card: CardItem) =>
-    card.payableStatementAmount > 0 ? card.payableStatementMonth : card.statementMonth;
+  const getDefaultStatementMonth = (card: CardItem) => card.statementMonth;
 
   const scrollToStatementWorkspace = () => {
     window.setTimeout(() => {
@@ -844,9 +843,18 @@ export function CardsClient() {
                 Utilizacao: {card.limitAmount > 0 ? Math.round((card.outstandingAmount / card.limitAmount) * 100) : 0}%
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <Button onClick={() => openStatementWorkspace(card)} type="button" variant={card.payableStatementAmount > 0 ? "default" : "secondary"}>
-                  {card.payableStatementAmount > 0 ? "Abrir e pagar fatura" : "Abrir fatura"}
+                <Button
+                  onClick={() => openStatementWorkspace(card, card.statementMonth)}
+                  type="button"
+                  variant={card.statementOutstandingAmount > 0 ? "default" : "secondary"}
+                >
+                  Abrir fatura
                 </Button>
+                {card.payableStatementAmount > 0 && card.payableStatementMonth !== card.statementMonth ? (
+                  <Button onClick={() => openStatementWorkspace(card, card.payableStatementMonth)} type="button" variant="default">
+                    Pagar fatura pendente
+                  </Button>
+                ) : null}
                 <Button onClick={() => startEditing(card)} type="button" variant="secondary">
                   Editar
                 </Button>

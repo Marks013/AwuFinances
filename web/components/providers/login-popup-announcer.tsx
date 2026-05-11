@@ -79,6 +79,22 @@ function kindLabel(kind: PopupCampaignItem["kind"]) {
   return "Aviso";
 }
 
+function hasSessionPopup(sessionKey: string) {
+  try {
+    return window.sessionStorage.getItem(sessionKey) === "shown";
+  } catch {
+    return false;
+  }
+}
+
+function markSessionPopup(sessionKey: string) {
+  try {
+    window.sessionStorage.setItem(sessionKey, "shown");
+  } catch {
+    // Storage can be unavailable in strict Firefox privacy contexts.
+  }
+}
+
 export function LoginPopupAnnouncer() {
   const pathname = usePathname();
   const { data: session, status } = useSession();
@@ -116,7 +132,7 @@ export function LoginPopupAnnouncer() {
       }
 
       const sessionKey = `savepoint:popup-session:${sessionUserId}:${nextCampaign.id}`;
-      if (window.sessionStorage.getItem(sessionKey)) {
+      if (hasSessionPopup(sessionKey)) {
         return;
       }
 
@@ -127,7 +143,7 @@ export function LoginPopupAnnouncer() {
           return;
         }
 
-        window.sessionStorage.setItem(sessionKey, "shown");
+        markSessionPopup(sessionKey);
         setVisible(true);
 
         await fetch("/api/notifications/popup", {

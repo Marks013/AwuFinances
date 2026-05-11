@@ -20,9 +20,27 @@ function applyTheme(theme: Theme) {
   document.documentElement.style.colorScheme = theme;
 }
 
+function readStoredTheme() {
+  try {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    return stored === "light" || stored === "dark" ? stored : null;
+  } catch {
+    return null;
+  }
+}
+
 function persistTheme(theme: Theme) {
-  window.localStorage.setItem(STORAGE_KEY, theme);
-  document.cookie = `${STORAGE_KEY}=${theme}; path=/; max-age=31536000; SameSite=Lax`;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, theme);
+  } catch {
+    // Firefox can block storage access under strict privacy settings.
+  }
+
+  try {
+    document.cookie = `${STORAGE_KEY}=${theme}; path=/; max-age=31536000; SameSite=Lax`;
+  } catch {
+    // Keep the in-memory theme even when cookie persistence is unavailable.
+  }
 }
 
 export function ThemeProvider({ children, initialTheme = DEFAULT_THEME }: { children: ReactNode; initialTheme?: Theme }) {
@@ -31,7 +49,7 @@ export function ThemeProvider({ children, initialTheme = DEFAULT_THEME }: { chil
       return initialTheme;
     }
 
-    const stored = window.localStorage.getItem(STORAGE_KEY);
+    const stored = readStoredTheme();
     const serverTheme = document.documentElement.dataset.theme;
     return stored === "light" || serverTheme === "light" ? "light" : DEFAULT_THEME;
   });

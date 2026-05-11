@@ -21,9 +21,9 @@ export function AdminInvitationCard({
   const isLocked = Boolean(invitation.acceptedAt) || Boolean(invitation.revokedAt);
 
   return (
-    <article className="data-card p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 space-y-1">
+    <article className="data-card min-w-0 p-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="w-full min-w-0 space-y-1 sm:flex-1">
           <p className="font-semibold">{invitation.name}</p>
           <p className="break-words text-sm text-[var(--color-muted-foreground)]">
             {invitation.email} | {formatRoleLabel({ role: invitation.role })}
@@ -39,11 +39,11 @@ export function AdminInvitationCard({
             {invitation.revokedAt ? ` | Revogado em ${formatDateTimeDisplay(invitation.revokedAt)}` : ""}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button disabled={resendDisabled || isLocked} onClick={onResend} type="button" variant="secondary">
+        <div className="grid w-full gap-2 sm:flex sm:w-auto sm:flex-wrap sm:justify-end">
+          <Button className="w-full sm:w-auto" disabled={resendDisabled || isLocked} onClick={onResend} type="button" variant="secondary">
             Reenviar e-mail
           </Button>
-          <Button disabled={revokeDisabled || isLocked} onClick={onRevoke} type="button" variant="ghost">
+          <Button className="w-full sm:w-auto" disabled={revokeDisabled || isLocked} onClick={onRevoke} type="button" variant="ghost">
             Revogar
           </Button>
         </div>

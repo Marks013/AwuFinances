@@ -138,7 +138,7 @@ export function BillingSettingsCard() {
 
   if (settingsQuery.isLoading || !draft) {
     return (
-      <section className="surface content-section">
+      <section className="surface content-section admin-content-section">
         <div className="eyebrow">Billing comercial</div>
         <p className="mt-3 text-sm text-[var(--color-muted-foreground)]">Carregando preços e promoções...</p>
       </section>
@@ -147,20 +147,20 @@ export function BillingSettingsCard() {
   const hasBillingChanges = serializeBillingSettings(draft) !== serializeBillingSettings(settingsQuery.data?.settings ?? draft);
 
   return (
-    <section className="surface content-section">
+    <section className="surface content-section admin-content-section">
       <details className="admin-disclosure">
         <summary className="admin-disclosure-summary">
-          <div className="min-w-0 flex-1">
-            <div className="eyebrow">Billing comercial</div>
-            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">Preços, cupons e promoções</h2>
-            <p className="mt-2 text-sm leading-7 text-[var(--color-muted-foreground)]">
-              Ajuste valores, cupons visiveis e cupons secretos que funcionam somente quando o cliente digita o codigo.
-            </p>
-          </div>
-          <article className="metric-card admin-section-metric admin-disclosure-metric">
-            <p className="metric-label">Anual</p>
-            <p className="metric-value">{formatMoney(draft.annualAmount, draft.currencyId)}</p>
-          </article>
+        <div className="min-w-0 flex-1">
+          <div className="eyebrow">Billing comercial</div>
+          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">Preços, cupons e promoções</h2>
+          <p className="mt-2 text-sm leading-7 text-[var(--color-muted-foreground)]">
+            Ajuste valores, cupons visiveis e cupons secretos que funcionam somente quando o cliente digita o codigo.
+          </p>
+        </div>
+        <article className="metric-card admin-section-metric admin-disclosure-metric">
+          <p className="metric-label">Anual</p>
+          <p className="metric-value">{formatMoney(draft.annualAmount, draft.currencyId)}</p>
+        </article>
         </summary>
         <div className="admin-disclosure-body">
 
@@ -203,8 +203,8 @@ export function BillingSettingsCard() {
         </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-        <div>
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <p className="text-sm font-semibold">Cards promocionais e cupons</p>
           <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
             Promoções ativas aparecem no checkout como cards clicáveis e também funcionam por campo de cupom. As datas
@@ -212,6 +212,7 @@ export function BillingSettingsCard() {
           </p>
         </div>
         <Button
+          className="w-full sm:w-auto"
           onClick={() => setDraft({ ...draft, promotions: [...draft.promotions, makePromotionDraft()] })}
           type="button"
           variant="secondary"
@@ -223,9 +224,9 @@ export function BillingSettingsCard() {
 
       <div className="mt-4 grid gap-4 xl:grid-cols-2">
         {draft.promotions.map((promotion, index) => (
-          <article className="data-card p-4" key={promotion.id}>
-            <div className="flex items-start justify-between gap-3">
-              <div>
+          <article className="data-card min-w-0 p-4" key={promotion.id}>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
                 <p className="text-sm font-semibold">{promotion.title}</p>
                 <p className="mt-1 text-xs text-[var(--color-muted-foreground)]">
                   {promotion.enabled
@@ -237,6 +238,7 @@ export function BillingSettingsCard() {
               </div>
               <Button
                 aria-label="Remover promoção"
+                className="w-full sm:w-auto"
                 onClick={() =>
                   setDraft({
                     ...draft,
@@ -376,7 +378,7 @@ export function BillingSettingsCard() {
       </div>
 
       <Button
-        className="mt-6"
+        className="mt-6 w-full sm:w-auto"
         disabled={updateMutation.isPending || !hasBillingChanges}
         onClick={() => updateMutation.mutate(draft)}
         type="button"

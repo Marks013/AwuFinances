@@ -7,9 +7,37 @@ export const paymentMethodValues = ["pix", "money", "credit_card", "debit_card",
 export const transactionEditScopeValues = ["single", "group"] as const;
 
 const MAX_DECIMAL_15_2 = 9_999_999_999_999.99;
+const calendarDateKeyPattern = /^\d{4}-\d{2}-\d{2}$/;
+
+function parseCalendarDateString(value: string) {
+  const trimmed = value.trim();
+  const dateKey = calendarDateKeyPattern.test(trimmed)
+    ? trimmed
+    : trimmed.length > 10 && trimmed[10] === "T"
+      ? trimmed.slice(0, 10)
+      : null;
+
+  if (!dateKey) {
+    return null;
+  }
+
+  const [year, month, day] = dateKey.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  return date;
+}
+
 const calendarDateSchema = z
   .union([
-    z.string().trim().regex(/^\d{4}-\d{2}-\d{2}$/, "Data invalida. Use YYYY-MM-DD"),
+    z.string().trim(),
     z.date()
   ])
   .transform((value, ctx) => {
@@ -26,17 +54,12 @@ const calendarDateSchema = z
       return normalizeCalendarDate(value);
     }
 
-    const [year, month, day] = value.split("-").map(Number);
-    const date = new Date(Date.UTC(year, month - 1, day));
+    const date = parseCalendarDateString(value);
 
-    if (
-      date.getUTCFullYear() !== year ||
-      date.getUTCMonth() !== month - 1 ||
-      date.getUTCDate() !== day
-    ) {
+    if (!date) {
       ctx.addIssue({
         code: "custom",
-        message: "Data inexistente"
+        message: "Data invalida. Use YYYY-MM-DD"
       });
 
       return z.NEVER;

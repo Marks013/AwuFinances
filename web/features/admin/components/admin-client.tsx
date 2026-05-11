@@ -1145,7 +1145,7 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
 
   return (
     <div className="admin-shell">
-      <section className="surface-strong content-section admin-hero-section">
+      <section className="surface-strong content-section admin-content-section admin-hero-section">
         <div className="admin-hero-grid">
           <div className="section-stack">
             <div className="eyebrow">Administração</div>
@@ -1197,7 +1197,7 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
                   desligada, o sistema segura encerramentos por 7 dias para evitar exclusões em massa de contas antigas.
                 </p>
               </div>
-              <div className="grid min-w-[250px] gap-3 rounded-[1.2rem] border border-[var(--color-border)]/70 bg-[var(--color-card)] p-4">
+              <div className="grid w-full min-w-0 gap-3 rounded-[1.2rem] border border-[var(--color-border)]/70 bg-[var(--color-card)] p-4 sm:w-auto sm:min-w-[250px]">
                 <label className="flex items-center justify-between gap-3 text-sm font-medium">
                   <span>Encerramento automático ativo</span>
                   <input
@@ -1300,7 +1300,7 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
         )}
       </section>
 
-      <section className="surface content-section">
+      <section className="surface content-section admin-content-section">
         <div className="admin-section-header">
           <div className="min-w-0 flex-1">
             <h2 className="text-2xl font-semibold tracking-[-0.03em]">Catálogo de planos</h2>
@@ -1497,7 +1497,7 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
       {isPlatformAdmin ? <BillingSettingsCard /> : null}
 
       <div className={adminSectionsLayoutClassName}>
-        <section className="surface content-section">
+        <section className="surface content-section admin-content-section">
           <div className="admin-section-header">
             <div className="min-w-0 flex-1">
               <h2 className="text-2xl font-semibold tracking-[-0.03em]">Contas</h2>
@@ -1797,7 +1797,7 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
           </div>
         </section>
 
-        <section className="surface content-section">
+        <section className="surface content-section admin-content-section">
           <div className="admin-section-header">
             <div className="min-w-0 flex-1">
               <h2 className="text-2xl font-semibold tracking-[-0.03em]">Colaboradores</h2>
@@ -1981,7 +1981,7 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
 
       {isPlatformAdmin ? (
         <div className="grid gap-6 2xl:grid-cols-[0.9fr_1.1fr]">
-          <section className="surface content-section">
+          <section className="surface content-section admin-content-section">
             <h2 className="text-2xl font-semibold tracking-[-0.03em]">Convidar novo Admin de Conta</h2>
             <p className="mt-2 text-sm leading-7 text-[var(--color-muted-foreground)]">
               Convites criados aqui sempre abrem uma conta nova e vazia para um novo <strong>Admin de Conta</strong>.
@@ -2064,7 +2064,7 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
             </form>
           </section>
 
-          <section className="surface content-section">
+          <section className="surface content-section admin-content-section">
             <div className="admin-section-header">
               <div className="min-w-0 flex-1">
                 <h2 className="text-2xl font-semibold tracking-[-0.03em]">Convites ativos e histórico</h2>
@@ -2113,7 +2113,7 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
           </section>
         </div>
       ) : (
-        <section className="surface content-section">
+        <section className="surface content-section admin-content-section">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
               <h2 className="text-2xl font-semibold tracking-[-0.03em]">Convites familiares</h2>
@@ -2131,7 +2131,7 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
         </section>
       )}
 
-      <section className="surface content-section">
+      <section className="surface content-section admin-content-section">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <h2 className="text-2xl font-semibold tracking-[-0.03em]">Auditoria administrativa</h2>
@@ -2205,7 +2205,7 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
                     {item.targetUser ? ` • ${item.targetUser.email}` : ""}
                   </p>
                 </div>
-                <div className="whitespace-nowrap text-xs text-[var(--color-muted-foreground)]">
+              <div className="text-left text-xs text-[var(--color-muted-foreground)] md:whitespace-nowrap md:text-right">
                   {formatDateTimeDisplay(item.createdAt)}
                 </div>
               </div>

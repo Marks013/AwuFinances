@@ -520,13 +520,18 @@ button {
   padding: clamp(1rem, 2vw, 1.85rem);
 }
 
+.admin-content-section {
+  border-radius: clamp(1.25rem, 2vw, 1.75rem);
+  padding: clamp(0.9rem, 1.7vw, 1.55rem);
+}
+
 .admin-shell {
   display: grid;
   gap: 1.5rem;
 }
 
 .admin-hero-section {
-  overflow: hidden;
+  overflow: visible;
 }
 
 .admin-hero-grid {
@@ -539,6 +544,81 @@ button {
   display: grid;
   gap: 0.9rem;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+}
+
+@media (max-width: 767px) {
+  .admin-shell {
+    gap: 1rem;
+  }
+
+  .content-section.admin-content-section {
+    border-radius: 1.35rem;
+    padding: 0.9rem;
+  }
+
+  .admin-hero-grid {
+    gap: 0.9rem;
+  }
+
+  .admin-hero-rail {
+    gap: 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-hero-rail .metric-card {
+    min-height: auto;
+    padding: 0.85rem;
+  }
+
+  .admin-hero-rail .metric-label,
+  .admin-section-metric .metric-label {
+    font-size: 0.68rem;
+  }
+
+  .admin-hero-rail .metric-value,
+  .admin-section-metric .metric-value {
+    font-size: clamp(1.05rem, 9vw, 1.5rem);
+    line-height: 1.08;
+  }
+
+  .admin-section-header {
+    gap: 0.75rem;
+  }
+
+  .admin-section-header h2 {
+    font-size: 1.25rem;
+    line-height: 1.2;
+  }
+
+  .admin-section-metric {
+    min-height: auto;
+    align-items: flex-start;
+    padding: 0.85rem;
+  }
+
+  .admin-content-section .data-card,
+  .admin-content-section .muted-panel,
+  .admin-disclosure,
+  .admin-disclosure-body {
+    min-width: 0;
+  }
+
+  .admin-content-section .data-card > [class*="justify-between"],
+  .admin-disclosure-body [class*="justify-between"] {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-content-section .data-card button,
+  .admin-disclosure-body button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 374px) {
+  .admin-hero-rail {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .admin-section-header {

@@ -373,7 +373,7 @@ export function PopupCampaignManager() {
   const selectedKind = kindOptions[draft.kind];
 
   return (
-    <section className="surface content-section">
+    <section className="surface content-section admin-content-section">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-muted-foreground)]">
@@ -385,10 +385,10 @@ export function PopupCampaignManager() {
             e tempo ficam nas configurações avançadas.
           </p>
         </div>
-        <article className="w-full min-w-[14rem] rounded-[1.6rem] border border-[var(--color-border)] bg-[var(--color-card)] px-5 py-4 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:w-auto">
+        <article className="w-full min-w-0 rounded-[1.6rem] border border-[var(--color-border)] bg-[var(--color-card)] px-5 py-4 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:w-auto sm:min-w-[14rem]">
           <p className="text-[0.68rem] font-bold uppercase tracking-[0.16em] text-[var(--color-muted-foreground)]">Campanhas</p>
           <p className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-[var(--color-foreground)]">{campaigns.length}</p>
-          <p className="mt-1 whitespace-nowrap text-xs text-[var(--color-muted-foreground)]">
+          <p className="mt-1 text-xs text-[var(--color-muted-foreground)] sm:whitespace-nowrap">
             {activeCampaigns} {activeCampaigns === 1 ? "ativa agora" : "ativas agora"}
           </p>
         </article>

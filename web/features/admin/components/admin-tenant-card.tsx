@@ -85,9 +85,9 @@ export function AdminTenantCard({
   deleteTenantDisabled
 }: AdminTenantCardProps) {
   return (
-    <article className="data-card rounded-[1.75rem] p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0 flex-1 space-y-2">
+    <article className="data-card min-w-0 rounded-[1.75rem] p-4 shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:p-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="w-full min-w-0 space-y-2 sm:flex-1">
           <div className="space-y-1">
             <h3 className="break-words text-lg font-semibold">{tenant.name}</h3>
             <p className="break-words text-sm leading-6 text-[var(--color-muted-foreground)]">{tenant.slug}</p>
@@ -114,8 +114,8 @@ export function AdminTenantCard({
           )}
           <p className="break-words text-xs leading-5 text-[var(--color-muted-foreground)]">Última sincronização: {getLastSyncLabel(tenant)}</p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={onOpenBillingDetails} type="button" variant="secondary">
+        <div className="grid w-full gap-2 sm:flex sm:w-auto sm:flex-wrap sm:justify-end">
+          <Button className="w-full sm:w-auto" onClick={onOpenBillingDetails} type="button" variant="secondary">
             {activeTenantBillingId === tenant.id ? "Detalhes financeiros abertos" : "Ver pagamentos e webhooks"}
           </Button>
         </div>
@@ -188,7 +188,7 @@ export function AdminTenantCard({
                       <Button className="w-full sm:w-auto" onClick={onApplyExpiryDate} type="button" variant="ghost">
                         Aplicar expiração
                       </Button>
-                      <Button onClick={onToggleActive} type="button" variant="ghost">
+                      <Button className="w-full sm:w-auto" onClick={onToggleActive} type="button" variant="ghost">
                         {tenant.isActive ? "Desativar conta" : "Ativar conta"}
                       </Button>
                     </div>
@@ -241,22 +241,22 @@ export function AdminTenantCard({
                     />
                   </div>
                 ) : null}
-                <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="mt-4 grid gap-2 sm:flex sm:flex-wrap">
                   {isPlatformAdmin ? (
                     <>
-                      <Button disabled={!tenant.billing.subscriptionId || billingActionDisabled} onClick={onSyncSubscription} type="button" variant="secondary">
+                    <Button className="w-full sm:w-auto" disabled={!tenant.billing.subscriptionId || billingActionDisabled} onClick={onSyncSubscription} type="button" variant="secondary">
                         Sincronizar billing
                       </Button>
-                      <Button disabled={!tenant.billing.subscriptionId || billingActionDisabled} onClick={onProcessQueue} type="button" variant="ghost">
+                    <Button className="w-full sm:w-auto" disabled={!tenant.billing.subscriptionId || billingActionDisabled} onClick={onProcessQueue} type="button" variant="ghost">
                         Reprocessar fila
                       </Button>
-                      <Button disabled={billingActionDisabled} onClick={onRecalculateTithe} type="button" variant="ghost">
+                    <Button className="w-full sm:w-auto" disabled={billingActionDisabled} onClick={onRecalculateTithe} type="button" variant="ghost">
                         Recalcular dízimo
                       </Button>
-                      <Button disabled={billingActionDisabled} onClick={onSyncDueSubscriptions} type="button" variant="ghost">
+                    <Button className="w-full sm:w-auto" disabled={billingActionDisabled} onClick={onSyncDueSubscriptions} type="button" variant="ghost">
                         Sincronizar recorrências
                       </Button>
-                      <Button disabled={billingActionDisabled} onClick={onReconcileInstallments} type="button" variant="ghost">
+                    <Button className="w-full sm:w-auto" disabled={billingActionDisabled} onClick={onReconcileInstallments} type="button" variant="ghost">
                         Conciliar parcelas vencidas
                       </Button>
                     </>

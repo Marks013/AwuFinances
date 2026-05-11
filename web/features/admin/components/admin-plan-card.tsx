@@ -56,9 +56,9 @@ export function AdminPlanCard({
 }: AdminPlanCardProps) {
   return (
     <article className="data-card min-w-0 rounded-[1.6rem] p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <h3 className="min-w-0 flex-1 break-words text-lg font-semibold">{plan.name}</h3>
-        <span className="shrink-0 rounded-full bg-[color-mix(in_srgb,var(--color-primary)_12%,transparent)] px-3 py-1 text-xs font-semibold text-[var(--color-primary)]">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <h3 className="w-full min-w-0 break-words text-lg font-semibold sm:flex-1">{plan.name}</h3>
+        <span className="w-fit rounded-full bg-[color-mix(in_srgb,var(--color-primary)_12%,transparent)] px-3 py-1 text-xs font-semibold text-[var(--color-primary)] sm:shrink-0">
           {plan.isDefault ? "Padrão" : "Customizado"}
         </span>
       </div>
@@ -106,7 +106,7 @@ export function AdminPlanCard({
                 <Label htmlFor={`plan-${plan.id}-name`}>Nome</Label>
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Input id={`plan-${plan.id}-name`} value={planNameDraft} onChange={(event) => onPlanNameChange(event.target.value)} />
-                  <Button type="button" variant="secondary" onClick={onSubmitPlanName}>
+                  <Button className="w-full sm:w-auto" type="button" variant="secondary" onClick={onSubmitPlanName}>
                     Aplicar
                   </Button>
                 </div>
@@ -119,7 +119,7 @@ export function AdminPlanCard({
                     value={planDescriptionDraft}
                     onChange={(event) => onPlanDescriptionChange(event.target.value)}
                   />
-                  <Button type="button" variant="ghost" onClick={onSubmitPlanDescription}>
+                  <Button className="w-full sm:w-auto" type="button" variant="ghost" onClick={onSubmitPlanDescription}>
                     Aplicar
                   </Button>
                 </div>
@@ -136,7 +136,7 @@ export function AdminPlanCard({
                     value={planMaxAccountsDraft}
                     onChange={(event) => onPlanMaxAccountsChange(event.target.value)}
                   />
-                  <Button type="button" variant="ghost" onClick={onSubmitPlanMaxAccounts}>
+                  <Button className="w-full sm:w-auto" type="button" variant="ghost" onClick={onSubmitPlanMaxAccounts}>
                     Aplicar
                   </Button>
                 </div>
@@ -151,7 +151,7 @@ export function AdminPlanCard({
                     value={planMaxCardsDraft}
                     onChange={(event) => onPlanMaxCardsChange(event.target.value)}
                   />
-                  <Button type="button" variant="ghost" onClick={onSubmitPlanMaxCards}>
+                  <Button className="w-full sm:w-auto" type="button" variant="ghost" onClick={onSubmitPlanMaxCards}>
                     Aplicar
                   </Button>
                 </div>
@@ -165,28 +165,28 @@ export function AdminPlanCard({
                     value={planTrialDaysDraft}
                     onChange={(event) => onPlanTrialDaysChange(event.target.value)}
                   />
-                  <Button type="button" variant="ghost" onClick={onSubmitPlanTrialDays}>
+                  <Button className="w-full sm:w-auto" type="button" variant="ghost" onClick={onSubmitPlanTrialDays}>
                     Aplicar
                   </Button>
                 </div>
               </div>
             </div>
             <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-              <Button onClick={onToggleWhatsapp} type="button" variant="ghost">
+              <Button className="w-full sm:w-auto" onClick={onToggleWhatsapp} type="button" variant="ghost">
                 {plan.features.whatsappAssistant ? "Bloquear WhatsApp" : "Liberar WhatsApp"}
               </Button>
-              <Button onClick={onToggleAutomation} type="button" variant="ghost">
+              <Button className="w-full sm:w-auto" onClick={onToggleAutomation} type="button" variant="ghost">
                 {plan.features.automation ? "Bloquear automação" : "Liberar automação"}
               </Button>
-              <Button onClick={onTogglePdfExport} type="button" variant="ghost">
+              <Button className="w-full sm:w-auto" onClick={onTogglePdfExport} type="button" variant="ghost">
                 {plan.features.pdfExport ? "Bloquear PDF" : "Liberar PDF"}
               </Button>
               {!plan.isDefault ? (
                 <>
-                  <Button onClick={onToggleActive} type="button" variant="ghost">
+              <Button className="w-full sm:w-auto" onClick={onToggleActive} type="button" variant="ghost">
                     {plan.isActive ? "Desativar" : "Ativar"}
                   </Button>
-                  <Button disabled={deleteDisabled} onClick={onDelete} type="button" variant="ghost">
+              <Button className="w-full sm:w-auto" disabled={deleteDisabled} onClick={onDelete} type="button" variant="ghost">
                     Excluir
                   </Button>
                 </>

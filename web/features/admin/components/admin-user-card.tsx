@@ -58,9 +58,9 @@ export function AdminUserCard({
   });
 
   return (
-    <article className="data-card p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1 space-y-2">
+    <article className="data-card min-w-0 p-4 sm:p-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="w-full min-w-0 space-y-2 sm:flex-1">
           <div className="space-y-1">
             <p className="break-words font-semibold">{user.name}</p>
             <p className="break-words text-sm leading-6 text-[var(--color-muted-foreground)]">{user.email}</p>
@@ -96,12 +96,12 @@ export function AdminUserCard({
             </p>
           ) : null}
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={onToggleActive} type="button" variant="ghost">
+        <div className="grid w-full gap-2 sm:flex sm:w-auto sm:flex-wrap sm:justify-end">
+          <Button className="w-full sm:w-auto" onClick={onToggleActive} type="button" variant="ghost">
             {user.isActive ? "Desativar" : "Ativar"}
           </Button>
           {isPlatformAdmin ? (
-            <Button onClick={onToggleRole} type="button" variant="secondary">
+            <Button className="w-full sm:w-auto" onClick={onToggleRole} type="button" variant="secondary">
               Tornar {user.role === "admin" ? "familiar" : "admin de conta"}
             </Button>
           ) : null}
@@ -126,7 +126,7 @@ export function AdminUserCard({
                 <p className="rounded-[1rem] border border-[var(--color-border)] bg-[var(--color-panel)] px-3 py-2 text-xs leading-5 text-[var(--color-muted-foreground)]">
                   O suporte apenas dispara o link. A nova senha é definida pelo próprio usuário no fluxo autenticado por token.
                 </p>
-                <Button disabled={passwordActionDisabled} onClick={onSubmitPasswordReset} type="button" variant="secondary">
+                <Button className="w-full sm:w-auto" disabled={passwordActionDisabled} onClick={onSubmitPasswordReset} type="button" variant="secondary">
                   Enviar link de redefinição
                 </Button>
               </div>
@@ -144,7 +144,7 @@ export function AdminUserCard({
                 <p className="text-xs leading-5 text-[var(--color-muted-foreground)]">
                   Este painel não envia link: ele grava a nova senha informada pelo suporte.
                 </p>
-                <Button disabled={passwordActionDisabled} onClick={onSubmitPasswordReset} type="button" variant="secondary">
+                <Button className="w-full sm:w-auto" disabled={passwordActionDisabled} onClick={onSubmitPasswordReset} type="button" variant="secondary">
                   Salvar nova senha
                 </Button>
               </div>
@@ -168,7 +168,7 @@ export function AdminUserCard({
                       </option>
                     ))}
                   </Select>
-                  <Button disabled={moveTenantDisabled} onClick={onMoveTenant} type="button" variant="ghost">
+                <Button className="w-full sm:w-auto" disabled={moveTenantDisabled} onClick={onMoveTenant} type="button" variant="ghost">
                     Alterar conta
                   </Button>
                 </div>

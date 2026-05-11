@@ -173,11 +173,13 @@ export async function generateSubscriptionTransaction(subscriptionId: string, te
 
   const nextBillingDate = new Date(subscription.nextBillingDate);
   const followingBillingDate = advanceSubscriptionBillingDate(nextBillingDate, subscription.billingDay);
+  const paymentMethod = subscription.cardId ? PaymentMethod.credit_card : PaymentMethod.money;
+  const transactionType = subscription.type === "income" ? TransactionType.income : TransactionType.expense;
   await validateBenefitWalletTransaction({
     tenantId,
     type: subscription.type,
-    paymentMethod: subscription.cardId ? PaymentMethod.credit_card : PaymentMethod.money,
-    accountId: subscription.accountId,
+    paymentMethod,
+    accountId: subscription.cardId ? null : subscription.accountId,
     destinationAccountId: null,
     categoryId: subscription.categoryId,
     cardId: subscription.cardId
@@ -186,9 +188,49 @@ export async function generateSubscriptionTransaction(subscriptionId: string, te
     tenantId,
     type: subscription.type,
     description: subscription.name,
-    paymentMethod: subscription.cardId ? PaymentMethod.credit_card : PaymentMethod.money,
+    paymentMethod,
     categoryId: subscription.categoryId
   });
+  const titheCategoryId =
+    subscription.type === "income" && subscription.autoTithe ? await ensureTitheCategory(tenantId) : null;
+  const cardSnapshot = subscription.card
+    ? await buildCardBillingSnapshotForDate({
+        tenantId,
+        card: subscription.card,
+        referenceDate: nextBillingDate,
+        client: prisma
+      })
+    : null;
+  const transactionCompetence = cardSnapshot?.competence ?? format(nextBillingDate, "yyyy-MM");
+  const transactionData = {
+    userId: subscription.userId ?? userId,
+    competence: transactionCompetence,
+    amount: subscription.amount,
+    description: `Assinatura: ${subscription.name}`,
+    type: transactionType,
+    paymentMethod,
+    categoryId: classification.categoryId,
+    accountId: subscription.cardId ? null : subscription.accountId,
+    cardId: subscription.cardId,
+    statementCloseDate: cardSnapshot?.closeDate ?? null,
+    statementDueDate: cardSnapshot?.dueDate ?? null,
+    source: TransactionSource.manual,
+    notes: "Gerado via assinatura recorrente",
+    classificationSource: classification.classificationSource,
+    classificationKeyword: classification.classificationKeyword,
+    classificationReason: classification.reason,
+    classificationVersion: 2,
+    aiClassified: classification.aiClassified,
+    aiConfidence:
+      classification.confidence !== null
+        ? new Prisma.Decimal(classification.confidence.toFixed(2))
+        : null,
+    titheAmount:
+      subscription.type === "income" && subscription.autoTithe
+        ? Number(subscription.amount) * 0.1
+        : null,
+    titheCategoryId
+  };
   const existing = await prisma.transaction.findFirst({
     where: {
       tenantId,
@@ -201,6 +243,12 @@ export async function generateSubscriptionTransaction(subscriptionId: string, te
   });
 
   if (existing) {
+    const reconciledTransaction = await prisma.transaction.update({
+      where: {
+        id: existing.id
+      },
+      data: transactionData
+    });
     const updated = await prisma.subscription.update({
       where: {
         id: subscription.id,
@@ -210,60 +258,32 @@ export async function generateSubscriptionTransaction(subscriptionId: string, te
         nextBillingDate: followingBillingDate
       }
     });
+
+    if (subscription.type === "income" && subscription.autoTithe) {
+      await syncMonthlyTitheTransaction({
+        tenantId,
+        userId: subscription.userId ?? userId,
+        monthKey: reconciledTransaction.competence
+      });
+    }
     revalidateFinanceReports(tenantId);
 
     return {
-      transactionId: existing.id,
+      transactionId: reconciledTransaction.id,
       duplicated: true,
       nextBillingDate: updated.nextBillingDate.toISOString()
     };
   }
 
-  const titheCategoryId =
-    subscription.type === "income" && subscription.autoTithe ? await ensureTitheCategory(tenantId) : null;
-  const cardSnapshot = subscription.card
-    ? await buildCardBillingSnapshotForDate({
-        tenantId,
-        card: subscription.card,
-        referenceDate: nextBillingDate,
-        client: prisma
-      })
-    : null;
   let transaction;
 
   try {
     transaction = await prisma.transaction.create({
       data: {
         tenantId,
-        userId: subscription.userId ?? userId,
         subscriptionId: subscription.id,
         date: nextBillingDate,
-        competence: cardSnapshot?.competence ?? format(nextBillingDate, "yyyy-MM"),
-        amount: subscription.amount,
-        description: `Assinatura: ${subscription.name}`,
-        type: subscription.type === "income" ? TransactionType.income : TransactionType.expense,
-        paymentMethod: subscription.cardId ? PaymentMethod.credit_card : PaymentMethod.money,
-        categoryId: classification.categoryId,
-        accountId: subscription.accountId,
-        cardId: subscription.cardId,
-        statementCloseDate: cardSnapshot?.closeDate ?? null,
-        statementDueDate: cardSnapshot?.dueDate ?? null,
-        source: TransactionSource.manual,
-        notes: "Gerado via assinatura recorrente",
-        classificationSource: classification.classificationSource,
-        classificationKeyword: classification.classificationKeyword,
-        classificationReason: classification.reason,
-        classificationVersion: 2,
-        aiClassified: classification.aiClassified,
-        aiConfidence:
-          classification.confidence !== null
-            ? new Prisma.Decimal(classification.confidence.toFixed(2))
-            : null,
-        titheAmount:
-          subscription.type === "income" && subscription.autoTithe
-            ? Number(subscription.amount) * 0.1
-            : null,
-        titheCategoryId
+        ...transactionData
       }
     });
   } catch (error) {
@@ -283,6 +303,12 @@ export async function generateSubscriptionTransaction(subscriptionId: string, te
         throw error;
       }
 
+      const reconciledTransaction = await prisma.transaction.update({
+        where: {
+          id: duplicatedTransaction.id
+        },
+        data: transactionData
+      });
       const updated = await prisma.subscription.update({
         where: {
           id: subscription.id,
@@ -292,10 +318,18 @@ export async function generateSubscriptionTransaction(subscriptionId: string, te
           nextBillingDate: followingBillingDate
         }
       });
+
+      if (subscription.type === "income" && subscription.autoTithe) {
+        await syncMonthlyTitheTransaction({
+          tenantId,
+          userId: subscription.userId ?? userId,
+          monthKey: reconciledTransaction.competence
+        });
+      }
       revalidateFinanceReports(tenantId);
 
       return {
-        transactionId: duplicatedTransaction.id,
+        transactionId: reconciledTransaction.id,
         duplicated: true,
         nextBillingDate: updated.nextBillingDate.toISOString()
       };

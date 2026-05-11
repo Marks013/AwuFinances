@@ -196,7 +196,8 @@ export async function DELETE(_request: Request, context: Params) {
     });
 
     if (!target) {
-      return NextResponse.json({ message: "Usuário não encontrado" }, { status: 404 });
+      revalidateAdminUsers();
+      return NextResponse.json({ success: true, deleted: false });
     }
 
     await getDeletableUser(target.id);

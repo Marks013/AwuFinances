@@ -220,6 +220,47 @@ function parseNullableLimit(value: string) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
+function removeUserFromList(data: UserListResponse | undefined, userId: string) {
+  if (!data) {
+    return data;
+  }
+
+  const items = data.items.filter((item) => item.id !== userId);
+  const removed = data.items.length - items.length;
+
+  return {
+    ...data,
+    items,
+    total: Math.max(0, data.total - removed)
+  };
+}
+
+function removeTenantFromList(data: { items: TenantItem[] } | undefined, tenantId: string) {
+  if (!data) {
+    return data;
+  }
+
+  return {
+    ...data,
+    items: data.items.filter((item) => item.id !== tenantId)
+  };
+}
+
+function removeTenantUsersFromList(data: UserListResponse | undefined, tenantId: string) {
+  if (!data) {
+    return data;
+  }
+
+  const items = data.items.filter((item) => item.tenant.id !== tenantId);
+  const removed = data.items.length - items.length;
+
+  return {
+    ...data,
+    items,
+    total: Math.max(0, data.total - removed)
+  };
+}
+
 async function getStats() {
   const response = await fetch("/api/admin/stats", { cache: "no-store" });
   if (!response.ok) throw new Error("Falha ao carregar stats");
@@ -543,7 +584,8 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
         throw new Error(payload.message ?? "Falha ao excluir pessoa");
       }
     },
-    onSuccess: async () => {
+    onSuccess: async (_payload, id) => {
+      queryClient.setQueriesData<UserListResponse>({ queryKey: ["admin-users"] }, (data) => removeUserFromList(data, id));
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["admin-users"] }),
         queryClient.invalidateQueries({ queryKey: ["admin-tenants"] }),
@@ -795,7 +837,14 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
         throw new Error(payload.message ?? "Falha ao excluir conta");
       }
     },
-    onSuccess: async () => {
+    onSuccess: async (_payload, id) => {
+      setExpandedTenantBillingId((currentTenantId) => (currentTenantId === id ? null : currentTenantId));
+      queryClient.setQueriesData<{ items: TenantItem[] }>({ queryKey: ["admin-tenants"] }, (data) =>
+        removeTenantFromList(data, id)
+      );
+      queryClient.setQueriesData<UserListResponse>({ queryKey: ["admin-users"] }, (data) =>
+        removeTenantUsersFromList(data, id)
+      );
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["admin-tenants"] }),
         queryClient.invalidateQueries({ queryKey: ["admin-users"] }),

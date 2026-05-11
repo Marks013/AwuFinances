@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { logAdminAudit } from "@/lib/admin/audit";
 import { requireAdminUser } from "@/lib/auth/admin";
+import { revalidateAdminUsers } from "@/lib/cache/admin-read-models";
 import { applyPlanDefaultsToTenant } from "@/lib/licensing/default-plans";
 import { prisma } from "@/lib/prisma/client";
 import { deleteTenantWithAllData, getDeletableTenant } from "@/lib/tenants/delete-tenant";
@@ -158,6 +159,7 @@ export async function DELETE(_request: Request, context: Params) {
         activeUsers: deleted.activeUsers
       }
     });
+    revalidateAdminUsers(deleted.id);
 
     return NextResponse.json({ success: true });
   } catch (error) {

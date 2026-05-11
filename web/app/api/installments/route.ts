@@ -14,6 +14,10 @@ export async function GET(request: Request) {
     const cardId = searchParams.get("cardId");
     const from = searchParams.get("from");
     const to = searchParams.get("to");
+    const filterStart = from ? new Date(`${from}T00:00:00`) : null;
+    const filterEnd = to ? new Date(`${to}T23:59:59`) : null;
+    const fromMonth = from?.slice(0, 7) ?? null;
+    const toMonth = to?.slice(0, 7) ?? null;
     const groupWhere: Prisma.TransactionWhereInput = {
       tenantId: user.tenantId,
       installmentsTotal: {
@@ -22,18 +26,49 @@ export async function GET(request: Request) {
       ...(cardId ? { cardId } : {})
     };
 
-    if (from || to) {
-      groupWhere.date = {};
+    if (filterStart || filterEnd) {
+      const statementDueDate: Prisma.DateTimeFilter = {};
+      const competence: Prisma.StringFilter = {};
 
-      if (from) {
-        const fromDate = new Date(`${from}T00:00:00`);
-        fromDate.setMonth(fromDate.getMonth() - 1);
-        groupWhere.date.gte = fromDate;
+      if (filterStart) {
+        statementDueDate.gte = filterStart;
       }
 
-      if (to) {
-        groupWhere.date.lte = new Date(`${to}T23:59:59`);
+      if (filterEnd) {
+        statementDueDate.lte = filterEnd;
       }
+
+      if (fromMonth) {
+        competence.gte = fromMonth;
+      }
+
+      if (toMonth) {
+        competence.lte = toMonth;
+      }
+
+      groupWhere.AND = [
+        {
+          OR: [
+            {
+              cardId: {
+                not: null
+              },
+              statementDueDate
+            },
+            {
+              cardId: {
+                not: null
+              },
+              statementDueDate: null,
+              competence
+            },
+            {
+              cardId: null,
+              competence
+            }
+          ]
+        }
+      ];
     }
 
     const filteredInstallments = await prisma.transaction.findMany({
@@ -68,9 +103,6 @@ export async function GET(request: Request) {
           })
         : [];
 
-    const filterStart = from ? new Date(`${from}T00:00:00`) : null;
-    const filterEnd = to ? new Date(`${to}T23:59:59`) : null;
-
     const groups = await Promise.all(
       roots.map(async (root) => {
         const installments = await prisma.transaction.findMany({
@@ -99,7 +131,13 @@ export async function GET(request: Request) {
           installmentsRemaining: root.installmentsTotal - settledInstallments,
           overdueOpenInstallments,
           nextInstallmentDate: nextInstallment?.date.toISOString() ?? null,
-          competenceDates: installments.map((item) => new Date(`${item.competence}-01T12:00:00`).toISOString()),
+          periodDates: installments.map((item) => {
+            const periodDate =
+              item.cardId && item.statementDueDate
+                ? item.statementDueDate
+                : new Date(`${item.competence}-01T12:00:00`);
+            return periodDate.toISOString();
+          }),
           card: root.card ? { id: root.card.id, name: root.card.name } : null,
           category: root.category ? { id: root.category.id, name: root.category.name } : null,
           notes: root.notes
@@ -110,14 +148,14 @@ export async function GET(request: Request) {
     const filteredGroups =
       filterStart || filterEnd
         ? groups.filter((group) => {
-            return group.competenceDates.some((competenceDateValue) => {
-              const competenceDate = new Date(competenceDateValue);
+            return group.periodDates.some((periodDateValue) => {
+              const periodDate = new Date(periodDateValue);
 
-              if (filterStart && competenceDate < filterStart) {
+              if (filterStart && periodDate < filterStart) {
                 return false;
               }
 
-              if (filterEnd && competenceDate > filterEnd) {
+              if (filterEnd && periodDate > filterEnd) {
                 return false;
               }
 
@@ -128,8 +166,8 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       items: filteredGroups.map((group) => {
-        const { competenceDates, ...sanitizedGroup } = group;
-        void competenceDates;
+        const { periodDates, ...sanitizedGroup } = group;
+        void periodDates;
         return sanitizedGroup;
       })
     });

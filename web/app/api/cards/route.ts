@@ -3,7 +3,13 @@ import { NextResponse } from "next/server";
 import { cardFormSchema } from "@/features/cards/schemas/card-schema";
 import { requireSessionUser } from "@/lib/auth/session";
 import { revalidateFinanceReports } from "@/lib/cache/finance-read-models";
-import { getCardStatementSnapshot, getNextPayableStatementSnapshot, statementMonthSchema } from "@/lib/cards/statement";
+import {
+  getCardStatementSnapshot,
+  getNextPayableStatementSnapshot,
+  getStatementDisplayMonth,
+  resolveStatementMonthForDisplay,
+  statementMonthSchema
+} from "@/lib/cards/statement";
 import { ensureTenantCardStatementSnapshots } from "@/lib/cards/snapshot-sync";
 import { canCreateCard } from "@/lib/licensing/server";
 import { getCurrentMonthKey, getMonthRange } from "@/lib/month";
@@ -35,10 +41,18 @@ export async function GET(request: Request) {
     });
     const items = await Promise.all(
       cards.map(async (card) => {
+        const statementMonth = month
+          ? await resolveStatementMonthForDisplay({
+              tenantId: user.tenantId,
+              card,
+              displayMonth: month,
+              client: prisma
+            })
+          : undefined;
         const statement = await getCardStatementSnapshot({
           tenantId: user.tenantId,
           card,
-          month,
+          month: statementMonth,
           client: prisma
         });
         const payableStatement = await getNextPayableStatementSnapshot({
@@ -66,11 +80,11 @@ export async function GET(request: Request) {
           statementAmount: statement.totalAmount,
           statementOutstandingAmount: statement.statementOutstandingAmount,
           outstandingAmount: statement.outstandingAmount,
-          statementMonth: statement.month,
+          statementMonth: getStatementDisplayMonth(statement),
           closeDate: statement.closeDate.toISOString(),
           dueDate: statement.dueDate.toISOString(),
           payableStatementAmount: payableStatement.statementOutstandingAmount,
-          payableStatementMonth: payableStatement.month,
+          payableStatementMonth: getStatementDisplayMonth(payableStatement),
           payableDueDate: payableStatement.dueDate.toISOString(),
           payableOverdue: payableStatement.statementOutstandingAmount > 0 && payableDaysLate > 0,
           payableDaysLate,

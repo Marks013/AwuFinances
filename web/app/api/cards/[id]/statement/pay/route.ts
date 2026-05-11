@@ -5,7 +5,11 @@ import { z } from "zod";
 
 import { requireSessionUser } from "@/lib/auth/session";
 import { revalidateFinanceReports } from "@/lib/cache/finance-read-models";
-import { getCardStatementSnapshot, getStatementPaymentDate, statementMonthSchema } from "@/lib/cards/statement";
+import {
+  getCardStatementSnapshot,
+  resolveStatementMonthForDisplay,
+  statementMonthSchema
+} from "@/lib/cards/statement";
 import { ensureTenantCardStatementSnapshots } from "@/lib/cards/snapshot-sync";
 import { captureRequestError } from "@/lib/observability/sentry";
 import { prisma } from "@/lib/prisma/client";
@@ -50,12 +54,18 @@ export async function POST(request: Request, context: Params) {
       return NextResponse.json({ message: "Account not found" }, { status: 404 });
     }
 
+    const statementMonth = await resolveStatementMonthForDisplay({
+      tenantId: user.tenantId,
+      card,
+      displayMonth: body.month,
+      client: prisma
+    });
     const existingPayment = await prisma.statementPayment.findUnique({
       where: {
         tenantId_cardId_month: {
           tenantId: user.tenantId,
           cardId: id,
-          month: body.month
+          month: statementMonth
         }
       }
     });
@@ -67,7 +77,7 @@ export async function POST(request: Request, context: Params) {
     const statement = await getCardStatementSnapshot({
       tenantId: user.tenantId,
       card,
-      month: body.month,
+      month: statementMonth,
       client: prisma
     });
 
@@ -75,7 +85,7 @@ export async function POST(request: Request, context: Params) {
       return NextResponse.json({ message: "Statement has no balance to pay" }, { status: 400 });
     }
 
-    const paidAt = getStatementPaymentDate(body.month, card.dueDay, card.closeDay, card.statementMonthAnchor);
+    const paidAt = statement.dueDate;
     const amount = new Prisma.Decimal(statement.statementOutstandingAmount.toFixed(2));
 
     const payment = await prisma.$transaction(async (tx) => {
@@ -100,7 +110,7 @@ export async function POST(request: Request, context: Params) {
           tenantId: user.tenantId,
           cardId: card.id,
           accountId: account.id,
-          month: body.month,
+          month: statementMonth,
           amount,
           paidAt,
           transactionId: paymentTransaction.id
@@ -115,7 +125,8 @@ export async function POST(request: Request, context: Params) {
     return NextResponse.json(
       {
         id: payment.id,
-        month: payment.month,
+        month: body.month,
+        statementMonth: payment.month,
         amount: Number(payment.amount),
         paidAt: payment.paidAt.toISOString(),
         transactionId: payment.transactionId,

@@ -63,6 +63,7 @@ type StatementPayload = {
     };
   month: string;
   summary: {
+    statementMonth: string;
     totalAmount: number;
     statementOutstandingAmount: number;
     outstandingAmount: number;
@@ -84,6 +85,7 @@ type StatementPayload = {
     id: string;
     amount: number;
     paidAt: string;
+    statementMonth?: string;
     transactionId?: string | null;
     account: {
       id: string;

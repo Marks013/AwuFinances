@@ -50,6 +50,18 @@ function getCompetenceMonthDate(month: string) {
   return new Date(year, parsedMonth - 1, 1, 12, 0, 0, 0);
 }
 
+function getStatementMonthFromDate(date: Date) {
+  return formatStatementMonth(date.getFullYear(), date.getMonth() + 1);
+}
+
+function getStatementMonthBoundary(month: string) {
+  const { year, month: parsedMonth } = parseStatementMonth(month);
+  return {
+    start: new Date(year, parsedMonth - 1, 1, 0, 0, 0, 0),
+    end: new Date(year, parsedMonth, 1, 0, 0, 0, 0)
+  };
+}
+
 function getDateBoundary(date: Date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
 }
@@ -284,6 +296,60 @@ async function getNextConfiguredCycle(
       dueDate: true
     }
   });
+}
+
+export function getStatementDisplayMonth(statement: Pick<ReturnType<typeof buildCardBillingSnapshot>, "dueDate">) {
+  return getStatementMonthFromDate(statement.dueDate);
+}
+
+export async function resolveStatementMonthForDisplay({
+  tenantId,
+  card,
+  displayMonth,
+  client = prisma
+}: {
+  tenantId: string;
+  card: Pick<CardStatementCard, "id" | "closeDay" | "dueDay" | "statementMonthAnchor">;
+  displayMonth: string;
+  client?: StatementClient;
+}) {
+  const displayRange = getStatementMonthBoundary(displayMonth);
+  const configuredCycle = await client.cardStatementCycle.findFirst({
+    where: {
+      tenantId,
+      cardId: card.id,
+      dueDate: {
+        gte: displayRange.start,
+        lt: displayRange.end
+      }
+    },
+    orderBy: {
+      dueDate: "asc"
+    },
+    select: {
+      month: true
+    }
+  });
+
+  if (configuredCycle) {
+    return configuredCycle.month;
+  }
+
+  const candidateMonths = Array.from(
+    new Set([
+      addMonthsToStatementMonth(displayMonth, -2),
+      addMonthsToStatementMonth(displayMonth, -1),
+      displayMonth,
+      addMonthsToStatementMonth(displayMonth, 1),
+      addMonthsToStatementMonth(displayMonth, 2)
+    ])
+  );
+  const matchingMonth = candidateMonths.find((candidateMonth) => {
+    const dueDate = getStatementPaymentDate(candidateMonth, card.dueDay, card.closeDay, card.statementMonthAnchor);
+    return getStatementMonthFromDate(dueDate) === displayMonth;
+  });
+
+  return matchingMonth ?? displayMonth;
 }
 
 async function getStatementCycleDates({

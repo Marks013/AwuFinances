@@ -3,7 +3,12 @@ import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 import { requireSessionUser } from "@/lib/auth/session";
-import { getCardStatementSnapshot, statementMonthSchema } from "@/lib/cards/statement";
+import {
+  getCardStatementSnapshot,
+  getStatementDisplayMonth,
+  resolveStatementMonthForDisplay,
+  statementMonthSchema
+} from "@/lib/cards/statement";
 import { ensureTenantCardStatementSnapshots, recomputeCardStatementSnapshots } from "@/lib/cards/snapshot-sync";
 import { captureRequestError } from "@/lib/observability/sentry";
 import { prisma } from "@/lib/prisma/client";
@@ -58,10 +63,18 @@ export async function GET(request: Request, context: Params) {
       return NextResponse.json({ message: "Card not found" }, { status: 404 });
     }
 
+    const statementMonth = query.month
+      ? await resolveStatementMonthForDisplay({
+          tenantId: user.tenantId,
+          card,
+          displayMonth: query.month,
+          client: prisma
+        })
+      : undefined;
     const statement = await getCardStatementSnapshot({
       tenantId: user.tenantId,
       card,
-      month: query.month,
+      month: statementMonth,
       client: prisma
     });
 
@@ -128,8 +141,9 @@ export async function GET(request: Request, context: Params) {
         dueDay: card.dueDay,
         statementMonthAnchor: card.statementMonthAnchor
       },
-      month: statement.month,
+      month: getStatementDisplayMonth(statement),
       summary: {
+        statementMonth: statement.month,
         totalAmount: statement.totalAmount,
         statementOutstandingAmount: statement.statementOutstandingAmount,
         outstandingAmount: statement.outstandingAmount,
@@ -193,7 +207,10 @@ export async function PATCH(request: Request, context: Params) {
         tenantId: user.tenantId
       },
       select: {
-        id: true
+        id: true,
+        closeDay: true,
+        dueDay: true,
+        statementMonthAnchor: true
       }
     });
 
@@ -201,18 +218,24 @@ export async function PATCH(request: Request, context: Params) {
       return NextResponse.json({ message: "Card not found" }, { status: 404 });
     }
 
+    const statementMonth = await resolveStatementMonthForDisplay({
+      tenantId: user.tenantId,
+      card,
+      displayMonth: body.month,
+      client: prisma
+    });
     const cycle = await prisma.cardStatementCycle.upsert({
       where: {
         tenantId_cardId_month: {
           tenantId: user.tenantId,
           cardId: id,
-          month: body.month
+          month: statementMonth
         }
       },
       create: {
         tenantId: user.tenantId,
         cardId: id,
-        month: body.month,
+        month: statementMonth,
         closeDate: new Date(`${body.closeDate}T12:00:00`),
         dueDate: new Date(`${body.dueDate}T12:00:00`)
       },

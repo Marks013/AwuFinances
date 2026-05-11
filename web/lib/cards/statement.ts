@@ -355,51 +355,21 @@ export async function resolveStatementMonthForDisplay({
 export function getStatementTransactionWhere({
   tenantId,
   cardId,
-  month,
   start,
   end
 }: {
   tenantId: string;
   cardId: string;
-  month: string;
   start: Date;
   end: Date;
 }): Prisma.TransactionWhereInput {
-  const recurringRange = getStatementMonthBoundary(month);
-
   return {
     tenantId,
     cardId,
-    OR: [
-      {
-        subscriptionId: null,
-        installmentsTotal: {
-          lte: 1
-        },
-        date: {
-          gte: start,
-          lte: end
-        }
-      },
-      {
-        subscriptionId: {
-          not: null
-        },
-        date: {
-          gte: recurringRange.start,
-          lt: recurringRange.end
-        }
-      },
-      {
-        installmentsTotal: {
-          gt: 1
-        },
-        date: {
-          gte: recurringRange.start,
-          lt: recurringRange.end
-        }
-      }
-    ]
+    date: {
+      gte: start,
+      lte: end
+    }
   };
 }
 
@@ -521,7 +491,6 @@ export async function getCardStatementSnapshot({
   const statementTransactionsWhere = getStatementTransactionWhere({
     tenantId,
     cardId: card.id,
-    month: statementMonth,
     start: statementDates.start,
     end: statementDates.end
   });

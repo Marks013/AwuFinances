@@ -275,18 +275,29 @@ export async function generateSubscriptionTransaction(subscriptionId: string, te
     };
   }
 
-  const effectivePeriodStart = startOfMonth(nextBillingDate);
-  const effectivePeriodEnd = endOfMonth(nextBillingDate);
+  const periodDuplicateWhere: Prisma.TransactionWhereInput =
+    subscription.cardId && cardSnapshot
+      ? {
+          tenantId,
+          subscriptionId: subscription.id,
+          cardId: subscription.cardId,
+          date: {
+            not: nextBillingDate
+          },
+          statementCloseDate: cardSnapshot.closeDate,
+          statementDueDate: cardSnapshot.dueDate
+        }
+      : {
+          tenantId,
+          subscriptionId: subscription.id,
+          date: {
+            gte: startOfMonth(nextBillingDate),
+            lte: endOfMonth(nextBillingDate),
+            not: nextBillingDate
+          }
+        };
   const periodDuplicate = await prisma.transaction.findFirst({
-    where: {
-      tenantId,
-      subscriptionId: subscription.id,
-      date: {
-        gte: effectivePeriodStart,
-        lte: effectivePeriodEnd,
-        not: nextBillingDate
-      }
-    },
+    where: periodDuplicateWhere,
     select: {
       id: true
     }

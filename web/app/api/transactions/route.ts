@@ -21,6 +21,10 @@ function readAccountUsage(account: unknown) {
   return (account as { usage?: "standard" | "benefit_food" }).usage ?? "standard";
 }
 
+function getStatementDuplicateKey(snapshot: { closeDate: Date; dueDate: Date }) {
+  return `${snapshot.closeDate.toISOString()}|${snapshot.dueDate.toISOString()}`;
+}
+
 export async function GET(request: Request) {
   try {
     const user = await requireSessionUser();
@@ -257,10 +261,14 @@ export async function POST(request: Request) {
     let parentId: string | null = null;
     let firstTransactionId: string | null = null;
 
+    const usedCardStatementKeys = new Set<string>();
+    let nextCardInstallmentOffset = 0;
+
     for (let index = 0; index < parsedData.installments; index += 1) {
-      const transactionDate = addMonthsClamped(parsedData.date, index);
-      const manualCompetenceDate = addMonthsClamped(baseCompetenceDate, index);
-      const cardSnapshot = selectedCard
+      let installmentOffset = selectedCard ? nextCardInstallmentOffset : index;
+      let transactionDate = addMonthsClamped(parsedData.date, installmentOffset);
+      let manualCompetenceDate = addMonthsClamped(baseCompetenceDate, installmentOffset);
+      let cardSnapshot = selectedCard
         ? await buildCardBillingSnapshotForDate({
             tenantId: user.tenantId,
             card: selectedCard,
@@ -268,6 +276,24 @@ export async function POST(request: Request) {
             client: prisma
           })
         : null;
+
+      while (selectedCard && cardSnapshot && usedCardStatementKeys.has(getStatementDuplicateKey(cardSnapshot))) {
+        installmentOffset += 1;
+        transactionDate = addMonthsClamped(parsedData.date, installmentOffset);
+        manualCompetenceDate = addMonthsClamped(baseCompetenceDate, installmentOffset);
+        cardSnapshot = await buildCardBillingSnapshotForDate({
+          tenantId: user.tenantId,
+          card: selectedCard,
+          referenceDate: transactionDate,
+          client: prisma
+        });
+      }
+
+      if (cardSnapshot) {
+        usedCardStatementKeys.add(getStatementDuplicateKey(cardSnapshot));
+        nextCardInstallmentOffset = installmentOffset + 1;
+      }
+
       const competenceForInstallment = cardSnapshot?.competence ?? format(manualCompetenceDate, "yyyy-MM");
 
       const created: Transaction = await prisma.transaction.create({

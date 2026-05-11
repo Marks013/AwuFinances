@@ -27,6 +27,11 @@ import { formatCurrency } from "@/lib/utils";
 
 type RefItem = { id: string; name: string; usage?: "standard" | "benefit_food" };
 type SubscriptionItem = {
+  activeMonthCardStatement: {
+    month: string;
+    closeDate: string;
+    dueDate: string;
+  } | null;
   activeMonthDate: string | null;
   activeMonthGenerated: boolean | null;
   activeMonthTransactionDate: string | null;
@@ -594,6 +599,14 @@ export function SubscriptionsClient() {
                     <p className="break-words text-xs text-[var(--color-muted-foreground)]">
                       Entra em {formatMonthKeyLabel(month)} • próxima cobrança real em {formatDateDisplay(item.nextBillingDate)}
                     </p>
+                    {item.activeMonthCardStatement ? (
+                      <div className="mt-3 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                        Esta data cai na fatura {formatMonthKeyLabel(item.activeMonthCardStatement.month)}, que fecha em{" "}
+                        {formatDateDisplay(item.activeMonthCardStatement.closeDate)} e vence em{" "}
+                        {formatDateDisplay(item.activeMonthCardStatement.dueDate)}. Para entrar em{" "}
+                        {formatMonthKeyLabel(month)}, ajuste a data da assinatura para depois do fechamento anterior.
+                      </div>
+                    ) : null}
                     <p className="break-words text-xs text-[var(--color-muted-foreground)]">
                       {item.activeMonthGenerated
                         ? `Lançamento já gerado em ${formatDateDisplay(item.activeMonthTransactionDate ?? item.activeMonthDateResolved)}`

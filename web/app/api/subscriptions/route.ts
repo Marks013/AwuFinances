@@ -4,6 +4,7 @@ import { subscriptionFormSchema } from "@/features/subscriptions/schemas/subscri
 import { syncDueSubscriptionTransactions } from "@/lib/automation/subscriptions";
 import { requireSessionUser } from "@/lib/auth/session";
 import { revalidateFinanceReports } from "@/lib/cache/finance-read-models";
+import { buildCardBillingSnapshotForDate } from "@/lib/cards/statement";
 import { BenefitWalletRuleError, validateBenefitWalletTransaction } from "@/lib/finance/benefit-wallet";
 import { resolveTransactionClassification } from "@/lib/finance/transaction-classification";
 import { assertTenantTransactionReferences, TenantReferenceError } from "@/lib/finance/tenant-reference-guard";
@@ -74,37 +75,59 @@ export async function GET(request: Request) {
         .map((transaction) => [transaction.subscriptionId, transaction])
     );
 
-    const items = subscriptions
-      .map((subscription) => {
-        const generatedTransaction = transactionBySubscriptionId.get(subscription.id) ?? null;
-        const projectedOccurrenceDate = month ? getProjectedOccurrenceDate(subscription, month) : null;
-        const includeInActiveMonth =
-          !monthRange ||
-          Boolean(generatedTransaction) || Boolean(projectedOccurrenceDate);
+    const items = (
+      await Promise.all(
+        subscriptions.map(async (subscription) => {
+          const generatedTransaction = transactionBySubscriptionId.get(subscription.id) ?? null;
+          const projectedOccurrenceDate = month ? getProjectedOccurrenceDate(subscription, month) : null;
+          const includeInActiveMonth =
+            !monthRange ||
+            Boolean(generatedTransaction) || Boolean(projectedOccurrenceDate);
 
-        if (!includeInActiveMonth) {
-          return null;
-        }
+          if (!includeInActiveMonth) {
+            return null;
+          }
 
-        return {
-          activeMonthDate: generatedTransaction?.date.toISOString() ?? projectedOccurrenceDate?.toISOString() ?? null,
-          activeMonthGenerated: monthRange ? Boolean(generatedTransaction) : null,
-          activeMonthTransactionDate: generatedTransaction?.date.toISOString() ?? null,
-          id: subscription.id,
-          name: subscription.name,
-          amount: Number(subscription.amount),
-          billingDay: subscription.billingDay,
-          nextBillingDate: subscription.nextBillingDate.toISOString(),
-          type: subscription.type,
-          isActive: subscription.isActive,
-          autoTithe: subscription.autoTithe,
-          category: subscription.category ? { id: subscription.category.id, name: subscription.category.name } : null,
-          account: subscription.account
-            ? { id: subscription.account.id, name: subscription.account.name, usage: readAccountUsage(subscription.account) }
-            : null,
-          card: subscription.card ? { id: subscription.card.id, name: subscription.card.name } : null
-        };
-      })
+          const activeMonthDate = generatedTransaction?.date ?? projectedOccurrenceDate ?? null;
+          const activeMonthCardStatement =
+            month && activeMonthDate && subscription.card
+              ? await buildCardBillingSnapshotForDate({
+                  tenantId: user.tenantId,
+                  card: subscription.card,
+                  referenceDate: activeMonthDate,
+                  client: prisma
+                })
+              : null;
+
+          return {
+            activeMonthCardStatement:
+              activeMonthCardStatement && activeMonthCardStatement.competence !== month
+                ? {
+                    month: activeMonthCardStatement.competence,
+                    closeDate: activeMonthCardStatement.closeDate.toISOString(),
+                    dueDate: activeMonthCardStatement.dueDate.toISOString()
+                  }
+                : null,
+            activeMonthDate: activeMonthDate?.toISOString() ?? null,
+            activeMonthGenerated: monthRange ? Boolean(generatedTransaction) : null,
+            activeMonthTransactionDate: generatedTransaction?.date.toISOString() ?? null,
+            id: subscription.id,
+            name: subscription.name,
+            amount: Number(subscription.amount),
+            billingDay: subscription.billingDay,
+            nextBillingDate: subscription.nextBillingDate.toISOString(),
+            type: subscription.type,
+            isActive: subscription.isActive,
+            autoTithe: subscription.autoTithe,
+            category: subscription.category ? { id: subscription.category.id, name: subscription.category.name } : null,
+            account: subscription.account
+              ? { id: subscription.account.id, name: subscription.account.name, usage: readAccountUsage(subscription.account) }
+              : null,
+            card: subscription.card ? { id: subscription.card.id, name: subscription.card.name } : null
+          };
+        })
+      )
+    )
       .filter((subscription): subscription is NonNullable<typeof subscription> => subscription !== null);
 
     return NextResponse.json({ items });

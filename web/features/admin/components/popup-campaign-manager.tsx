@@ -127,7 +127,7 @@ const popupTemplates: Array<{
       kind: "welcome",
       tone: "success",
       eyebrow: "Primeiros passos",
-      title: "Bem-vindo ao Save Point Finance.",
+      title: "Bem-vindo ao Awu Finances.",
       body: "Seu painel já está pronto. Comece cadastrando suas contas, metas e cartões para acompanhar sua vida financeira com mais tranquilidade.",
       ctaLabel: "Começar agora",
       ctaUrl: "/dashboard",
@@ -145,7 +145,7 @@ const popupTemplates: Array<{
       tone: "spotlight",
       eyebrow: "Novidade no ar",
       title: "Novidades chegaram ao seu painel.",
-      body: "Melhoramos alguns pontos do Save Point Finance para deixar sua organização financeira mais simples, clara e rápida.",
+      body: "Melhoramos alguns pontos do Awu Finances para deixar sua organização financeira mais simples, clara e rápida.",
       ctaLabel: "Conhecer novidades",
       ctaUrl: "/dashboard"
     }

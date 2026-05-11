@@ -5,8 +5,8 @@ import { ensureTenantDefaultCategories } from "@/lib/finance/default-categories"
 import { applyPlanDefaultsToTenant, ensureDefaultPlans } from "@/lib/licensing/default-plans";
 import { prisma } from "@/lib/prisma/client";
 
-const HIDDEN_PLATFORM_TENANT_NAMES = ["Save Point"];
-const HIDDEN_PLATFORM_TENANT_SLUGS = ["save-point"];
+const HIDDEN_PLATFORM_TENANT_NAMES = ["Awu Finances", "Save Point"];
+const HIDDEN_PLATFORM_TENANT_SLUGS = ["awu-finances", "save-point"];
 
 function slugify(value: string) {
   return value

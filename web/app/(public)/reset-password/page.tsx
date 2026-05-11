@@ -11,7 +11,11 @@ type ResetPasswordPageProps = {
 export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
   const params = await searchParams;
   const cookieStore = await cookies();
-  const token = params.token ?? cookieStore.get("savepoint-reset-token")?.value ?? "";
+  const token =
+    params.token ??
+    cookieStore.get("awu-finances-reset-token")?.value ??
+    cookieStore.get("savepoint-reset-token")?.value ??
+    "";
 
   return (
     <main id="main-content" className="page-shell grid min-h-screen items-center py-8">

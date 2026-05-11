@@ -6,7 +6,7 @@ import { processIncomingWhatsAppTextMessage } from "../lib/whatsapp/assistant";
 import { prisma } from "../lib/prisma/client";
 
 async function main() {
-  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase() || "admin@savepoint.local";
+  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase() || "admin@awu-finances.local";
   const admin = await prisma.user.findFirst({
     where: {
       email: {

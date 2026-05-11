@@ -10,7 +10,7 @@ installMaintenanceBypassFetch();
 const baseUrl = process.env.AUDIT_BASE_URL?.trim() || "http://127.0.0.1:3000";
 const adminEmail = process.env.ADMIN_EMAIL?.trim();
 const adminPassword = process.env.ADMIN_PASSWORD?.trim();
-const localOwnerEmail = process.env.LOCAL_OWNER_EMAIL?.trim() || "owner@savepoint.local";
+const localOwnerEmail = process.env.LOCAL_OWNER_EMAIL?.trim() || "owner@awu-finances.local";
 const localOwnerPassword = process.env.LOCAL_OWNER_PASSWORD?.trim() || adminPassword;
 const configuredSmokeUserEmail = process.env.SMOKE_USER_EMAIL?.trim();
 const configuredSmokeUserPassword = process.env.SMOKE_USER_PASSWORD?.trim();
@@ -18,7 +18,7 @@ const configuredFamilyUserEmail = process.env.FAMILY_USER_EMAIL?.trim();
 const configuredFamilyUserPassword = process.env.FAMILY_USER_PASSWORD?.trim();
 const smokeUserEmail = configuredSmokeUserEmail || localOwnerEmail || adminEmail;
 const smokeUserPassword = configuredSmokeUserPassword || localOwnerPassword || adminPassword;
-const familyUserEmail = configuredFamilyUserEmail || "family@savepoint.local";
+const familyUserEmail = configuredFamilyUserEmail || "family@awu-finances.local";
 const smokeMonth = process.env.SMOKE_MONTH?.trim() || new Date().toISOString().slice(0, 7);
 
 type SmokeCredential = {
@@ -448,7 +448,7 @@ async function auditFamilyRestrictions(results: string[]) {
         }
       : null,
     {
-      email: "family@savepoint.local",
+      email: "family@awu-finances.local",
       password: localOwnerPassword || adminPassword || "",
       label: "Familiar padrao do bootstrap"
     }

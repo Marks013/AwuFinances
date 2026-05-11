@@ -13,7 +13,7 @@ RUN npm ci --no-audit --no-fund
 
 FROM base AS builder
 
-ENV DATABASE_URL=postgresql://savepoint:changeme@postgres:5432/savepoint
+ENV DATABASE_URL=postgresql://awufinances:changeme@postgres:5432/awufinances
 ENV AUTH_SECRET=build-only-secret
 ENV AUTOMATION_CRON_SECRET=build-only-secret
 ENV AUTH_TRUST_HOST=true
@@ -30,7 +30,7 @@ RUN npx prisma generate && npm run build
 
 FROM base AS tools
 
-ENV DATABASE_URL=postgresql://savepoint:changeme@postgres:5432/savepoint
+ENV DATABASE_URL=postgresql://awufinances:changeme@postgres:5432/awufinances
 ENV AUTH_SECRET=build-only-secret
 ENV AUTOMATION_CRON_SECRET=build-only-secret
 ENV AUTH_TRUST_HOST=true

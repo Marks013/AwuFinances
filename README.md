@@ -1,4 +1,4 @@
-# SavePoint
+# Awu Finances
 
 Aplicacao financeira fullstack em `Next.js 16`, `TypeScript 6`, `Prisma 7` e `PostgreSQL 17`, preparada para deploy com `Docker Compose` e proxy reverso como `Nginx Proxy Manager`.
 
@@ -7,7 +7,7 @@ O banco foi consolidado em uma migration baseline unica para ambientes novos.
 ## Estrutura
 
 ```text
-SavePoint/
+Awu Finances/
 ├── web/
 ├── scripts/
 ├── package.json
@@ -153,7 +153,7 @@ docker compose up -d --build web
 npm run verify:server-smoke
 ```
 
-Checklist operacional curto: [PRODUCTION_CHECKLIST.md](/abs/path/C:/Users/User/Desktop/SavePointFinanca/PRODUCTION_CHECKLIST.md)
+Checklist operacional curto: [PRODUCTION_CHECKLIST.md](PRODUCTION_CHECKLIST.md)
 
 ## Backup automatico
 
@@ -195,7 +195,7 @@ docker compose run --rm restore-backup-prod
 docker compose up -d web
 ```
 
-As variaveis de backup ficam no [`.env.example`](/C:/Users/samue/Desktop/SavePoint/SavePoint/.env.example) e a operacao completa esta em [DEPLOY_AND_BOOTSTRAP.md](/C:/Users/samue/Desktop/SavePoint/SavePoint/DEPLOY_AND_BOOTSTRAP.md).
+As variaveis de backup ficam no [`.env.example`](.env.example) e a operacao completa esta em [DEPLOY_AND_BOOTSTRAP.md](DEPLOY_AND_BOOTSTRAP.md).
 
 ## Conta administrativa
 
@@ -317,8 +317,8 @@ Sem provedor configurado, o sistema registra a tentativa e marca como `skipped`.
 
 Guia completo:
 
-- [WHATSAPP_ASSISTANT.md](/C:/Users/samue/Desktop/SavePoint/SavePoint/WHATSAPP_ASSISTANT.md)
-- [EMAIL_WEBHOOK_RESEND.md](/C:/Users/samue/Desktop/SavePoint/SavePoint/EMAIL_WEBHOOK_RESEND.md)
+- [WHATSAPP_ASSISTANT.md](WHATSAPP_ASSISTANT.md)
+- [EMAIL_WEBHOOK_RESEND.md](EMAIL_WEBHOOK_RESEND.md)
 
 ## Desenvolvimento local
 
@@ -369,7 +369,7 @@ ENV_FILE=./web/.env.local ./ops/toggle-maintenance.sh on
 
 ## Documentacao adicional
 
-- deploy, bootstrap e operacao: [DEPLOY_AND_BOOTSTRAP.md](/C:/Users/samue/Desktop/SavePoint/SavePoint/DEPLOY_AND_BOOTSTRAP.md)
-- historico da migracao: [STACK_MIGRATION_PLAN.md](/C:/Users/samue/Desktop/SavePoint/SavePoint/STACK_MIGRATION_PLAN.md)
-- assistente virtual no WhatsApp: [WHATSAPP_ASSISTANT.md](/C:/Users/samue/Desktop/SavePoint/SavePoint/WHATSAPP_ASSISTANT.md)
-- exemplo de webhook de e-mail com Resend: [EMAIL_WEBHOOK_RESEND.md](/C:/Users/samue/Desktop/SavePoint/SavePoint/EMAIL_WEBHOOK_RESEND.md)
+- deploy, bootstrap e operacao: [DEPLOY_AND_BOOTSTRAP.md](DEPLOY_AND_BOOTSTRAP.md)
+- historico da migracao: [STACK_MIGRATION_PLAN.md](STACK_MIGRATION_PLAN.md)
+- assistente virtual no WhatsApp: [WHATSAPP_ASSISTANT.md](WHATSAPP_ASSISTANT.md)
+- exemplo de webhook de e-mail com Resend: [EMAIL_WEBHOOK_RESEND.md](EMAIL_WEBHOOK_RESEND.md)

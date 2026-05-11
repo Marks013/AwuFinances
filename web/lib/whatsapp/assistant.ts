@@ -689,15 +689,15 @@ async function createExpenseOrIncomeFromText(
 
     if (limitAmount > 0 && currentTotal >= limitAmount) {
       alertSuffix =
-        `🚨 Alerta SavePoint: ${category} já está em ${formatCurrency(currentTotal)} no mês e passou do limite de ` +
+        `🚨 Alerta Awu Finances: ${category} já está em ${formatCurrency(currentTotal)} no mês e passou do limite de ` +
         `${formatCurrency(limitAmount)}.`;
     } else if (limitAmount > 0 && currentTotal >= limitAmount * 0.8) {
       alertSuffix =
-        `⚠️ Alerta SavePoint: ${category} já consumiu ${Math.round((currentTotal / limitAmount) * 100)}% ` +
+        `⚠️ Alerta Awu Finances: ${category} já consumiu ${Math.round((currentTotal / limitAmount) * 100)}% ` +
         `do limite mensal (${formatCurrency(currentTotal)} de ${formatCurrency(limitAmount)}).`;
     } else if (previousTotal > 0 && currentTotal >= previousTotal * 1.5 && currentTotal - previousTotal >= 100) {
       alertSuffix =
-        `📈 Alerta SavePoint: ${category} acelerou forte neste mês, com ${formatCurrency(currentTotal)} ` +
+        `📈 Alerta Awu Finances: ${category} acelerou forte neste mês, com ${formatCurrency(currentTotal)} ` +
         `contra ${formatCurrency(previousTotal)} no mês anterior.`;
     }
   }
@@ -963,7 +963,7 @@ async function replyWithFinanceReport(user: WhatsAppUser, body: string) {
     intent: "finance_report",
     status: "ok",
     response: withGreeting([
-      `📊 Relatório SavePoint de ${bold(getMonthLabel(requestedMonth))}`,
+      `📊 Relatório Awu Finances de ${bold(getMonthLabel(requestedMonth))}`,
       `• Receitas: ${formatCurrency(report.summary.income)}`,
       `• Despesas: ${formatCurrency(report.summary.expense)}`,
       `• Saldo: ${formatColoredBalance(report.summary.balance)}`,
@@ -1081,14 +1081,14 @@ function isMutationBlockedOnWhatsAppIntent(normalized: string) {
 function buildBlockedMutationResponse() {
   return (
     "Por segurança, eu não excluo nem altero lançamentos pelo WhatsApp.\n\n" +
-    "Acesse o site do SavePoint, revise o lançamento e confirme a exclusão por lá. " +
+    "Acesse o site do Awu Finances, revise o lançamento e confirme a exclusão por lá. " +
     "Assim evitamos apagar ou mudar uma transação financeira por engano."
   );
 }
 
 function buildHelpResponse() {
   return (
-    "Sou o assistente financeiro do SavePoint no WhatsApp.\n" +
+    "Sou o assistente financeiro do Awu Finances no WhatsApp.\n" +
     "Posso lançar receitas e despesas, consultar saldo e cartões, resumir o mês e alertar quando uma categoria estiver pesando.\n" +
     "\n✨ Exemplos:\n" +
     "• gastei 42,50 mercado na Nubank\n" +
@@ -1183,7 +1183,7 @@ export async function processIncomingWhatsAppTextMessage(message: IncomingTextMe
       handled: true,
       to: formattedPhone,
       response:
-        "⚠️ Seu número ainda não está vinculado a uma pessoa ativa no Save Point.\n\n" +
+        "⚠️ Seu número ainda não está vinculado a uma pessoa ativa no Awu Finances.\n\n" +
         "Abra Configurações no app e atualize o WhatsApp cadastrado."
     };
   }

@@ -29,9 +29,9 @@ async function main() {
     body: JSON.stringify({
       from,
       to: [to],
-      subject: `SavePoint Resend Audit ${new Date().toISOString()}`,
-      text: "Teste automatizado de integração Resend do SavePoint.",
-      html: "<p>Teste automatizado de integração <strong>Resend</strong> do SavePoint.</p>",
+      subject: `Awu Finances Resend Audit ${new Date().toISOString()}`,
+      text: "Teste automatizado de integração Resend do Awu Finances.",
+      html: "<p>Teste automatizado de integração <strong>Resend</strong> do Awu Finances.</p>",
       ...(process.env.EMAIL_REPLY_TO?.trim() ? { reply_to: process.env.EMAIL_REPLY_TO.trim() } : {})
     })
   });

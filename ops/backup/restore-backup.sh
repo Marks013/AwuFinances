@@ -44,7 +44,7 @@ download_from_github() {
   require_env BACKUP_GITHUB_REPOSITORY
 
   local repo="$BACKUP_GITHUB_REPOSITORY"
-  local tag="${RESTORE_GITHUB_RELEASE_TAG:-${BACKUP_GITHUB_RELEASE_TAG:-savepoint-backups}}"
+  local tag="${RESTORE_GITHUB_RELEASE_TAG:-${BACKUP_GITHUB_RELEASE_TAG:-awu-finances-backups}}"
   local asset_base="${RESTORE_ASSET_BASENAME:-}"
   local release_json
 
@@ -102,7 +102,7 @@ download_from_object_storage() {
   require_env BACKUP_OBJECT_STORAGE_SECRET_KEY
 
   local region="${BACKUP_OBJECT_STORAGE_REGION:-sa-saopaulo-1}"
-  local prefix="${BACKUP_OBJECT_STORAGE_PREFIX:-savepoint}"
+  local prefix="${BACKUP_OBJECT_STORAGE_PREFIX:-awu-finances}"
   local asset_base="${RESTORE_ASSET_BASENAME:-}"
 
   export AWS_ACCESS_KEY_ID="$BACKUP_OBJECT_STORAGE_ACCESS_KEY"
@@ -230,12 +230,12 @@ decrypt_and_extract() {
 
 restore_database() {
   local mode="${RESTORE_MODE:-test}"
-  local db_name="${POSTGRES_DB:-savepoint}"
+  local db_name="${POSTGRES_DB:-awufinances}"
   local restore_db_name target_label
 
   if [[ "$mode" == "prod" ]]; then
-    if [[ "${RESTORE_PRODUCTION_CONFIRMATION:-}" != "RESTORE_SAVEPOINT_PROD" ]]; then
-      log "Production restore requires RESTORE_PRODUCTION_CONFIRMATION=RESTORE_SAVEPOINT_PROD."
+    if [[ "${RESTORE_PRODUCTION_CONFIRMATION:-}" != "RESTORE_AWU_FINANCES_PROD" ]]; then
+      log "Production restore requires RESTORE_PRODUCTION_CONFIRMATION=RESTORE_AWU_FINANCES_PROD."
       exit 1
     fi
 
@@ -286,7 +286,7 @@ extract_critical_files() {
 export TZ="${TZ:-America/Sao_Paulo}"
 DB_HOST="${BACKUP_DB_HOST:-postgres}"
 DB_PORT="${BACKUP_DB_PORT:-5432}"
-DB_USER="${POSTGRES_USER:-savepoint}"
+DB_USER="${POSTGRES_USER:-awufinances}"
 DB_PASSWORD="${POSTGRES_PASSWORD:-}"
 WORK_ROOT="/tmp/restore-$(date '+%Y-%m-%dT%H-%M-%S%z')"
 

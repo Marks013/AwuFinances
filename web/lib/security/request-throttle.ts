@@ -24,13 +24,13 @@ type ThrottleResult = {
 };
 
 declare global {
-  var savePointThrottleStore: Map<string, ThrottleState> | undefined;
+  var awuFinancesThrottleStore: Map<string, ThrottleState> | undefined;
 }
 
-const throttleStore = global.savePointThrottleStore ?? new Map<string, ThrottleState>();
+const throttleStore = global.awuFinancesThrottleStore ?? new Map<string, ThrottleState>();
 
-if (!global.savePointThrottleStore) {
-  global.savePointThrottleStore = throttleStore;
+if (!global.awuFinancesThrottleStore) {
+  global.awuFinancesThrottleStore = throttleStore;
 }
 
 const MAX_DB_RETRIES = 3;

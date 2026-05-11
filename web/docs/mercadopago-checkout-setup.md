@@ -1,4 +1,4 @@
-# Guia de configuração do Mercado Pago no SavePointFinance
+# Guia de configuração do Mercado Pago no Awu Finances
 
 Este guia descreve como deixar o checkout Mercado Pago funcional no projeto atual. A aplicação já possui Checkout Bricks no frontend, rotas de billing no backend, webhook assíncrono e auditoria de simulação.
 
@@ -20,7 +20,7 @@ Este guia descreve como deixar o checkout Mercado Pago funcional no projeto atua
 
 No painel de desenvolvedores do Mercado Pago:
 
-1. Crie uma aplicação para o SavePointFinance.
+1. Crie uma aplicação para o Awu Finances.
 2. Copie a Public Key.
 3. Copie o Access Token.
 4. Configure um segredo de webhook.
@@ -38,7 +38,7 @@ MP_ACCESS_TOKEN=APP_USR-...
 MP_PUBLIC_KEY=APP_USR-...
 MP_WEBHOOK_SECRET=...
 MP_BILLING_PLAN_SLUG=premium-completo
-MP_BILLING_REASON=Save Point Financa Premium
+MP_BILLING_REASON=Awu Finances Premium
 MP_BILLING_AMOUNT=49.90
 MP_BILLING_ANNUAL_AMOUNT=499.00
 MP_BILLING_ANNUAL_MAX_INSTALLMENTS=12

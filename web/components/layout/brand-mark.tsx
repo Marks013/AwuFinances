@@ -24,11 +24,11 @@ export function BrandMark({ inverted = false, compact = false, className }: Bran
         <div className="absolute -bottom-3 left-1 size-8 rounded-full bg-[rgba(217,123,85,0.34)] blur-md" />
         <span
           className={cn(
-            "relative font-semibold tracking-[-0.1em]",
+            "relative font-semibold tracking-normal",
             compact ? "text-[1.02rem]" : "text-[1.28rem]"
           )}
         >
-          S•
+          AW
         </span>
       </div>
       {compact ? (
@@ -39,7 +39,7 @@ export function BrandMark({ inverted = false, compact = false, className }: Bran
               inverted ? "text-white" : "text-[var(--color-foreground)]"
             )}
           >
-            Save Point Finança
+            Awu Finances
           </p>
           <p
             className={cn(
@@ -59,7 +59,7 @@ export function BrandMark({ inverted = false, compact = false, className }: Bran
               inverted ? "text-white/66" : "text-[var(--color-muted-foreground)]"
             )}
           >
-            Save Point Finança
+            Awu Finances
           </p>
           <p
             className={cn(

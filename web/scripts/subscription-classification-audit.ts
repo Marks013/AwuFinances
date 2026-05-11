@@ -39,7 +39,7 @@ async function main() {
     const user = await prisma.user.create({
       data: {
         tenantId: tenant.id,
-        email: `subscription-audit-${unique}@savepoint.local`,
+        email: `subscription-audit-${unique}@awu-finances.local`,
         name: "Pessoa Auditoria Assinatura",
         passwordHash: "audit",
         role: "admin",

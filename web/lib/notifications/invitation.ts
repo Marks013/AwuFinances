@@ -14,20 +14,20 @@ export function buildInvitationMessage(
   const isIsolatedInvite = kind === "admin_isolated";
 
   const subject = isIsolatedInvite
-    ? `Sua nova carteira no Save Point está pronta: ${tenantName}`
+    ? `Sua nova carteira no Awu Finances está pronta: ${tenantName}`
     : `Convite para compartilhar a carteira ${tenantName}`;
 
   const intro = isIsolatedInvite
     ? [
         greeting,
         "",
-        `Sua nova carteira ${tenantName} já foi preparada no Save Point Finance.`,
+        `Sua nova carteira ${tenantName} já foi preparada no Awu Finances.`,
         "Conclua a ativação pelo link seguro abaixo para criar sua senha e entrar no painel."
       ].join("\n")
     : [
         greeting,
         "",
-        `Você recebeu um convite para participar da carteira ${tenantName} no Save Point Finance.`,
+        `Você recebeu um convite para participar da carteira ${tenantName} no Awu Finances.`,
         "Use o acesso seguro abaixo para criar sua senha e entrar no ambiente compartilhado."
       ].join("\n");
 
@@ -35,7 +35,7 @@ export function buildInvitationMessage(
     ? [
         greeting,
         "",
-        `Sua nova carteira ${tenantName} já foi preparada no Save Point Finance.`,
+        `Sua nova carteira ${tenantName} já foi preparada no Awu Finances.`,
         "Use o link abaixo para ativar o acesso e definir sua senha:",
         inviteUrl,
         "",
@@ -45,7 +45,7 @@ export function buildInvitationMessage(
     : [
         greeting,
         "",
-        `Você recebeu um convite para compartilhar a carteira ${tenantName} no Save Point Finance.`,
+        `Você recebeu um convite para compartilhar a carteira ${tenantName} no Awu Finances.`,
         "Use o link abaixo para concluir o cadastro e definir sua senha:",
         inviteUrl,
         "",
@@ -81,8 +81,8 @@ export function buildInvitationMessage(
         ? "Se você não esperava esta conta, ignore esta mensagem. Nenhum acesso será ativado sem a sua confirmação."
         : "Se você não esperava este convite, ignore esta mensagem. Nenhum acesso será criado sem a sua confirmação.",
       footer: isIsolatedInvite
-        ? "Convite enviado para ativação de uma carteira dedicada no Save Point Finance."
-        : "Convite enviado para compartilhar uma carteira com segurança no Save Point Finance.",
+        ? "Convite enviado para ativação de uma carteira dedicada no Awu Finances."
+        : "Convite enviado para compartilhar uma carteira com segurança no Awu Finances.",
       theme: "invitation"
     })
   };

@@ -5,7 +5,7 @@ import { deliverNotification } from "@/lib/notifications/delivery";
 import { prisma } from "@/lib/prisma/client";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-const WARNING_PREFIX = "SavePoint: retenção de conta";
+const WARNING_PREFIX = "Awu Finances: retenção de conta";
 const RETENTION_POLICY_KEY = "retention.policy";
 
 type RetentionReason = "inactivity" | "trial_nonpayment";
@@ -179,7 +179,7 @@ function messageFor(input: {
       `A avaliação Pro da conta "${input.tenantName}" venceu há ${input.days} dias e não identificamos uma assinatura ativa.`,
       stageCopy,
       "",
-      "Se quiser continuar usando o SavePoint, acesse sua conta e finalize a assinatura pelo checkout."
+      "Se quiser continuar usando o Awu Finances, acesse sua conta e finalize a assinatura pelo checkout."
     ].join("\n");
   }
 

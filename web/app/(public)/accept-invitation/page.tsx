@@ -11,7 +11,11 @@ type AcceptInvitationPageProps = {
 export default async function AcceptInvitationPage({ searchParams }: AcceptInvitationPageProps) {
   const params = await searchParams;
   const cookieStore = await cookies();
-  const token = params.token ?? cookieStore.get("savepoint-invitation-token")?.value ?? "";
+  const token =
+    params.token ??
+    cookieStore.get("awu-finances-invitation-token")?.value ??
+    cookieStore.get("savepoint-invitation-token")?.value ??
+    "";
 
   return (
     <main id="main-content" className="page-shell grid min-h-screen items-center py-8">

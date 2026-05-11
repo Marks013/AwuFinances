@@ -146,7 +146,7 @@ async function main() {
   const unique = Date.now().toString(36);
   const tenantName = `Conta auditoria financeira ${unique}`;
   const tenantSlug = `conta-auditoria-financeira-${unique}`;
-  const userEmail = `finance-audit-${unique}@savepoint.local`;
+  const userEmail = `finance-audit-${unique}@awu-finances.local`;
   const userPassword = "FinanceAudit123!";
   const results: string[] = [];
   assertCondition(
@@ -253,7 +253,7 @@ async function main() {
         }
       }
     });
-    const collaboratorEmail = `finance-audit-collab-${unique}@savepoint.local`;
+    const collaboratorEmail = `finance-audit-collab-${unique}@awu-finances.local`;
     const collaboratorPassword = "FinanceAudit123!";
     const collaborator = await prisma.user.create({
       data: {

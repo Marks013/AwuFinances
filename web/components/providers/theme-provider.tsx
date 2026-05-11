@@ -12,7 +12,8 @@ type ThemeContextValue = {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-const STORAGE_KEY = "savepoint-theme";
+const STORAGE_KEY = "awu-finances-theme";
+const LEGACY_STORAGE_KEY = "savepoint-theme";
 const DEFAULT_THEME: Theme = "dark";
 
 function applyTheme(theme: Theme) {
@@ -22,7 +23,7 @@ function applyTheme(theme: Theme) {
 
 function readStoredTheme() {
   try {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
+    const stored = window.localStorage.getItem(STORAGE_KEY) ?? window.localStorage.getItem(LEGACY_STORAGE_KEY);
     return stored === "light" || stored === "dark" ? stored : null;
   } catch {
     return null;
@@ -32,6 +33,7 @@ function readStoredTheme() {
 function persistTheme(theme: Theme) {
   try {
     window.localStorage.setItem(STORAGE_KEY, theme);
+    window.localStorage.removeItem(LEGACY_STORAGE_KEY);
   } catch {
     // Firefox can block storage access under strict privacy settings.
   }

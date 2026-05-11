@@ -1,4 +1,4 @@
-const MAINTENANCE_BYPASS_HEADER = "X-SavePoint-Maintenance-Bypass";
+const MAINTENANCE_BYPASS_HEADER = "X-Awu-Finances-Maintenance-Bypass";
 
 export function installMaintenanceBypassFetch() {
   const token = process.env.AUDIT_MAINTENANCE_BYPASS_TOKEN?.trim() || process.env.MAINTENANCE_BYPASS_TOKEN?.trim();

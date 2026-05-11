@@ -10,7 +10,7 @@ export default function TermsOfUsePage() {
         <div className="section-stack">
           <BrandMark inverted compact />
           <div className="eyebrow border-white/18 bg-white/8 text-white">Termos de Uso</div>
-          <h1 className="text-4xl font-semibold tracking-[-0.05em] text-white">Condições de uso do Save Point Finança.</h1>
+          <h1 className="text-4xl font-semibold tracking-[-0.05em] text-white">Condições de uso do Awu Finances.</h1>
           <p className="max-w-3xl text-base leading-8 text-white/84">
             Versão {TERMS_OF_USE_VERSION}. Estes termos disciplinam o acesso ao produto financeiro, aos convites de
             carteira compartilhada e ao uso das funcionalidades disponibilizadas por assinatura.
@@ -22,7 +22,7 @@ export default function TermsOfUsePage() {
         <article className="surface content-section">
           <h2 className="section-title">1. Partes e objeto</h2>
           <p className="section-copy">
-            O Save Point Finança é um software de organização financeira pessoal e familiar. Ao aceitar um convite,
+            O Awu Finances é um software de organização financeira pessoal e familiar. Ao aceitar um convite,
             criar senha ou acessar o painel, o usuário declara que leu estes termos e passa a utilizar a plataforma
             para controle de contas, cartões, metas, alertas, compartilhamentos e relatórios.
           </p>
@@ -95,7 +95,7 @@ export default function TermsOfUsePage() {
         <article className="surface content-section">
           <h2 className="section-title">7. Limitação de responsabilidade</h2>
           <p className="section-copy">
-            O Save Point Finança é ferramenta de apoio à gestão financeira e não substitui aconselhamento contábil,
+            O Awu Finances é ferramenta de apoio à gestão financeira e não substitui aconselhamento contábil,
             jurídico, fiscal, bancário ou de investimentos. Decisões financeiras tomadas com base nos dados exibidos
             continuam sob responsabilidade do usuário.
           </p>

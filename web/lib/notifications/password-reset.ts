@@ -10,7 +10,7 @@ export function buildPasswordResetMessage(token: string, userName?: string | nul
     "Recebemos uma solicitação para redefinir a sua senha.",
     "Use o botão abaixo para criar uma nova senha com segurança."
   ].join("\n");
-  const subject = "Redefinição de senha do Save Point Finance";
+  const subject = "Redefinição de senha do Awu Finances";
 
   return {
     subject,
@@ -40,7 +40,7 @@ export function buildPasswordResetMessage(token: string, userName?: string | nul
         }
       ],
       note: "Se você não solicitou esta alteração, ignore esta mensagem. Sua senha atual continuará ativa.",
-      footer: "Mensagem automática de segurança do Save Point Finance.",
+      footer: "Mensagem automática de segurança do Awu Finances.",
       theme: "security"
     })
   };

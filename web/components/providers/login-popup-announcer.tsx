@@ -131,7 +131,7 @@ export function LoginPopupAnnouncer() {
         return;
       }
 
-      const sessionKey = `savepoint:popup-session:${sessionUserId}:${nextCampaign.id}`;
+      const sessionKey = `awu-finances:popup-session:${sessionUserId}:${nextCampaign.id}`;
       if (hasSessionPopup(sessionKey)) {
         return;
       }

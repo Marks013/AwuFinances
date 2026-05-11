@@ -7,7 +7,7 @@ loadEnv({ path: resolve(process.cwd(), "../.env"), override: false });
 loadEnv({ path: resolve(process.cwd(), ".env"), override: false });
 installMaintenanceBypassFetch();
 
-process.env.DATABASE_URL ||= `postgresql://${process.env.POSTGRES_USER ?? "savepoint"}:${process.env.POSTGRES_PASSWORD ?? "savepoint"}@localhost:${process.env.POSTGRES_PORT ?? "5433"}/${process.env.POSTGRES_DB ?? "savepoint"}`;
+process.env.DATABASE_URL ||= `postgresql://${process.env.POSTGRES_USER ?? "awufinances"}:${process.env.POSTGRES_PASSWORD ?? "awufinances"}@localhost:${process.env.POSTGRES_PORT ?? "5433"}/${process.env.POSTGRES_DB ?? "awufinances"}`;
 
 const baseUrl = process.env.AUDIT_BASE_URL?.trim() || "http://127.0.0.1:3000";
 const adminEmail = process.env.ADMIN_EMAIL?.trim();
@@ -246,7 +246,7 @@ async function run() {
     const memberAuditTenant = await createTenant(`Conta auditoria membro ${unique}`, `conta-auditoria-membro-${unique}`);
     createdTenantIds.push(memberAuditTenant.id);
     const memberPassword = "Auditoria123!";
-    const memberEmail = `membro-${unique}@savepoint.local`;
+    const memberEmail = `membro-${unique}@awu-finances.local`;
     await createUser({
       tenantId: memberAuditTenant.id,
       email: memberEmail,
@@ -397,7 +397,7 @@ async function run() {
     assertCondition(decimalAmount.status === 201 && decimalAmount.payload.amount === 50.23, `Valor decimal não persistiu corretamente`);
     results.push("Lançamentos aceitam valores inteiros e decimais corretamente");
 
-    const invitationEmail = `convite-${unique}@savepoint.local`;
+    const invitationEmail = `convite-${unique}@awu-finances.local`;
     const invitationCreate = await getJson<{
       inviteUrl?: string;
       emailDelivery?: { status?: string };
@@ -464,7 +464,7 @@ async function run() {
     createdTenantIds.push(existingUserTenant.id);
     const existingUser = await createUser({
       tenantId: existingUserTenant.id,
-      email: `existente-${unique}@savepoint.local`,
+      email: `existente-${unique}@awu-finances.local`,
       name: "Pessoa Existente",
       password: "Existente123!"
     });
@@ -590,7 +590,7 @@ async function run() {
     createdTenantIds.push(blockedUserTenant.id);
     const blockedUser = await createUser({
       tenantId: blockedUserTenant.id,
-      email: `bloqueado-${unique}@savepoint.local`,
+      email: `bloqueado-${unique}@awu-finances.local`,
       name: "Pessoa Bloqueada",
       password: "Bloqueada123!"
     });
@@ -629,7 +629,7 @@ async function run() {
     createdTenantIds.push(deleteTenant.id);
     const deleteUser = await createUser({
       tenantId: deleteTenant.id,
-      email: `delete-${unique}@savepoint.local`,
+      email: `delete-${unique}@awu-finances.local`,
       name: "Pessoa Delete",
       password: "Delete123!"
     });
@@ -744,7 +744,7 @@ async function run() {
     createdTenantIds.push(selfDeleteTenant.id);
     const selfDeleteUser = await createUser({
       tenantId: selfDeleteTenant.id,
-      email: `self-${unique}@savepoint.local`,
+      email: `self-${unique}@awu-finances.local`,
       name: "Pessoa Self Delete",
       password: "SelfDelete123!"
     });

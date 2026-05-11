@@ -11,7 +11,7 @@ import { themeBootstrapScript } from "@/lib/security/theme-bootstrap";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Save Point Finança",
+  title: "Awu Finances",
   description: "Plataforma financeira para contas, cartões, metas, relatórios, automações e rotina operacional."
 };
 
@@ -21,7 +21,7 @@ type RootLayoutProps = {
 
 export default async function RootLayout({ children }: RootLayoutProps) {
   const [cookieStore, headerStore] = await Promise.all([cookies(), headers()]);
-  const storedTheme = cookieStore.get("savepoint-theme")?.value;
+  const storedTheme = cookieStore.get("awu-finances-theme")?.value ?? cookieStore.get("savepoint-theme")?.value;
   const nonce = headerStore.get("x-nonce") ?? undefined;
   const initialTheme = storedTheme === "light" ? "light" : "dark";
   const initialSession = await auth().catch((error) => {

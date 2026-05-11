@@ -130,7 +130,7 @@ async function main() {
     const user = await prisma.user.create({
       data: {
         tenantId: tenant.id,
-        email: `gemini-audit-${unique}@savepoint.local`,
+        email: `gemini-audit-${unique}@awu-finances.local`,
         name: "Pessoa Auditoria Gemini",
         passwordHash: await hash(userPassword, 10),
         role: "admin",

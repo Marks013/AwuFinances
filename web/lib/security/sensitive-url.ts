@@ -23,7 +23,7 @@ function sanitizeNestedUrlValue(value: string) {
   }
 
   try {
-    const url = new URL(value, "https://savepoint.local");
+    const url = new URL(value, "https://awu-finances.local");
     const sanitizedSearch = sanitizeSearchParams(url.searchParams);
     url.search = sanitizedSearch;
 

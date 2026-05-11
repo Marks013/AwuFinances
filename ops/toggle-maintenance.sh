@@ -46,9 +46,9 @@ generate_bypass_token() {
   if command -v openssl >/dev/null 2>&1; then
     openssl rand -hex 32
   elif command -v sha256sum >/dev/null 2>&1; then
-    printf '%s-%s-%s\n' "$(date +%s)" "$$" "$(hostname 2>/dev/null || echo savepoint)" | sha256sum | awk '{ print $1 }'
+    printf '%s-%s-%s\n' "$(date +%s)" "$$" "$(hostname 2>/dev/null || echo awu-finances)" | sha256sum | awk '{ print $1 }'
   else
-    printf '%s-%s-%s\n' "$(date +%s)" "$$" "$(hostname 2>/dev/null || echo savepoint)"
+    printf '%s-%s-%s\n' "$(date +%s)" "$$" "$(hostname 2>/dev/null || echo awu-finances)"
   fi
 }
 

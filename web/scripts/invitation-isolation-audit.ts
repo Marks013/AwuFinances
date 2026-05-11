@@ -187,7 +187,7 @@ async function run() {
       plansResponse.payload.items.find((plan) => plan.isActive);
     assertCondition(selectedPlan, "Nenhum plano ativo encontrado para o teste");
 
-    const adminInviteEmail = `audit-admin-${unique}@savepoint.local`;
+    const adminInviteEmail = `audit-admin-${unique}@awu-finances.local`;
     const missingPlanInvite = await getJson<{ message?: string }>(adminJar, "/api/admin/invitations", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -262,7 +262,7 @@ async function run() {
     await ensureTenantDefaultCategories(ownerTenant.id, prisma);
 
     const ownerPassword = "AuditOwner123!";
-    const ownerEmail = `audit-owner-${unique}@savepoint.local`;
+    const ownerEmail = `audit-owner-${unique}@awu-finances.local`;
     const owner = await prisma.user.create({
       data: {
         tenantId: ownerTenant.id,
@@ -305,7 +305,7 @@ async function run() {
     });
 
     const ownerJar = await signIn(ownerEmail, ownerPassword);
-    const sharingInviteEmail = `audit-family-${unique}@savepoint.local`;
+    const sharingInviteEmail = `audit-family-${unique}@awu-finances.local`;
     const sharingInvite = await getJson<{ id: string; inviteUrl?: string }>(ownerJar, "/api/sharing", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

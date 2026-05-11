@@ -77,7 +77,7 @@ const serverEnvSchema = z
     MP_PUBLIC_KEY: optionalString,
     MP_WEBHOOK_SECRET: optionalString,
     MP_BILLING_PLAN_SLUG: z.string().default("premium-completo"),
-    MP_BILLING_REASON: z.string().default("Save Point Financa Premium"),
+    MP_BILLING_REASON: z.string().default("Awu Finances Premium"),
     MP_BILLING_AMOUNT: optionalPositiveNumber,
     MP_BILLING_ANNUAL_AMOUNT: optionalPositiveNumber,
     MP_BILLING_ANNUAL_MAX_INSTALLMENTS: z.coerce.number().int().positive().default(12),

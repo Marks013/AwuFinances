@@ -39,8 +39,8 @@ docker compose run --rm audit-server-smoke
 
 ## O que validar
 
-- `savepoint_db` saudavel
-- `savepoint_web` recriado sem erro
+- `awu_finances_db` saudavel
+- `awu_finances_web` recriado sem erro
 - logs do `web` sem falha de boot
 - `audit-server-smoke` com `Server smoke audit OK`
 - em `Configuracoes > Automacoes`, validar se e-mail e WhatsApp aparecem como prontos para envio quando esperados
@@ -52,8 +52,8 @@ docker compose run --rm audit-server-smoke
 
 Depois do smoke, o que permanece ligado e consumindo recurso e apenas o necessario:
 
-- `savepoint_web`
-- `savepoint_db`
+- `awu_finances_web`
+- `awu_finances_db`
 - `backup`, somente se voce tiver subido esse servico
 
 O container `audit-server-smoke` nao fica residente porque roda com `--rm`.

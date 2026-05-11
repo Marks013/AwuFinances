@@ -413,7 +413,7 @@ cleanup_success_artifacts() {
     local rollback_tags
     rollback_tags="$(
       docker image ls --format '{{.Repository}}:{{.Tag}}' |
-        grep '^savepointfinance-web:rollback-' |
+        grep '^awufinances-web:rollback-' |
         sort |
         head -n -"${ROLLBACK_IMAGE_RETENTION_COUNT}" 2>/dev/null || true
     )"
@@ -459,9 +459,9 @@ ensure_runtime_env_file
 COMPOSE_CMD="$(detect_compose_cmd)"
 APP_PORT_VALUE="$(read_env_value "$ENV_FILE" APP_PORT || true)"
 APP_HEALTH_BASE_URL="${APP_HEALTH_BASE_URL:-http://127.0.0.1:${APP_PORT_VALUE:-3000}}"
-ROLLBACK_IMAGE_TAG="savepointfinance-web:rollback-${RELEASE_TIMESTAMP}"
+ROLLBACK_IMAGE_TAG="awufinances-web:rollback-${RELEASE_TIMESTAMP}"
 
-log "Iniciando update do SavePointFinance"
+log "Iniciando update do Awu Finances"
 log "Release: ${RELEASE_TIMESTAMP}"
 log "Evidencias e logs: ${RELEASE_DIR}"
 
@@ -473,8 +473,8 @@ APP_HEALTH_BASE_URL=${APP_HEALTH_BASE_URL}
 ROLLBACK_IMAGE_TAG=${ROLLBACK_IMAGE_TAG}
 EOF
 
-if docker image inspect savepointfinance-web:latest >/dev/null 2>&1; then
-  run_step "Salvar snapshot local da imagem anterior para rollback" "${RELEASE_DIR}/rollback-snapshot.log" docker tag savepointfinance-web:latest "$ROLLBACK_IMAGE_TAG"
+if docker image inspect awufinances-web:latest >/dev/null 2>&1; then
+  run_step "Salvar snapshot local da imagem anterior para rollback" "${RELEASE_DIR}/rollback-snapshot.log" docker tag awufinances-web:latest "$ROLLBACK_IMAGE_TAG"
 else
   log "Nenhuma imagem anterior encontrada; rollback automatico por imagem ficara indisponivel neste ciclo."
   sed -i '/^ROLLBACK_IMAGE_TAG=/d' "$RELEASE_MANIFEST"

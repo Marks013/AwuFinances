@@ -103,7 +103,7 @@ function buildSupportHtml(input: SupportEmailInput) {
     <div style="font-family:Inter,Arial,sans-serif;background:#F6F4EF;padding:28px;color:#101828;">
       <div style="max-width:680px;margin:0 auto;background:#FFFFFF;border:1px solid #E4DED4;border-radius:20px;overflow:hidden;">
         <div style="background:#123D35;color:#FFFFFF;padding:24px 28px;">
-          <p style="margin:0 0 8px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#CDE8DD;">Save Point Finance</p>
+          <p style="margin:0 0 8px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#CDE8DD;">Awu Finances</p>
           <h1 style="margin:0;font-size:24px;line-height:1.25;">Nova solicitação de suporte</h1>
         </div>
         <div style="padding:26px 28px;">
@@ -316,7 +316,7 @@ export async function sendSupportReplyEmail(input: SupportReplyEmailInput): Prom
             <div style="font-family:Inter,Arial,sans-serif;background:#F6F4EF;padding:28px;color:#101828;">
               <div style="max-width:680px;margin:0 auto;background:#FFFFFF;border:1px solid #E4DED4;border-radius:20px;overflow:hidden;">
                 <div style="background:#123D35;color:#FFFFFF;padding:24px 28px;">
-                  <p style="margin:0 0 8px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#CDE8DD;">Save Point Finance</p>
+                  <p style="margin:0 0 8px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#CDE8DD;">Awu Finances</p>
                   <h1 style="margin:0;font-size:24px;line-height:1.25;">Resposta do suporte</h1>
                 </div>
                 <div style="padding:26px 28px;">

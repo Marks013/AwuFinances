@@ -216,7 +216,7 @@ export function createMercadoPagoPaymentRefund<T>(input: {
 
 export function getMercadoPagoBillingReason(planName: string) {
   const configuredReason = serverEnv.MP_BILLING_REASON.trim();
-  return configuredReason.length ? configuredReason : `Save Point Financa - ${planName}`;
+  return configuredReason.length ? configuredReason : `Awu Finances - ${planName}`;
 }
 
 export function getMercadoPagoBillingFrequencyConfig() {

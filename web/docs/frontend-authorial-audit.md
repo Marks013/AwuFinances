@@ -4,7 +4,7 @@ Data: 2026-05-07
 
 ## Escopo
 
-Analise focada em frontend para o projeto Save Point Finance, usando as skills `senior-frontend`, `tailwind-design-system`, `frontend-design`, `frontend-typescript-react-nextjs` e `baseline-ui`.
+Analise focada em frontend para o projeto Awu Finances, usando as skills `senior-frontend`, `tailwind-design-system`, `frontend-design`, `frontend-typescript-react-nextjs` e `baseline-ui`.
 
 O objetivo e melhorar personalidade, autoria visual e consistencia sem trocar a stack nem reescrever o design system existente.
 
@@ -19,7 +19,7 @@ O objetivo e melhorar personalidade, autoria visual e consistencia sem trocar a 
 
 O frontend ja tem uma base acima da media para um produto financeiro: ha tokens de cor, dark/light theme, componentes de UI reaproveitaveis, rotas organizadas, microcopy em portugues e uma tentativa clara de fugir da estetica generica de SaaS azul.
 
-O ponto mais forte e a direcao de produto: o Save Point fala de rotina financeira, WhatsApp, antecipacao de decisoes e operacao diaria. Isso ja e autoral. O ponto a melhorar e transformar essa promessa em linguagem visual e interativa mais propria dentro do app inteiro, nao apenas na landing e nos planos.
+O ponto mais forte e a direcao de produto: o Awu Finances fala de rotina financeira, WhatsApp, antecipacao de decisoes e operacao diaria. Isso ja e autoral. O ponto a melhorar e transformar essa promessa em linguagem visual e interativa mais propria dentro do app inteiro, nao apenas na landing e nos planos.
 
 Hoje a personalidade aparece em fragmentos:
 
@@ -28,18 +28,18 @@ Hoje a personalidade aparece em fragmentos:
 - Marca com `BrandMark` e assinatura "Inteligencia financeira diaria".
 - Landing com textos bons: "Leitura financeira direta", "Operacao verticalizada", "WhatsApp como atalho principal".
 
-Mas parte da interface ainda depende de padroes muito familiares: surfaces grandes, cards arredondados, metricas, sidebar e copy operacional. Funciona, mas pode parecer "dashboard financeiro premium" antes de parecer "Save Point".
+Mas parte da interface ainda depende de padroes muito familiares: surfaces grandes, cards arredondados, metricas, sidebar e copy operacional. Funciona, mas pode parecer "dashboard financeiro premium" antes de parecer "Awu Finances".
 
 ## Oportunidades de Personalidade
 
 ### 1. Criar uma Linguagem de "Pontos de Decisao"
 
-O nome Save Point e forte. Ele permite uma metafora de produto: cada tela ajuda o usuario a salvar um ponto da vida financeira antes que o mes desande.
+O nome Awu Finances e forte. Ele permite uma metafora de produto: cada tela ajuda o usuario a salvar um ponto da vida financeira antes que o mes desande.
 
 Aplicacoes praticas:
 
 - Renomear estados vazios e chamadas contextuais para a ideia de "ponto salvo", "proximo ponto", "risco antes do fechamento", "decisao do dia".
-- Criar um componente de destaque para insights chamado `DecisionPoint`, `SavePointCard` ou `DailyCheckpoint`.
+- Criar um componente de destaque para insights chamado `DecisionPoint`, `AwuInsightCard` ou `DailyCheckpoint`.
 - Usar esse padrao no dashboard, relatorios, metas e cartoes.
 
 Exemplo de direcao de microcopy:
@@ -147,7 +147,7 @@ Entregas recomendadas:
 
 ## Direcao Autoral Sugerida
 
-Save Point deve parecer menos "planilha bonita" e mais "mesa de controle financeiro diario".
+Awu Finances deve parecer menos "planilha bonita" e mais "mesa de controle financeiro diario".
 
 Principios:
 
@@ -159,7 +159,7 @@ Principios:
 
 Frase norteadora:
 
-> Save Point organiza o dinheiro em pontos claros de decisao: o que aconteceu, o que mudou e o que precisa ser feito agora.
+> Awu Finances organiza o dinheiro em pontos claros de decisao: o que aconteceu, o que mudou e o que precisa ser feito agora.
 
 ## Sequencia Recomendada de Execucao
 

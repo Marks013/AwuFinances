@@ -136,7 +136,7 @@ async function run() {
 
   const unique = Date.now().toString(36);
   const password = "Auditoria123!";
-  const email = `audit-${unique}@savepoint.local`;
+  const email = `audit-${unique}@awu-finances.local`;
   const whatsappNumber = formatWhatsAppPhone("11990000001");
   assertCondition(whatsappNumber, "Não foi possível formatar o número de WhatsApp de auditoria");
 

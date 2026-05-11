@@ -244,7 +244,7 @@ export function CheckoutClient({
     }
 
     const timer = window.setTimeout(() => {
-      const container = document.getElementById("savepoint-card-payment-brick");
+      const container = document.getElementById("awu-finances-card-payment-brick");
       const childCount = container?.childElementCount ?? 0;
 
       if (childCount > 0) {
@@ -504,7 +504,7 @@ export function CheckoutClient({
         ) : null}
         <div className="min-h-[520px]">
         <CardPayment
-          id="savepoint-card-payment-brick"
+          id="awu-finances-card-payment-brick"
           initialization={cardPaymentInitialization}
           locale="pt-BR"
           onError={handleBrickError}

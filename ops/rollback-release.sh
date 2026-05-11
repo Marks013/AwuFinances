@@ -137,8 +137,8 @@ main() {
     fail "Imagem de rollback nao encontrada localmente: ${ROLLBACK_IMAGE_TAG}"
   fi
 
-  log "Restaurando imagem anterior ${ROLLBACK_IMAGE_TAG} para savepointfinance-web:latest"
-  docker tag "$ROLLBACK_IMAGE_TAG" savepointfinance-web:latest
+  log "Restaurando imagem anterior ${ROLLBACK_IMAGE_TAG} para awufinances-web:latest"
+  docker tag "$ROLLBACK_IMAGE_TAG" awufinances-web:latest
 
   log "Recriando servico ${SERVICE_NAME}"
   $compose_cmd up -d --no-deps --force-recreate "$SERVICE_NAME"

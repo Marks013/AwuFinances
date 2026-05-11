@@ -13,18 +13,18 @@ const env = process.env;
 
 const {
   DATABASE_URL,
-  ADMIN_EMAIL = "admin@savepoint.local",
+  ADMIN_EMAIL = "admin@awu-finances.local",
   ADMIN_PASSWORD,
-  ADMIN_NAME = "Administrador SavePoint",
-  ADMIN_TENANT_NAME = "SavePoint",
-  ADMIN_TENANT_SLUG = "savepoint",
-  LOCAL_OWNER_EMAIL = "owner@savepoint.local",
-  LOCAL_OWNER_NAME = "Titular SavePoint",
-  FAMILY_USER_NAME = "Familiar SavePoint"
+  ADMIN_NAME = "Administrador Awu Finances",
+  ADMIN_TENANT_NAME = "Awu Finances",
+  ADMIN_TENANT_SLUG = "awu-finances",
+  LOCAL_OWNER_EMAIL = "owner@awu-finances.local",
+  LOCAL_OWNER_NAME = "Titular Awu Finances",
+  FAMILY_USER_NAME = "Familiar Awu Finances"
 } = env;
 
 const LOCAL_OWNER_PASSWORD = env.LOCAL_OWNER_PASSWORD || ADMIN_PASSWORD;
-const FAMILY_USER_EMAIL = env.FAMILY_USER_EMAIL || "family@savepoint.local";
+const FAMILY_USER_EMAIL = env.FAMILY_USER_EMAIL || "family@awu-finances.local";
 const FAMILY_USER_PASSWORD = env.FAMILY_USER_PASSWORD || LOCAL_OWNER_PASSWORD;
 
 const DEFAULT_PLANS = [

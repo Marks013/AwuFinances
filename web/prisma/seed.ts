@@ -22,9 +22,9 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
-  const adminEmail = process.env.ADMIN_EMAIL?.trim() || "admin@savepoint.local";
+  const adminEmail = process.env.ADMIN_EMAIL?.trim() || "admin@awu-finances.local";
   const adminPassword = process.env.ADMIN_PASSWORD?.trim() || "changeme123";
-  const ownerEmail = process.env.LOCAL_OWNER_EMAIL?.trim() || "owner@savepoint.local";
+  const ownerEmail = process.env.LOCAL_OWNER_EMAIL?.trim() || "owner@awu-finances.local";
   const ownerPassword = process.env.LOCAL_OWNER_PASSWORD?.trim() || adminPassword;
   const familyEmail = process.env.FAMILY_USER_EMAIL?.trim();
   const familyPassword = process.env.FAMILY_USER_PASSWORD?.trim();
@@ -40,11 +40,11 @@ async function main() {
 
   const tenant = await prisma.tenant.upsert({
     where: {
-      slug: "savepoint"
+      slug: "awu-finances"
     },
     update: {
-      name: "SavePoint",
-      slug: "savepoint",
+      name: "Awu Finances",
+      slug: "awu-finances",
       planId: bootstrapPlan.id,
       isActive: true,
       trialStart: null,
@@ -53,8 +53,8 @@ async function main() {
       expiresAt: null
     },
     create: {
-      name: "SavePoint",
-      slug: "savepoint",
+      name: "Awu Finances",
+      slug: "awu-finances",
       planId: bootstrapPlan.id,
       trialDays: 0
     }
@@ -73,7 +73,7 @@ async function main() {
     create: {
       tenantId: tenant.id,
       email: adminEmail,
-      name: "Administrador SavePoint",
+      name: "Administrador Awu Finances",
       passwordHash,
       role: UserRole.admin,
       isPlatformAdmin: true
@@ -94,7 +94,7 @@ async function main() {
     create: {
       tenantId: tenant.id,
       email: ownerEmail,
-      name: "Titular SavePoint",
+      name: "Titular Awu Finances",
       passwordHash: ownerPasswordHash,
       role: UserRole.admin,
       isPlatformAdmin: false
@@ -128,7 +128,7 @@ async function main() {
       create: {
         tenantId: tenant.id,
         email: familyEmail,
-        name: "Familiar SavePoint",
+        name: "Familiar Awu Finances",
         passwordHash: familyPasswordHash,
         role: UserRole.member,
         isPlatformAdmin: false

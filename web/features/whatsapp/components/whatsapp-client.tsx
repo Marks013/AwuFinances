@@ -154,7 +154,7 @@ export function WhatsAppClient() {
             <div className="eyebrow">WhatsApp</div>
             <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">Central do assistente</h1>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted-foreground)]">
-              O WhatsApp é o atalho mais rápido do SavePoint para lançar gastos, consultar saldo, olhar cartão e manter
+              O WhatsApp é o atalho mais rápido do Awu Finances para lançar gastos, consultar saldo, olhar cartão e manter
               o financeiro em dia sem sair da conversa.
             </p>
           </div>
@@ -302,7 +302,7 @@ export function WhatsAppClient() {
             <article className="data-card motion-card p-4">
               <p className="text-sm font-semibold">2. Lance com contexto</p>
               <p className="mt-2 text-sm leading-7 text-[var(--color-muted-foreground)]">
-                Valor, conta ou cartão e uma descrição simples já bastam para o SavePoint entender melhor.
+                Valor, conta ou cartão e uma descrição simples já bastam para o Awu Finances entender melhor.
               </p>
             </article>
             <article className="data-card motion-card p-4">

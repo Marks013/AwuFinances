@@ -8,7 +8,7 @@ const __dirname = dirname(__filename);
 
 const buildEnv = {
   ...process.env,
-  DATABASE_URL: process.env.DATABASE_URL?.trim() || "postgresql://savepoint:savepoint@127.0.0.1:5432/savepoint",
+  DATABASE_URL: process.env.DATABASE_URL?.trim() || "postgresql://awufinances:awufinances@127.0.0.1:5432/awufinances",
   AUTH_SECRET: process.env.AUTH_SECRET?.trim() || "build-only-secret",
   AUTOMATION_CRON_SECRET: process.env.AUTOMATION_CRON_SECRET?.trim() || "build-only-secret"
 };

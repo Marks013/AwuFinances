@@ -2,7 +2,7 @@ import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
 const databaseUrl =
-  process.env.DATABASE_URL?.trim() || "postgresql://savepoint:savepoint@127.0.0.1:5432/savepoint";
+  process.env.DATABASE_URL?.trim() || "postgresql://awufinances:awufinances@127.0.0.1:5432/awufinances";
 
 export default defineConfig({
   schema: "prisma/schema.prisma",

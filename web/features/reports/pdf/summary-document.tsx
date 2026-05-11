@@ -566,7 +566,7 @@ export function SummaryDocument({
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.hero}>
-          <Text style={styles.eyebrow}>SavePoint Finance</Text>
+          <Text style={styles.eyebrow}>Awu Finances</Text>
           <Text style={styles.title}>{labels?.periodTitle ?? title}</Text>
           <Text style={styles.subtitle}>{labels?.periodSubtitle ?? subtitle}</Text>
           <View style={styles.heroMeta}>
@@ -740,7 +740,7 @@ export function SummaryDocument({
         </View>
 
         <Text style={styles.footer}>
-          SavePoint Finance • Relatorio gerencial preparado para leitura executiva, acompanhamento operacional e revisao de fechamento.
+          Awu Finances • Relatorio gerencial preparado para leitura executiva, acompanhamento operacional e revisao de fechamento.
         </Text>
       </Page>
     </Document>

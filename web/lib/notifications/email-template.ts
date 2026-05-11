@@ -61,7 +61,7 @@ const themes: Record<EmailTheme, EmailThemeConfig> = {
     accentDark: brand.emeraldDark,
     noteBackground: "#f3ead8",
     noteInk: brand.emeraldDark,
-    footer: "Mensagem automática do Save Point Finance."
+    footer: "Mensagem automática do Awu Finances."
   },
   invitation: {
     badge: "Convite seguro",
@@ -69,7 +69,7 @@ const themes: Record<EmailTheme, EmailThemeConfig> = {
     accentDark: "#145241",
     noteBackground: "#e7f5f0",
     noteInk: "#145241",
-    footer: "Convite enviado com segurança pelo Save Point Finance."
+    footer: "Convite enviado com segurança pelo Awu Finances."
   },
   security: {
     badge: "Segurança da conta",
@@ -77,7 +77,7 @@ const themes: Record<EmailTheme, EmailThemeConfig> = {
     accentDark: "#813524",
     noteBackground: "#fff0ea",
     noteInk: "#7d3524",
-    footer: "Mensagem automática de segurança do Save Point Finance."
+    footer: "Mensagem automática de segurança do Awu Finances."
   },
   goal: {
     badge: "Metas",
@@ -85,7 +85,7 @@ const themes: Record<EmailTheme, EmailThemeConfig> = {
     accentDark: "#1d6240",
     noteBackground: "#ebf8ef",
     noteInk: "#1d6240",
-    footer: "Resumo de metas preparado automaticamente pelo Save Point Finance."
+    footer: "Resumo de metas preparado automaticamente pelo Awu Finances."
   },
   billing: {
     badge: "Pagamentos",
@@ -93,7 +93,7 @@ const themes: Record<EmailTheme, EmailThemeConfig> = {
     accentDark: "#8f4a35",
     noteBackground: "#fff1eb",
     noteInk: "#8f4a35",
-    footer: "Resumo financeiro enviado automaticamente pelo Save Point Finance."
+    footer: "Resumo financeiro enviado automaticamente pelo Awu Finances."
   },
   budget: {
     badge: "Orçamento",
@@ -101,7 +101,7 @@ const themes: Record<EmailTheme, EmailThemeConfig> = {
     accentDark: "#7d481e",
     noteBackground: "#fff4e8",
     noteInk: "#7d481e",
-    footer: "Alerta automático de controle financeiro do Save Point Finance."
+    footer: "Alerta automático de controle financeiro do Awu Finances."
   },
   report: {
     badge: "Relatório",
@@ -109,7 +109,7 @@ const themes: Record<EmailTheme, EmailThemeConfig> = {
     accentDark: "#1d5752",
     noteBackground: "#e9f8f5",
     noteInk: "#1d5752",
-    footer: "Relatório consolidado automaticamente pelo Save Point Finance."
+    footer: "Relatório consolidado automaticamente pelo Awu Finances."
   },
   retention: {
     badge: "Conta em atenção",
@@ -117,7 +117,7 @@ const themes: Record<EmailTheme, EmailThemeConfig> = {
     accentDark: "#813524",
     noteBackground: "#fff4eb",
     noteInk: "#813524",
-    footer: "Aviso automático sobre política de retenção do Save Point Finance."
+    footer: "Aviso automático sobre política de retenção do Awu Finances."
   }
 };
 
@@ -308,7 +308,7 @@ export function buildBrandedEmailTemplate({
                         <tr>
                           <td align="center" style="width:54px;height:54px;border-radius:20px;background:linear-gradient(145deg,#163229 0%,#1d6a4d 58%,#d97b55 100%);color:${brand.white};font-size:20px;font-weight:800;letter-spacing:-0.08em;box-shadow:0 18px 42px rgba(19,111,79,0.32);">S•</td>
                           <td style="padding-left:14px;">
-                            <p style="margin:0;color:rgba(255,248,236,0.68);font-size:11px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;">Save Point Finance</p>
+                            <p style="margin:0;color:rgba(255,248,236,0.68);font-size:11px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;">Awu Finances</p>
                             <p style="margin:4px 0 0 0;color:${brand.cream};font-size:19px;font-weight:800;letter-spacing:-0.04em;">Inteligência financeira diária</p>
                           </td>
                         </tr>

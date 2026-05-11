@@ -64,10 +64,10 @@ function extractGeminiText(payload: unknown) {
 
 function getMediaPrompt(type: MediaKind, caption?: string | null) {
   const baseInstructions = [
-    "Você é um analisador do SavePoint para WhatsApp.",
+    "Você é um analisador do Awu Finances para WhatsApp.",
     "Converta a mídia recebida em um pedido textual curto e natural, em português do Brasil.",
     "O objetivo principal é detectar lançamentos financeiros.",
-    "Se a mídia indicar uma despesa ou receita, devolva um comando simples que o assistente do SavePoint conseguiria entender, por exemplo:",
+    "Se a mídia indicar uma despesa ou receita, devolva um comando simples que o assistente do Awu Finances conseguiria entender, por exemplo:",
     '- "gastei 42,50 no mercado no cartão PicPay"',
     '- "recebi 3200 de salário no Itaú"',
     '- "gastei 120 de farmácia no cartão Nubank 3x"',

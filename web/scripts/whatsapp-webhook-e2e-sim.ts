@@ -34,7 +34,7 @@ async function main() {
   process.env.WHATSAPP_PHONE_NUMBER_ID = "123456789";
   process.env.WHATSAPP_GRAPH_VERSION = "v22.0";
   process.env.WHATSAPP_APP_SECRET = "test-whatsapp-app-secret";
-  process.env.DATABASE_URL ??= "postgresql://savepoint:savepoint@127.0.0.1:5432/savepoint";
+  process.env.DATABASE_URL ??= "postgresql://awufinances:awufinances@127.0.0.1:5432/awufinances";
   process.env.AUTH_SECRET ??= "test-auth-secret";
   process.env.AUTOMATION_CRON_SECRET ??= "test-automation-secret";
 

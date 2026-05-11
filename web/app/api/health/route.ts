@@ -81,7 +81,7 @@ export async function GET() {
   return NextResponse.json(
     {
       status,
-      service: "savepointfinance-web",
+      service: "awufinances-web",
       latencyMs: Date.now() - startedAt,
       timestamp: new Date().toISOString()
     },

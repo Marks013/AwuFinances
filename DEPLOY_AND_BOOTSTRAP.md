@@ -23,16 +23,16 @@ Isso significa:
 
 ## Dados do admin
 
-- e-mail padrao: `admin@savepoint.local`
-- nome padrao: `Administrador SavePoint`
-- organizacao padrao: `SavePoint`
-- slug padrao da organizacao: `savepoint`
+- e-mail padrao: `admin@awu-finances.local`
+- nome padrao: `Administrador Awu Finances`
+- organizacao padrao: `Awu Finances`
+- slug padrao da organizacao: `awu-finances`
 
 A senha do admin vem da variavel `ADMIN_PASSWORD` no arquivo `.env`.
 
 ## Variaveis importantes
 
-Arquivo: [`.env`](/C:/Users/samue/Desktop/SavePoint/SavePoint/.env)
+Arquivo: [`.env`](.env)
 
 - `POSTGRES_DB`
 - `POSTGRES_USER`
@@ -92,8 +92,8 @@ Depois copie o signing secret exibido pelo Resend para `RESEND_WEBHOOK_SECRET` n
 
 Modelos disponiveis:
 
-- servidor: [`.env.server.example`](/C:/Users/samue/Desktop/SavePoint/SavePoint/.env.server.example)
-- docker local: [`.env.local-docker.example`](/C:/Users/samue/Desktop/SavePoint/SavePoint/.env.local-docker.example)
+- servidor: [`.env.server.example`](.env.server.example)
+- docker local: [`.env.local-docker.example`](.env.local-docker.example)
 - o arquivo ativo usado pelo `docker compose` continua sendo `.env`
 - o modo de manutencao usa `MAINTENANCE_MODE=true|false` no mesmo `.env`
 
@@ -305,7 +305,7 @@ docker compose stop web
 2. confirmar no `.env`:
 
 ```env
-RESTORE_PRODUCTION_CONFIRMATION=RESTORE_SAVEPOINT_PROD
+RESTORE_PRODUCTION_CONFIRMATION=RESTORE_AWU_FINANCES_PROD
 ```
 
 3. executar o restore:
@@ -324,7 +324,7 @@ docker compose up -d web
 
 ```env
 RESTORE_SOURCE=github
-RESTORE_GITHUB_RELEASE_TAG=savepoint-backups
+RESTORE_GITHUB_RELEASE_TAG=awu-finances-backups
 RESTORE_ASSET_BASENAME=
 ```
 
@@ -367,7 +367,7 @@ No Oracle Cloud:
 3. preencha dominio real, segredos fortes e `RESEND_API_KEY`
 4. execute o fluxo de primeiro deploy
 
-O template [`.env.server.example`](/C:/Users/samue/Desktop/SavePoint/SavePoint/.env.server.example) ja esta preparado para este cenário:
+O template [`.env.server.example`](.env.server.example) ja esta preparado para este cenário:
 
 - `NEXT_PUBLIC_APP_URL` com `https://`
 - `APP_PORT=3000` para proxy reverso
@@ -406,7 +406,7 @@ Configuracao minima:
 BACKUP_GITHUB_ENABLED=true
 BACKUP_GITHUB_TOKEN=github_pat_xxx
 BACKUP_GITHUB_REPOSITORY=seu-usuario/seu-repo-privado-de-backup
-BACKUP_GITHUB_RELEASE_TAG=savepoint-backups
+BACKUP_GITHUB_RELEASE_TAG=awu-finances-backups
 BACKUP_GITHUB_RETENTION_COUNT=30
 ```
 
@@ -421,7 +421,7 @@ BACKUP_OBJECT_STORAGE_ENABLED=true
 BACKUP_OBJECT_STORAGE_ENDPOINT=https://<namespace>.compat.objectstorage.sa-saopaulo-1.oraclecloud.com
 BACKUP_OBJECT_STORAGE_BUCKET=nome-do-bucket
 BACKUP_OBJECT_STORAGE_REGION=sa-saopaulo-1
-BACKUP_OBJECT_STORAGE_PREFIX=savepoint-prod
+BACKUP_OBJECT_STORAGE_PREFIX=awu-finances-prod
 BACKUP_OBJECT_STORAGE_ACCESS_KEY=sua-access-key
 BACKUP_OBJECT_STORAGE_SECRET_KEY=sua-secret-key
 ```
@@ -460,9 +460,9 @@ O artefato gerado e um `.tar.gz.enc`.
 Exemplo:
 
 ```bash
-openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in savepoint-backup.tar.gz.enc -out savepoint-backup.tar.gz
-tar -xzf savepoint-backup.tar.gz
-pg_restore --clean --if-exists --no-owner -h localhost -U savepoint -d savepoint_restored database.dump
+openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in awu-finances-backup.tar.gz.enc -out awu-finances-backup.tar.gz
+tar -xzf awu-finances-backup.tar.gz
+pg_restore --clean --if-exists --no-owner -h localhost -U awufinances -d awufinances_restored database.dump
 ```
 
 ## E-mail em producao
@@ -478,7 +478,7 @@ Configuracao recomendada para Oracle Cloud:
 ```env
 EMAIL_PROVIDER=resend
 EMAIL_FROM=no-reply@seudominio.com
-EMAIL_FROM_NAME=Save Point Finança
+EMAIL_FROM_NAME=Awu Finances
 EMAIL_REPLY_TO=suporte@seudominio.com
 SUPPORT_EMAIL_TO=suporte@seudominio.com
 RESEND_API_KEY=seu-token
@@ -489,7 +489,7 @@ Alternativa com Brevo:
 ```env
 EMAIL_PROVIDER=brevo
 EMAIL_FROM=no-reply@seudominio.com
-EMAIL_FROM_NAME=Save Point Finança
+EMAIL_FROM_NAME=Awu Finances
 EMAIL_REPLY_TO=suporte@seudominio.com
 BREVO_API_KEY=seu-token
 ```

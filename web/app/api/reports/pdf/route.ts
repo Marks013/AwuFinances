@@ -120,10 +120,10 @@ export async function GET(request: Request) {
           : "Relatorio gerencial financeiro";
     const filename =
       report.period.scope === "year"
-        ? `savepoint-relatorio-anual-${report.filters.month?.slice(0, 4) ?? "geral"}.pdf`
+        ? `awu-finances-relatorio-anual-${report.filters.month?.slice(0, 4) ?? "geral"}.pdf`
         : report.period.scope === "month"
-          ? `savepoint-relatorio-mensal-${resolvedMonth ?? "geral"}.pdf`
-          : "savepoint-relatorio-gerencial.pdf";
+          ? `awu-finances-relatorio-mensal-${resolvedMonth ?? "geral"}.pdf`
+          : "awu-finances-relatorio-gerencial.pdf";
 
     const document = SummaryDocument({
         generatedAt: formatDateTimeDisplay(new Date()),

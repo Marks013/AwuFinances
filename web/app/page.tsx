@@ -52,12 +52,12 @@ export default function HomePage() {
         <div className="grid gap-8 xl:grid-cols-[1.08fr_0.92fr]">
           <div className="section-stack">
             <BrandMark inverted />
-            <div className="eyebrow border-white/18 bg-white/10 text-white">Save Point Finança • tema editorial</div>
+            <div className="eyebrow border-white/18 bg-white/10 text-white">Awu Finances • tema editorial</div>
             <h1 className="display-title max-w-5xl text-white">
               Controle financeiro com linguagem visual mais forte, mais noturna e mais proprietária.
             </h1>
             <p className="max-w-2xl text-base leading-8 text-white/82 md:text-lg">
-              O Save Point Finança organiza contas, cartões, metas, recorrências, alertas e
+              O Awu Finances organiza contas, cartões, metas, recorrências, alertas e
               leitura mensal em uma interface mais premium, mais ritmada e mais fácil de acompanhar.
             </p>
             <div className="flex flex-wrap gap-3">
@@ -131,7 +131,7 @@ export default function HomePage() {
             <div className="eyebrow">Planos e assinatura</div>
             <h2 className="section-title">Compare antes de entrar no checkout.</h2>
             <p className="section-copy">
-              O Save Point separa o uso gratuito da experiência premium com WhatsApp, automações, PDF e limites
+              O Awu Finances separa o uso gratuito da experiência premium com WhatsApp, automações, PDF e limites
               ampliados. A assinatura usa Mercado Pago e só libera acesso após confirmação real do pagamento.
             </p>
             <div className="flex flex-wrap gap-3">

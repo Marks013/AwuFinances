@@ -8,7 +8,7 @@ export default function PrivacyPolicyPage() {
         <div className="section-stack">
           <BrandMark inverted compact />
           <div className="eyebrow border-white/18 bg-white/8 text-white">Política de Privacidade</div>
-          <h1 className="text-4xl font-semibold tracking-[-0.05em] text-white">Como o Save Point Finança trata seus dados.</h1>
+          <h1 className="text-4xl font-semibold tracking-[-0.05em] text-white">Como o Awu Finances trata seus dados.</h1>
           <p className="max-w-3xl text-base leading-8 text-white/84">
             Versão {PRIVACY_POLICY_VERSION}. Este documento descreve quais dados pessoais são tratados, por quais
             finalidades, em quais bases legais e quais direitos podem ser exercidos pelo titular.
@@ -20,7 +20,7 @@ export default function PrivacyPolicyPage() {
         <article className="surface content-section">
           <h2 className="section-title">1. Escopo</h2>
           <p className="section-copy">
-            Esta política se aplica ao uso do Save Point Finança em seus fluxos de autenticação, convite, gestão
+            Esta política se aplica ao uso do Awu Finances em seus fluxos de autenticação, convite, gestão
             financeira e suporte operacional.
           </p>
         </article>
@@ -68,7 +68,7 @@ export default function PrivacyPolicyPage() {
             a prestação do serviço.
           </p>
           <p className="section-copy">
-            O Save Point Finança não comercializa dados pessoais com corretoras, anunciantes ou marketplaces de dados.
+            O Awu Finances não comercializa dados pessoais com corretoras, anunciantes ou marketplaces de dados.
             O modelo econômico do produto é baseado em assinatura e licenciamento do serviço.
           </p>
         </article>

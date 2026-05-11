@@ -1,3 +1,5 @@
+name: awufinances
+
 services:
   web:
     build:
@@ -7,7 +9,7 @@ services:
         NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN}
         NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE: ${NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE:-0.2}
         SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT}
-    container_name: savepoint_web
+    container_name: awu_finances_web
     restart: unless-stopped
     # Puxa TODAS as variáveis do .env automaticamente
     env_file:
@@ -37,7 +39,7 @@ services:
     ports:
       - "${APP_PORT:-3000}:3000"
     networks:
-      - savepoint
+      - awu_finances
 
   migrate:
     build:
@@ -55,7 +57,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     command: ["npx", "prisma", "migrate", "deploy", "--schema", "prisma/schema.prisma"]
     networks:
-      - savepoint
+      - awu_finances
       
   audit-server-smoke:
     build:
@@ -79,7 +81,7 @@ services:
       FAMILY_USER_PASSWORD: ${FAMILY_USER_PASSWORD}
     command: ["npm", "run", "audit:server-smoke"]
     networks:
-      - savepoint      
+      - awu_finances      
 
   bootstrap-admin:
     build:
@@ -96,7 +98,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     command: ["node", "scripts/bootstrap-admin.mjs"]
     networks:
-      - savepoint
+      - awu_finances
 
   audit-invitations:
     build:
@@ -116,7 +118,7 @@ services:
       AUDIT_BASE_URL: ${AUDIT_BASE_URL:-http://web:3000}
     command: ["npm", "run", "audit:invitations"]
     networks:
-      - savepoint
+      - awu_finances
 
   audit-billing-webhook:
     build:
@@ -130,13 +132,13 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     command: ["npm", "run", "audit:billing-webhook"]
     networks:
-      - savepoint
+      - awu_finances
 
   backup:
     build:
       context: ./ops/backup
       dockerfile: Dockerfile
-    container_name: savepoint_backup
+    container_name: awu_finances_backup
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "/usr/local/bin/backup-healthcheck.sh"]
@@ -154,9 +156,9 @@ services:
       BACKUP_DB_PORT: 5432
     volumes:
       - ./:/workspace:ro
-      - savepoint_backups:/backups
+      - awu_finances_backups:/backups
     networks:
-      - savepoint
+      - awu_finances
 
   backup-once:
     build:
@@ -174,9 +176,9 @@ services:
     command: ["/usr/local/bin/run-backup.sh"]
     volumes:
       - ./:/workspace:ro
-      - savepoint_backups:/backups
+      - awu_finances_backups:/backups
     networks:
-      - savepoint
+      - awu_finances
 
   restore-backup-test:
     build:
@@ -194,9 +196,9 @@ services:
       RESTORE_MODE: test
     command: ["/usr/local/bin/restore-backup.sh"]
     volumes:
-      - savepoint_backups:/backups
+      - awu_finances_backups:/backups
     networks:
-      - savepoint
+      - awu_finances
 
   restore-backup-prod:
     build:
@@ -214,13 +216,13 @@ services:
       RESTORE_MODE: prod
     command: ["/usr/local/bin/restore-backup.sh"]
     volumes:
-      - savepoint_backups:/backups
+      - awu_finances_backups:/backups
     networks:
-      - savepoint
+      - awu_finances
 
   postgres:
     image: postgres:17-alpine
-    container_name: savepoint_db
+    container_name: awu_finances_db
     restart: unless-stopped
     env_file:
       - .env
@@ -243,16 +245,16 @@ services:
                -c 'maintenance_work_mem=512MB'
     volumes:
       - type: bind
-        source: ${POSTGRES_DATA_DIR:-/srv/savepoint/postgres-data}
+        source: ${POSTGRES_DATA_DIR:-/srv/awu-finances/postgres-data}
         target: /var/lib/postgresql/data
     ports:
       - "${POSTGRES_HOST_BIND:-127.0.0.1}:${POSTGRES_PORT:-5433}:5432"
     networks:
-      - savepoint
+      - awu_finances
 
 networks:
-  savepoint:
+  awu_finances:
     driver: bridge
 
 volumes:
-  savepoint_backups:
+  awu_finances_backups:

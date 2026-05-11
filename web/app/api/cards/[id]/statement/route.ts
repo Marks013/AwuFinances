@@ -73,6 +73,7 @@ export async function GET(request: Request, context: Params) {
       ...getStatementTransactionWhere({
         tenantId: user.tenantId,
         cardId: id,
+        month: statement.month,
         start: statement.start,
         end: statement.end
       })

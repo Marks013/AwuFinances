@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, BarChart3, CircleDollarSign, CreditCard, MessageCircleMore, ShieldCheck, Sparkles, Target } from "lucide-react";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { Button } from "@/components/ui/button";
 import { PlanCheckoutLink } from "@/features/billing/components/plan-checkout-link";
@@ -87,10 +88,15 @@ export default function HomePage() {
 
           <div className="grid gap-4 self-end">
             <article className="rounded-[32px] border border-white/12 bg-white/10 p-6">
-              <p className="metric-label text-white/82">Leitura imediata</p>
-              <p className="mt-4 max-w-sm text-[1.95rem] font-semibold tracking-[-0.06em] text-white">
-                Saldo, compromissos e rotina financeira em uma narrativa única.
-              </p>
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <p className="metric-label text-white/82">Leitura imediata</p>
+                  <p className="mt-4 max-w-sm text-[1.95rem] font-semibold tracking-[-0.06em] text-white">
+                    Saldo, compromissos e rotina financeira em uma narrativa única.
+                  </p>
+                </div>
+                <AwuMascot className="w-28 sm:w-36" title="Awu acenando" variant="default" />
+              </div>
               <div className="mt-6 grid gap-3">
                 {highlights.map((item) => (
                   <div

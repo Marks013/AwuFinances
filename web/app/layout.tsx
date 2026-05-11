@@ -12,7 +12,14 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Awu Finances",
-  description: "Plataforma financeira para contas, cartões, metas, relatórios, automações e rotina operacional."
+  description: "Plataforma financeira para contas, cartões, metas, relatórios, automações e rotina operacional.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon.png", sizes: "512x512", type: "image/png" }
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }]
+  }
 };
 
 type RootLayoutProps = {

@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2, MessageCircleMore, ReceiptText, Route, Sparkles, Wallet } from "lucide-react";
 import { toast } from "sonner";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -162,6 +163,7 @@ export function WhatsAppClient() {
             <Button asChild>
               <Link href="/dashboard/transactions">Ver transações</Link>
             </Button>
+            <AwuMascot className="ml-2 hidden w-28 sm:block" title="Awu com celular" variant="whatsapp" />
           </div>
         </div>
 

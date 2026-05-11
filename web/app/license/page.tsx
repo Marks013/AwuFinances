@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { BillingSummaryCard } from "@/features/billing/components/billing-summary-card";
 import { getCurrentTenantAccess } from "@/lib/auth/session";
@@ -37,24 +38,33 @@ export default async function LicensePage() {
 
   return (
     <main id="main-content" className="page-shell">
-      <section className="surface content-section mx-auto max-w-3xl py-10 sm:py-14">
-        <div className="eyebrow">Licenca</div>
-        <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">
-          {canAccessApp ? "Licenca e assinatura da conta" : "Acesso temporariamente indisponivel"}
-        </h1>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-muted-foreground)]">
-          {canAccessApp ? (
-            <>
-              A conta <strong>{access.tenant.name}</strong> esta ativa. Revise plano, limites, recursos liberados e
-              situacao da assinatura.
-            </>
-          ) : (
-            <>
-              A conta <strong>{access.tenant.name}</strong> esta com a licenca bloqueada no momento. Revise o plano,
-              a ativacao da conta e a data de expiracao para voltar a operar normalmente.
-            </>
-          )}
-        </p>
+      <section className="surface content-section mx-auto max-w-5xl py-10 sm:py-14">
+        <div className="flex flex-wrap items-start justify-between gap-6">
+          <div className="min-w-0 flex-1">
+            <div className="eyebrow">Licenca</div>
+            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">
+              {canAccessApp ? "Licenca e assinatura da conta" : "Acesso temporariamente indisponivel"}
+            </h1>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-muted-foreground)]">
+              {canAccessApp ? (
+                <>
+                  A conta <strong>{access.tenant.name}</strong> esta ativa. Revise plano, limites, recursos liberados e
+                  situacao da assinatura.
+                </>
+              ) : (
+                <>
+                  A conta <strong>{access.tenant.name}</strong> esta com a licenca bloqueada no momento. Revise o plano,
+                  a ativacao da conta e a data de expiracao para voltar a operar normalmente.
+                </>
+              )}
+            </p>
+          </div>
+          <AwuMascot
+            className="w-28 sm:w-36"
+            title={canAccessApp ? "Awu comemorando" : "Awu apontando aviso"}
+            variant={canAccessApp ? "success" : "alert"}
+          />
+        </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           <article className="metric-card">

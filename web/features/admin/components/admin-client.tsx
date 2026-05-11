@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -1208,6 +1209,16 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
           </div>
         {isPlatformAdmin ? (
           <div className="admin-hero-rail">
+            <article className="metric-card overflow-hidden">
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="metric-label">Clientes</p>
+                  <p className="metric-value">Central</p>
+                  <p className="metric-footnote">Visão de relacionamento e suporte.</p>
+                </div>
+                <AwuMascot className="w-24" title="Awu Clientes" variant="admin" />
+              </div>
+            </article>
             <article className="metric-card">
               <p className="metric-label">Contas ativas</p>
               <p className="metric-value">{statsQuery.data?.activeTenants ?? 0}</p>

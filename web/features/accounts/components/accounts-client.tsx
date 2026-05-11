@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Input } from "@/components/ui/input";
@@ -432,9 +433,12 @@ export function AccountsClient() {
             </article>
           ))}
           {!accountsQuery.isLoading && accounts.length === 0 ? (
-            <div className="muted-panel border border-dashed px-4 py-6 text-sm text-[var(--color-muted-foreground)] md:col-span-2">
-              Nenhuma conta foi cadastrada ainda. Crie ao menos uma conta para centralizar despesas, receitas e
-              transferências.
+            <div className="muted-panel flex flex-wrap items-center justify-between gap-4 border border-dashed px-4 py-6 text-sm text-[var(--color-muted-foreground)] md:col-span-2">
+              <p className="max-w-xl">
+                Nenhuma conta foi cadastrada ainda. Crie ao menos uma conta para centralizar despesas, receitas e
+                transferências.
+              </p>
+              <AwuMascot className="w-24" title="Awu esperando uma ação" variant="empty-state" />
             </div>
           ) : null}
         </div>

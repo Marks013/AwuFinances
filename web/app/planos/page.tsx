@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { ArrowRight, Check, CircleDollarSign, LockKeyhole, MessageCircleMore, ShieldCheck, Sparkles, X } from "lucide-react";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { Button } from "@/components/ui/button";
 import { PlanCheckoutLink } from "@/features/billing/components/plan-checkout-link";
@@ -122,14 +123,19 @@ export default async function PlansPage() {
           </div>
 
           <article className="rounded-[32px] border border-white/12 bg-white/10 p-6">
-            <div className="flex items-center gap-3 text-white/82">
-              <ShieldCheck className="size-5" />
-              <p className="text-sm font-semibold uppercase tracking-[0.16em]">Checkout seguro</p>
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <div className="flex items-center gap-3 text-white/82">
+                  <ShieldCheck className="size-5" />
+                  <p className="text-sm font-semibold uppercase tracking-[0.16em]">Checkout seguro</p>
+                </div>
+                <p className="mt-5 text-2xl font-semibold tracking-[-0.05em] text-white">
+                  O pagamento é confirmado pelo Mercado Pago e a assinatura da conta é ativada automaticamente sem depender
+                  de conferência manual.
+                </p>
+              </div>
+              <AwuMascot className="hidden w-28 sm:block" title="Awu comemorando" variant="success" />
             </div>
-            <p className="mt-5 text-2xl font-semibold tracking-[-0.05em] text-white">
-              O pagamento é confirmado pelo Mercado Pago e a assinatura da conta é ativada automaticamente sem depender
-              de conferência manual.
-            </p>
           </article>
         </div>
       </section>

@@ -18,6 +18,7 @@ import {
   YAxis
 } from "recharts";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { Label } from "@/components/ui/label";
@@ -395,6 +396,13 @@ export function ReportsClient() {
             </div>
           </div>
           <div className="grid w-full gap-4 xl:max-w-[34rem] xl:grid-cols-2">
+            <article className="flex items-center justify-between gap-4 rounded-[1.5rem] border border-white/10 bg-white/8 p-4 backdrop-blur-sm xl:col-span-2">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60">Awu Report</p>
+                <p className="mt-3 text-lg font-semibold text-white">Leitura visual para enxergar o mês sem esforço.</p>
+              </div>
+              <AwuMascot className="w-24 sm:w-32" title="Awu com gráfico" variant="report" />
+            </article>
             <article className="rounded-[1.5rem] border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60">Resultado</p>
               <p className={`hero-amount mt-3 ${amountClass(data?.summary?.balance ?? 0)}`}>{formatCurrency(data?.summary?.balance ?? 0)}</p>

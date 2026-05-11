@@ -6,6 +6,7 @@ import { requireSessionUser } from "@/lib/auth/session";
 import {
   getCardStatementSnapshot,
   getStatementDisplayMonth,
+  getStatementTransactionWhere,
   resolveStatementMonthForDisplay,
   statementMonthSchema
 } from "@/lib/cards/statement";
@@ -79,9 +80,12 @@ export async function GET(request: Request, context: Params) {
     });
 
     const statementItemsWhere: Prisma.TransactionWhereInput = {
-      tenantId: user.tenantId,
-      cardId: id,
-      competence: statement.month
+      ...getStatementTransactionWhere({
+        tenantId: user.tenantId,
+        cardId: id,
+        start: statement.start,
+        end: statement.end
+      })
     };
 
     const [transactions, transactionsCount, installmentItems, payment] = await Promise.all([

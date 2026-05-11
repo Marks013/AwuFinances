@@ -1,4 +1,4 @@
-import { StatementMonthAnchor, TransactionType, type PrismaClient } from "@prisma/client";
+import { Prisma, StatementMonthAnchor, TransactionType, type PrismaClient } from "@prisma/client";
 import { z } from "zod";
 
 import { prisma } from "@/lib/prisma/client";
@@ -352,6 +352,27 @@ export async function resolveStatementMonthForDisplay({
   return matchingMonth ?? displayMonth;
 }
 
+export function getStatementTransactionWhere({
+  tenantId,
+  cardId,
+  start,
+  end
+}: {
+  tenantId: string;
+  cardId: string;
+  start: Date;
+  end: Date;
+}): Prisma.TransactionWhereInput {
+  return {
+    tenantId,
+    cardId,
+    date: {
+      gte: start,
+      lte: end
+    }
+  };
+}
+
 async function getStatementCycleDates({
   tenantId,
   card,
@@ -467,13 +488,15 @@ export async function getCardStatementSnapshot({
     month: statementMonth,
     client
   });
+  const statementTransactionsWhere = getStatementTransactionWhere({
+    tenantId,
+    cardId: card.id,
+    start: statementDates.start,
+    end: statementDates.end
+  });
   const [statementTransactions, allCardTransactions, payments] = await Promise.all([
     client.transaction.findMany({
-      where: {
-        tenantId,
-        cardId: card.id,
-        competence: statementMonth
-      },
+      where: statementTransactionsWhere,
       select: {
         amount: true,
         type: true

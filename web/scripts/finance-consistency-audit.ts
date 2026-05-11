@@ -150,8 +150,8 @@ async function main() {
   const userPassword = "FinanceAudit123!";
   const results: string[] = [];
   assertCondition(
-    deriveStatementMonthAnchor(3, 10) === "close_month",
-    "Fechamento antes do vencimento deveria ser associado ao mes do fechamento"
+    deriveStatementMonthAnchor(3, 10) === "previous_month",
+    "Fechamento antes do vencimento deveria ser associado ao mes anterior"
   );
   assertCondition(
     deriveStatementMonthAnchor(24, 8) === "close_month",
@@ -206,7 +206,7 @@ async function main() {
         { closeDay: 1, dueDay: 10, statementMonthAnchor: deriveStatementMonthAnchor(1, 10) },
         new Date(2026, 2, 31, 12, 0, 0, 0)
       )
-    ) === "2026-04-30",
+    ) === "2026-03-31",
     "Compra em 31/03 deveria permanecer na competencia de março quando o fechamento ocorre em 01/05 para abril"
   );
   assertCondition(

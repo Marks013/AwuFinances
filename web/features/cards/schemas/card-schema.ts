@@ -5,10 +5,7 @@ export const statementMonthAnchorValues = ["close_month", "previous_month"] as c
 const MAX_DECIMAL_15_2 = 9_999_999_999_999.99;
 
 export function deriveStatementMonthAnchor(closeDay: number, dueDay: number): StatementMonthAnchor {
-  void closeDay;
-  void dueDay;
-
-  return "close_month";
+  return closeDay < dueDay ? "previous_month" : "close_month";
 }
 
 export const cardFormSchema = z

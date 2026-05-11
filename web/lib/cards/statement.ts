@@ -59,9 +59,7 @@ function getDateDisplayTime(date: Date) {
 }
 
 function getStatementMonthAnchorOffset(anchor: StatementMonthAnchor) {
-  void anchor;
-
-  return 0;
+  return anchor === "previous_month" ? -1 : 0;
 }
 
 function getStatementMonthOffsetForDue(closeDay: number, dueDay: number) {

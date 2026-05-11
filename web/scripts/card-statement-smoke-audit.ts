@@ -26,10 +26,10 @@ async function main() {
   };
   const earlyBeforeClose = buildCardBillingSnapshot(earlyClosingCard, new Date(2026, 3, 2, 12, 0, 0, 0));
   const earlyOnClose = buildCardBillingSnapshot(earlyClosingCard, new Date(2026, 3, 3, 12, 0, 0, 0));
-  assertCondition(earlyClosingCard.statementMonthAnchor === "close_month", "Fechamento antes do vencimento deve usar mes do fechamento");
-  assertCondition(earlyBeforeClose.competence === "2026-04", `Compra antes do fechamento deveria ir para 2026-04: ${earlyBeforeClose.competence}`);
-  assertCondition(earlyBeforeClose.dueDate.toISOString().slice(0, 10) === "2026-04-10", "Vencimento da fatura corrente incorreto");
-  assertCondition(earlyOnClose.competence === "2026-05", `Compra no dia do fechamento deveria ir para 2026-05: ${earlyOnClose.competence}`);
+  assertCondition(earlyClosingCard.statementMonthAnchor === "previous_month", "Fechamento antes do vencimento deve usar mes anterior");
+  assertCondition(earlyBeforeClose.competence === "2026-03", `Compra antes do fechamento deveria ir para 2026-03: ${earlyBeforeClose.competence}`);
+  assertCondition(earlyBeforeClose.dueDate.toISOString().slice(0, 10) === "2026-04-10", "Vencimento da fatura anterior incorreto");
+  assertCondition(earlyOnClose.competence === "2026-04", `Compra no dia do fechamento deveria ir para 2026-04: ${earlyOnClose.competence}`);
 
   const lateClosingCard = {
     closeDay: 24,

@@ -1,7 +1,7 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight, AtSign, BarChart3, CircleDollarSign, CreditCard, MessageCircleMore, ShieldCheck, Sparkles, Target } from "lucide-react";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { Button } from "@/components/ui/button";
 import { PlanCheckoutLink } from "@/features/billing/components/plan-checkout-link";
@@ -95,16 +95,7 @@ export default function HomePage() {
                     Saldo, compromissos e rotina financeira em uma narrativa única.
                   </p>
                 </div>
-                <Image
-                  alt="Mascote Awu Finances acenando"
-                  className="h-auto w-28 rounded-[24px] border border-white/12 object-cover sm:w-36"
-                  height={1254}
-                  priority
-                  sizes="(max-width: 640px) 7rem, 9rem"
-                  src="/brand/awu-logo-mascot.webp?v=20260512-transparent"
-                  unoptimized
-                  width={1254}
-                />
+                <AwuMascot className="w-28 sm:w-36" title="Awu acenando na pagina inicial" variant="default" />
               </div>
               <div className="mt-6 grid gap-3">
                 {highlights.map((item) => (
@@ -268,15 +259,7 @@ export default function HomePage() {
 
         <article className="surface-strong rounded-[38px] px-8 py-10 md:px-10 md:py-12">
           <div className="section-stack">
-            <Image
-              alt="Serviços Awu Finances"
-              className="w-full rounded-[30px] border border-white/12 object-cover"
-              height={1254}
-              sizes="(max-width: 1024px) 100vw, 38vw"
-              src="/brand/awu-services.webp?v=20260512-transparent"
-              unoptimized
-              width={1254}
-            />
+            <AwuMascot className="mx-auto w-52 max-w-full sm:w-64" title="Awu apresentando servicos" variant="admin" />
             <div className="flex items-center gap-3 text-white/78">
               <Sparkles className="size-5" />
               <span className="text-sm font-semibold uppercase tracking-[0.18em]">Entrada no painel</span>

@@ -79,6 +79,10 @@ export function AwuMascot({ className, title, variant = "default" }: AwuMascotPr
         width={asset.width}
       />
       <span aria-hidden="true" className="awu-mascot-glow" />
+      <span aria-hidden="true" className="awu-mascot-blink awu-mascot-blink-left" />
+      <span aria-hidden="true" className="awu-mascot-blink awu-mascot-blink-right" />
+      <span aria-hidden="true" className="awu-mascot-motion-line awu-mascot-motion-line-one" />
+      <span aria-hidden="true" className="awu-mascot-motion-line awu-mascot-motion-line-two" />
       <span aria-hidden="true" className="awu-mascot-sparkle awu-mascot-sparkle-one" />
       <span aria-hidden="true" className="awu-mascot-sparkle awu-mascot-sparkle-two" />
       <span aria-hidden="true" className="awu-mascot-cue" />

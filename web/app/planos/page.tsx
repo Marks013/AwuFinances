@@ -1,8 +1,8 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { Route } from "next";
 import { ArrowRight, AtSign, Check, CircleDollarSign, LockKeyhole, MessageCircleMore, ShieldCheck, Sparkles, X } from "lucide-react";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { Button } from "@/components/ui/button";
 import { PlanCheckoutLink } from "@/features/billing/components/plan-checkout-link";
@@ -134,16 +134,7 @@ export default async function PlansPage() {
                   de conferência manual.
                 </p>
               </div>
-              <Image
-                alt="Planos Awu Finances"
-                className="hidden h-auto w-36 rounded-[26px] border border-white/12 object-cover sm:block"
-                height={1254}
-                priority
-                sizes="9rem"
-                src="/brand/awu-plans.webp?v=20260512-transparent"
-                unoptimized
-                width={1254}
-              />
+              <AwuMascot className="hidden w-36 sm:inline-flex" title="Awu comemorando planos" variant="success" />
             </div>
           </article>
         </div>

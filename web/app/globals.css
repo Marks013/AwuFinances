@@ -1329,6 +1329,300 @@ button {
   min-width: 0;
 }
 
+.awu-mascot {
+  isolation: isolate;
+  transform-origin: 50% 88%;
+}
+
+.awu-mascot-image {
+  animation: awu-idle 4.8s ease-in-out infinite;
+  transform-origin: 50% 88%;
+  transition: transform 260ms ease, filter 260ms ease;
+  will-change: transform;
+}
+
+.awu-mascot-glow,
+.awu-mascot-cue,
+.awu-mascot-sparkle {
+  pointer-events: none;
+  position: absolute;
+  z-index: -1;
+}
+
+.awu-mascot-glow {
+  inset: 18% 8% 8%;
+  border-radius: 999px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-primary) 18%, transparent), transparent 68%);
+  filter: blur(10px);
+  opacity: 0.72;
+  transform: translateY(8%);
+}
+
+.awu-mascot-cue {
+  right: 8%;
+  top: 16%;
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  background: var(--color-primary);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 34%, transparent);
+  opacity: 0;
+}
+
+.awu-mascot-sparkle {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-primary) 72%, white);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--color-primary) 42%, transparent);
+  opacity: 0;
+}
+
+.awu-mascot-sparkle-one {
+  right: 12%;
+  top: 10%;
+}
+
+.awu-mascot-sparkle-two {
+  left: 18%;
+  top: 22%;
+  animation-delay: 1.1s;
+}
+
+.awu-mascot[data-variant="default"] .awu-mascot-image {
+  animation-name: awu-wave;
+}
+
+.awu-mascot[data-variant="default"] .awu-mascot-sparkle,
+.awu-mascot[data-variant="success"] .awu-mascot-sparkle,
+.awu-mascot[data-variant="admin"] .awu-mascot-sparkle {
+  animation: awu-sparkle 2.8s ease-in-out infinite;
+}
+
+.awu-mascot[data-variant="whatsapp"] .awu-mascot-image {
+  animation-name: awu-phone-nod;
+}
+
+.awu-mascot[data-variant="whatsapp"] .awu-mascot-cue {
+  opacity: 1;
+  animation: awu-ping 2.2s ease-out infinite;
+}
+
+.awu-mascot[data-variant="report"] .awu-mascot-image {
+  animation-name: awu-report-read;
+}
+
+.awu-mascot[data-variant="report"] .awu-mascot-cue {
+  left: 12%;
+  top: 68%;
+  width: 54%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-primary) 72%, white), transparent);
+  opacity: 0.8;
+  animation: awu-scan 2.9s ease-in-out infinite;
+  box-shadow: none;
+}
+
+.awu-mascot[data-variant="success"] .awu-mascot-image {
+  animation-name: awu-celebrate;
+}
+
+.awu-mascot[data-variant="alert"] .awu-mascot-image {
+  animation-name: awu-alert-point;
+}
+
+.awu-mascot[data-variant="alert"] .awu-mascot-cue {
+  right: 2%;
+  top: 20%;
+  opacity: 1;
+  background: var(--color-coral-500);
+  animation: awu-alert-pulse 1.7s ease-in-out infinite;
+}
+
+.awu-mascot[data-variant="empty-state"] .awu-mascot-image {
+  animation-name: awu-waiting;
+}
+
+.awu-mascot[data-variant="empty-state"] .awu-mascot-glow {
+  opacity: 0.42;
+  animation: awu-slow-blink 3.6s ease-in-out infinite;
+}
+
+.awu-mascot[data-variant="admin"] .awu-mascot-image {
+  animation-name: awu-present;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .awu-mascot:hover .awu-mascot-image {
+    filter: saturate(1.05);
+    transform: translateY(-3px) rotate(1.5deg);
+  }
+}
+
+@keyframes awu-idle {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(0.7deg);
+  }
+}
+
+@keyframes awu-wave {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  18% {
+    transform: translateY(-3px) rotate(-2.4deg);
+  }
+  36% {
+    transform: translateY(-5px) rotate(2.6deg);
+  }
+  54% {
+    transform: translateY(-3px) rotate(-1.2deg);
+  }
+}
+
+@keyframes awu-phone-nod {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  45% {
+    transform: translateY(-3px) rotate(1.8deg);
+  }
+  58% {
+    transform: translateY(-3px) rotate(-1deg);
+  }
+}
+
+@keyframes awu-report-read {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.012);
+  }
+}
+
+@keyframes awu-celebrate {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  34% {
+    transform: translateY(-7px) rotate(-1.6deg) scale(1.02);
+  }
+  58% {
+    transform: translateY(-3px) rotate(1.4deg) scale(1.01);
+  }
+}
+
+@keyframes awu-alert-point {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  40% {
+    transform: translateX(3px) rotate(1.4deg);
+  }
+  54% {
+    transform: translateX(0) rotate(-0.8deg);
+  }
+}
+
+@keyframes awu-waiting {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(3px) scale(0.992);
+  }
+}
+
+@keyframes awu-present {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  42% {
+    transform: translateY(-3px) rotate(-0.9deg);
+  }
+}
+
+@keyframes awu-ping {
+  0% {
+    transform: scale(0.7);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 42%, transparent);
+  }
+  72% {
+    transform: scale(1);
+    box-shadow: 0 0 0 12px transparent;
+  }
+  100% {
+    transform: scale(0.7);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes awu-scan {
+  0%,
+  100% {
+    transform: translateY(-8px);
+    opacity: 0;
+  }
+  30%,
+  70% {
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(14px);
+  }
+}
+
+@keyframes awu-sparkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.5) rotate(0deg);
+  }
+  42% {
+    opacity: 0.95;
+    transform: scale(1) rotate(45deg);
+  }
+  58% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes awu-alert-pulse {
+  0%,
+  100% {
+    transform: scale(0.8);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-coral-500) 34%, transparent);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+
+@keyframes awu-slow-blink {
+  0%,
+  100% {
+    opacity: 0.28;
+  }
+  45%,
+  55% {
+    opacity: 0.68;
+  }
+}
+
 @media (hover: hover) and (pointer: fine) {
   .surface:hover,
   .metric-card:hover,
@@ -1343,7 +1637,11 @@ button {
   .metric-card,
   .data-card,
   .editorial-panel,
-  .progress-fill {
+  .progress-fill,
+  .awu-mascot-image,
+  .awu-mascot-cue,
+  .awu-mascot-glow,
+  .awu-mascot-sparkle {
     animation: none;
   }
 

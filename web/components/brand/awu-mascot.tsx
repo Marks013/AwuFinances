@@ -59,17 +59,29 @@ export function AwuMascot({ className, title, variant = "default" }: AwuMascotPr
   const asset = mascotAssets[variant];
 
   return (
-    <Image
-      alt={title ?? asset.label}
-      className={cn("h-auto w-40 shrink-0 object-contain drop-shadow-[0_24px_34px_rgba(16,27,24,0.18)]", className)}
-      decoding="async"
-      draggable={false}
-      height={asset.height}
-      loading="lazy"
-      sizes="(max-width: 640px) 7rem, 10rem"
-      src={asset.src}
-      unoptimized
-      width={asset.width}
-    />
+    <span
+      aria-label={title ?? asset.label}
+      className={cn("awu-mascot relative inline-flex h-auto w-40 shrink-0", className)}
+      data-variant={variant}
+      role="img"
+    >
+      <Image
+        alt=""
+        aria-hidden="true"
+        className="awu-mascot-image h-auto w-full object-contain drop-shadow-[0_24px_34px_rgba(16,27,24,0.18)]"
+        decoding="async"
+        draggable={false}
+        height={asset.height}
+        loading="lazy"
+        sizes="(max-width: 640px) 7rem, 10rem"
+        src={asset.src}
+        unoptimized
+        width={asset.width}
+      />
+      <span aria-hidden="true" className="awu-mascot-glow" />
+      <span aria-hidden="true" className="awu-mascot-sparkle awu-mascot-sparkle-one" />
+      <span aria-hidden="true" className="awu-mascot-sparkle awu-mascot-sparkle-two" />
+      <span aria-hidden="true" className="awu-mascot-cue" />
+    </span>
   );
 }

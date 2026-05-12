@@ -12,45 +12,45 @@ type AwuMascotProps = {
 
 const mascotAssets: Record<AwuMascotVariant, { height: number; label: string; src: string; width: number }> = {
   default: {
-    height: 419,
+    height: 411,
     label: "Awu acenando",
-    src: "/mascots/awu-default.webp?v=20260512",
-    width: 330
+    src: "/mascots/awu-default.webp?v=20260512-clean",
+    width: 304
   },
   whatsapp: {
-    height: 400,
+    height: 392,
     label: "Awu com celular",
-    src: "/mascots/awu-whatsapp.webp?v=20260512",
-    width: 334
+    src: "/mascots/awu-whatsapp.webp?v=20260512-clean",
+    width: 306
   },
   report: {
-    height: 399,
+    height: 391,
     label: "Awu com gráfico",
-    src: "/mascots/awu-report.webp?v=20260512",
-    width: 340
+    src: "/mascots/awu-report.webp?v=20260512-clean",
+    width: 315
   },
   success: {
-    height: 407,
+    height: 399,
     label: "Awu comemorando",
-    src: "/mascots/awu-success.webp?v=20260512",
-    width: 350
+    src: "/mascots/awu-success.webp?v=20260512-clean",
+    width: 318
   },
   alert: {
-    height: 415,
+    height: 407,
     label: "Awu apontando",
-    src: "/mascots/awu-alert.webp?v=20260512",
-    width: 355
+    src: "/mascots/awu-alert.webp?v=20260512-clean",
+    width: 291
   },
   "empty-state": {
-    height: 397,
+    height: 389,
     label: "Awu esperando uma ação",
-    src: "/mascots/awu-empty-state.webp?v=20260512",
-    width: 345
+    src: "/mascots/awu-empty-state.webp?v=20260512-clean",
+    width: 278
   },
   admin: {
     height: 720,
     label: "Awu Clientes",
-    src: "/mascots/awu-admin.webp?v=20260512",
+    src: "/mascots/awu-admin.webp?v=20260512-clean",
     width: 720
   }
 };

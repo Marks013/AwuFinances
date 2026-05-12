@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 
+import { AwuMascot, type AwuMascotVariant } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 
 type PopupCampaignItem = {
@@ -79,6 +80,13 @@ function kindLabel(kind: PopupCampaignItem["kind"]) {
   return "Aviso";
 }
 
+function mascotVariantForCampaign(campaign: PopupCampaignItem | null, tone: PopupCampaignItem["tone"]): AwuMascotVariant {
+  if (tone === "warning") return "alert";
+  if (tone === "success" || campaign?.kind === "welcome") return "success";
+  if (campaign?.kind === "update" || tone === "spotlight") return "report";
+  return "default";
+}
+
 function hasSessionPopup(sessionKey: string) {
   try {
     return window.sessionStorage.getItem(sessionKey) === "shown";
@@ -105,6 +113,7 @@ export function LoginPopupAnnouncer() {
   const popupTone =
     campaign?.targetUserId && campaign.eyebrow?.toLowerCase() === "suporte" ? "calm" : campaign?.tone ?? "calm";
   const styles = useMemo(() => toneStyles(popupTone), [popupTone]);
+  const mascotVariant = mascotVariantForCampaign(campaign, popupTone);
 
   useEffect(() => {
     if (!canRequestPopup || !sessionUserId) {
@@ -213,38 +222,52 @@ export function LoginPopupAnnouncer() {
   return (
     <div className="pointer-events-none fixed inset-0 z-[70] flex items-end justify-center p-4 sm:items-end sm:justify-end sm:p-6">
       <div
-        className={`pointer-events-auto w-full max-w-[26rem] rounded-[1.8rem] border p-5 text-[var(--color-foreground)] ${styles.shell} ${styles.glow}`}
+        className={`pointer-events-auto w-full max-w-[30rem] overflow-hidden rounded-[1.8rem] border text-[var(--color-foreground)] ${styles.shell} ${styles.glow}`}
       >
-        <div className="flex items-start gap-3">
-          <div className={`rounded-full px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.18em] ${styles.badge}`}>
-            {campaign.eyebrow ?? kindLabel(campaign.kind)}
+        <div className="relative p-5">
+          <div className="absolute -right-8 -top-6 hidden h-36 w-36 rounded-full bg-[color-mix(in_srgb,var(--color-primary)_12%,transparent)] sm:block" />
+          <AwuMascot
+            className="absolute right-3 top-6 hidden w-24 sm:block"
+            title="Awu acompanhando o aviso"
+            variant={mascotVariant}
+          />
+
+          <div className="flex items-start gap-3 sm:pr-28">
+            <div className={`rounded-full px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.18em] ${styles.badge}`}>
+              {campaign.eyebrow ?? kindLabel(campaign.kind)}
+            </div>
+            {campaign.dismissible ? (
+              <button
+                aria-label="Fechar aviso"
+                className="ml-auto rounded-full px-2 py-1 text-sm text-[var(--color-muted-foreground)] transition hover:bg-[color-mix(in_srgb,var(--color-foreground)_6%,transparent)]"
+                onClick={handleDismiss}
+                type="button"
+              >
+                ×
+              </button>
+            ) : null}
           </div>
-          {campaign.dismissible ? (
-            <button
-              aria-label="Fechar aviso"
-              className="ml-auto rounded-full px-2 py-1 text-sm text-[var(--color-muted-foreground)] transition hover:bg-[color-mix(in_srgb,var(--color-foreground)_6%,transparent)]"
-              onClick={handleDismiss}
-              type="button"
-            >
-              ×
-            </button>
-          ) : null}
-        </div>
 
-        <h3 className="mt-4 text-xl font-semibold tracking-[-0.03em]">{campaign.title}</h3>
-        <p className="mt-3 text-sm leading-7 text-[var(--color-muted-foreground)]">{campaign.body}</p>
+          <div className="mt-4 flex items-start gap-4">
+            <AwuMascot className="w-20 sm:hidden" title="Awu acompanhando o aviso" variant={mascotVariant} />
+            <div className="min-w-0 flex-1 sm:pr-24">
+              <h3 className="text-xl font-semibold tracking-[-0.03em]">{campaign.title}</h3>
+              <p className="mt-3 text-sm leading-7 text-[var(--color-muted-foreground)]">{campaign.body}</p>
+            </div>
+          </div>
 
-        <div className="mt-5 flex flex-wrap gap-3">
-          {campaign.ctaLabel && campaign.ctaUrl ? (
-            <Button onClick={handlePrimaryAction} type="button">
-              {campaign.ctaLabel}
-            </Button>
-          ) : null}
-          {campaign.dismissible ? (
-            <Button onClick={handleDismiss} type="button" variant="ghost">
-              {campaign.dismissLabel || "Agora nao"}
-            </Button>
-          ) : null}
+          <div className="mt-5 flex flex-wrap gap-3 sm:pr-24">
+            {campaign.ctaLabel && campaign.ctaUrl ? (
+              <Button onClick={handlePrimaryAction} type="button">
+                {campaign.ctaLabel}
+              </Button>
+            ) : null}
+            {campaign.dismissible ? (
+              <Button onClick={handleDismiss} type="button" variant="ghost">
+                {campaign.dismissLabel || "Agora nao"}
+              </Button>
+            ) : null}
+          </div>
         </div>
       </div>
     </div>

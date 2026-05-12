@@ -54,6 +54,9 @@ const brand = {
   white: "#ffffff"
 };
 
+const awuMascotImagePath = "/brand/awu-logo-mascot.webp?v=20260512";
+const awuInstagramUrl = "https://www.instagram.com/awufinances";
+
 const themes: Record<EmailTheme, EmailThemeConfig> = {
   generic: {
     badge: "Notificação",
@@ -128,6 +131,15 @@ function escapeHtml(value: string) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
+}
+
+function buildAbsolutePublicUrl(path: string) {
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL?.trim() || process.env.AUTH_URL?.trim() || "https://savepointfinanca.site").replace(
+    /\/+$/,
+    ""
+  );
+
+  return path.startsWith("/") ? `${baseUrl}${path}` : `${baseUrl}/${path}`;
 }
 
 function normalizeText(value: string) {
@@ -221,6 +233,7 @@ export function buildBrandedEmailTemplate({
   theme = "generic"
 }: EmailTemplateInput) {
   const currentTheme = themes[theme];
+  const awuMascotImageUrl = buildAbsolutePublicUrl(awuMascotImagePath);
 
   return `<!doctype html>
 <html lang="pt-BR">
@@ -291,6 +304,14 @@ export function buildBrandedEmailTemplate({
           color: ${brand.white} !important;
         }
       }
+      @media only screen and (max-width: 540px) {
+        .email-hero-mascot {
+          display: none !important;
+        }
+        .email-hero-title {
+          font-size: 29px !important;
+        }
+      }
     </style>
   </head>
   <body class="email-page" style="margin:0;padding:0;background:${brand.shellBottom};background-color:${brand.shellBottom};font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;">
@@ -306,7 +327,9 @@ export function buildBrandedEmailTemplate({
                     <td style="vertical-align:middle;">
                       <table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
                         <tr>
-                          <td align="center" style="width:54px;height:54px;border-radius:20px;background:linear-gradient(145deg,#163229 0%,#1d6a4d 58%,#d97b55 100%);color:${brand.white};font-size:20px;font-weight:800;letter-spacing:-0.08em;box-shadow:0 18px 42px rgba(19,111,79,0.32);">S•</td>
+                          <td align="center" style="width:58px;height:58px;border-radius:22px;background:${brand.cream};background-color:${brand.cream};box-shadow:0 18px 42px rgba(19,111,79,0.32);overflow:hidden;">
+                            <img src="${escapeHtml(awuMascotImageUrl)}" width="58" height="58" alt="Awu Finances" style="display:block;width:58px;height:58px;border:0;outline:none;text-decoration:none;object-fit:cover;" />
+                          </td>
                           <td style="padding-left:14px;">
                             <p style="margin:0;color:rgba(255,248,236,0.68);font-size:11px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;">Awu Finances</p>
                             <p style="margin:4px 0 0 0;color:${brand.cream};font-size:19px;font-weight:800;letter-spacing:-0.04em;">Inteligência financeira diária</p>
@@ -323,8 +346,17 @@ export function buildBrandedEmailTemplate({
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
                   <tr>
                     <td bgcolor="${brand.cream}" class="email-hero" style="padding:34px 34px 22px 34px;background:radial-gradient(circle at top right,rgba(217,123,85,0.26),transparent 32%),linear-gradient(145deg,${brand.cream} 0%,${brand.paperEdge} 100%);background-color:${brand.cream};">
-                      <span style="display:inline-block;border-radius:999px;background:rgba(19,111,79,0.12);border:1px solid rgba(19,111,79,0.16);padding:8px 12px;color:${currentTheme.accentDark};font-size:11px;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;">${escapeHtml(eyebrow ?? currentTheme.badge)}</span>
-                      <h1 style="margin:20px 0 0 0;color:${brand.ink};font-size:34px;line-height:1.02;font-weight:800;letter-spacing:-0.06em;">${escapeHtml(title)}</h1>
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+                        <tr>
+                          <td style="vertical-align:top;">
+                            <span style="display:inline-block;border-radius:999px;background:rgba(19,111,79,0.12);border:1px solid rgba(19,111,79,0.16);padding:8px 12px;color:${currentTheme.accentDark};font-size:11px;font-weight:900;letter-spacing:0.14em;text-transform:uppercase;">${escapeHtml(eyebrow ?? currentTheme.badge)}</span>
+                            <h1 class="email-hero-title" style="margin:20px 0 0 0;color:${brand.ink};font-size:34px;line-height:1.02;font-weight:800;letter-spacing:-0.06em;">${escapeHtml(title)}</h1>
+                          </td>
+                          <td align="right" class="email-hero-mascot" style="width:130px;vertical-align:top;padding-left:18px;">
+                            <img src="${escapeHtml(awuMascotImageUrl)}" width="118" height="118" alt="Mascote Awu" style="display:block;width:118px;height:118px;border:0;outline:none;text-decoration:none;border-radius:28px;object-fit:cover;box-shadow:0 18px 34px rgba(19,111,79,0.18);" />
+                          </td>
+                        </tr>
+                      </table>
                     </td>
                   </tr>
                   <tr>
@@ -345,6 +377,10 @@ export function buildBrandedEmailTemplate({
             <tr>
               <td style="padding:18px 8px 0 8px;">
                 <p style="margin:0;color:rgba(255,248,236,0.62);font-size:12px;line-height:1.7;text-align:center;">${escapeHtml(footer ?? currentTheme.footer)}</p>
+                <p style="margin:8px 0 0 0;color:rgba(255,248,236,0.58);font-size:12px;line-height:1.7;text-align:center;">
+                  Acompanhe o Awu Finances no Instagram:
+                  <a href="${awuInstagramUrl}" style="color:${brand.cream};font-weight:800;text-decoration:none;">@awufinances</a>
+                </p>
               </td>
             </tr>
           </table>

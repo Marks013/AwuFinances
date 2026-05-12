@@ -410,7 +410,7 @@ export function SubscriptionsClient() {
             </h1>
           </div>
           <div className="flex items-start gap-3">
-            <AwuMascot className="hidden w-20 xl:block" title="Awu acompanhando recorrências" variant="default" />
+            <AwuMascot className="hidden w-20 xl:block" title="Awu apontando recorrências" variant="alert" />
             {!showEditor ? (
               <Button onClick={openCreateForm} type="button" variant="secondary">
                 Nova recorrência

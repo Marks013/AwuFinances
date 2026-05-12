@@ -618,7 +618,7 @@ export function TransactionsClient() {
               <h1 className="text-3xl font-semibold tracking-[-0.04em]">Operação financeira</h1>
             </div>
             <div className="flex items-start gap-3">
-              <AwuMascot className="hidden w-20 xl:block" title="Awu para lançamentos financeiros" variant="default" />
+              <AwuMascot className="hidden w-20 xl:block" title="Awu conferindo lançamentos" variant="report" />
               {!showEditor ? (
                 <Button onClick={openCreateForm} type="button" variant="secondary">
                   Nova transação

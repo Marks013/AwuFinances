@@ -219,7 +219,7 @@ export function AccountsClient() {
             </h1>
           </div>
           <div className="flex items-start gap-3">
-            <AwuMascot className="hidden w-20 xl:block" title="Awu acompanhando contas" variant="default" />
+            <AwuMascot className="hidden w-20 xl:block" title="Awu aguardando contas" variant="empty-state" />
             {!showEditor ? (
               <Button onClick={openCreateForm} type="button" variant="secondary">
                 Nova conta

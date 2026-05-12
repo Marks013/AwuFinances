@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -188,17 +187,12 @@ export function SharingClient() {
   return (
     <div className="space-y-6">
       <section className="surface content-section">
-        <div className="flex items-start justify-between gap-6">
-          <div className="min-w-0 flex-1">
-            <div className="eyebrow">Convidar parentes</div>
-            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">Compartilhamento familiar</h1>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-[var(--color-muted-foreground)]">
-              Este espaço é exclusivo para dividir a mesma carteira financeira com uma única pessoa da família. O controle
-              fica com o titular da conta e o convidado não pode reenviar convites nem administrar acessos.
-            </p>
-          </div>
-          <AwuMascot className="hidden w-24 xl:block" title="Awu acompanhando compartilhamento familiar" variant="default" />
-        </div>
+        <div className="eyebrow">Convidar parentes</div>
+        <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">Compartilhamento familiar</h1>
+        <p className="mt-4 max-w-3xl text-sm leading-7 text-[var(--color-muted-foreground)]">
+          Este espaço é exclusivo para dividir a mesma carteira financeira com uma única pessoa da família. O controle
+          fica com o titular da conta e o convidado não pode reenviar convites nem administrar acessos.
+        </p>
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           <article className="metric-card">
             <p className="metric-label">Titular da conta</p>

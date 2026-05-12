@@ -14,43 +14,43 @@ const mascotAssets: Record<AwuMascotVariant, { height: number; label: string; sr
   default: {
     height: 419,
     label: "Awu acenando",
-    src: "/mascots/awu-default.webp",
+    src: "/mascots/awu-default.webp?v=20260512",
     width: 330
   },
   whatsapp: {
     height: 400,
     label: "Awu com celular",
-    src: "/mascots/awu-whatsapp.webp",
+    src: "/mascots/awu-whatsapp.webp?v=20260512",
     width: 334
   },
   report: {
     height: 399,
     label: "Awu com gráfico",
-    src: "/mascots/awu-report.webp",
+    src: "/mascots/awu-report.webp?v=20260512",
     width: 340
   },
   success: {
     height: 407,
     label: "Awu comemorando",
-    src: "/mascots/awu-success.webp",
+    src: "/mascots/awu-success.webp?v=20260512",
     width: 350
   },
   alert: {
     height: 415,
     label: "Awu apontando",
-    src: "/mascots/awu-alert.webp",
+    src: "/mascots/awu-alert.webp?v=20260512",
     width: 355
   },
   "empty-state": {
     height: 397,
     label: "Awu esperando uma ação",
-    src: "/mascots/awu-empty-state.webp",
+    src: "/mascots/awu-empty-state.webp?v=20260512",
     width: 345
   },
   admin: {
     height: 720,
     label: "Awu Clientes",
-    src: "/mascots/awu-admin.webp",
+    src: "/mascots/awu-admin.webp?v=20260512",
     width: 720
   }
 };

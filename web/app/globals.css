@@ -1337,20 +1337,18 @@ button {
 .awu-mascot-stage {
   display: inline-flex;
   position: relative;
-  transform: perspective(760px) translate3d(var(--awu-tilt-shift-x, 0), var(--awu-tilt-shift-y, 0), 0)
-    rotateX(var(--awu-tilt-rotate-x, 0deg)) rotateY(var(--awu-tilt-rotate-y, 0deg));
+  transform: translate3d(0, 0, 0);
   transform-origin: 50% 82%;
-  transform-style: preserve-3d;
+  transform-style: flat;
   transition: filter 220ms ease, transform 220ms ease;
   width: 100%;
-  will-change: transform;
 }
 
 .awu-mascot-image {
-  animation: awu-breathe 5.2s ease-in-out infinite;
+  animation: none;
+  backface-visibility: hidden;
   transform-origin: 50% 88%;
   transition: filter 260ms ease;
-  will-change: transform;
 }
 
 .awu-mascot-glow,
@@ -1461,7 +1459,7 @@ button {
 }
 
 .awu-mascot[data-variant="default"] .awu-mascot-image {
-  animation: awu-breathe 5.2s ease-in-out infinite;
+  animation: none;
   transform-origin: 24% 72%;
 }
 
@@ -1483,7 +1481,7 @@ button {
 }
 
 .awu-mascot[data-variant="whatsapp"] .awu-mascot-image {
-  animation: awu-breathe 5s ease-in-out infinite;
+  animation: none;
   transform-origin: 77% 76%;
 }
 
@@ -1503,7 +1501,7 @@ button {
 }
 
 .awu-mascot[data-variant="report"] .awu-mascot-image {
-  animation: awu-breathe 5.3s ease-in-out infinite;
+  animation: none;
   transform-origin: 35% 82%;
 }
 
@@ -1536,7 +1534,7 @@ button {
 }
 
 .awu-mascot[data-variant="success"] .awu-mascot-image {
-  animation: awu-success-lift 3.6s ease-in-out infinite;
+  animation: none;
   transform-origin: 50% 86%;
 }
 
@@ -1553,7 +1551,7 @@ button {
 }
 
 .awu-mascot[data-variant="alert"] .awu-mascot-image {
-  animation: awu-breathe 4.7s ease-in-out infinite;
+  animation: none;
   transform-origin: 25% 78%;
 }
 
@@ -1573,7 +1571,7 @@ button {
 }
 
 .awu-mascot[data-variant="empty-state"] .awu-mascot-image {
-  animation: awu-waiting 3.4s ease-in-out infinite;
+  animation: none;
   transform-origin: 50% 92%;
 }
 
@@ -1599,7 +1597,7 @@ button {
 }
 
 .awu-mascot[data-variant="admin"] .awu-mascot-image {
-  animation: awu-breathe 5.1s ease-in-out infinite;
+  animation: none;
   transform-origin: 52% 82%;
 }
 
@@ -1835,8 +1833,7 @@ button {
 @media (hover: hover) and (pointer: fine) {
   .awu-mascot:hover .awu-mascot-stage {
     filter: saturate(1.08);
-    transform: perspective(760px) translate3d(var(--awu-tilt-shift-x, 0), calc(var(--awu-tilt-shift-y, 0) - 4px), 0)
-      rotateX(var(--awu-tilt-rotate-x, 0deg)) rotateY(var(--awu-tilt-rotate-y, 0deg)) scale(1.025);
+    transform: translate3d(0, -2px, 0);
   }
 
   .awu-mascot:hover .awu-mascot-sparkle,
@@ -1845,29 +1842,6 @@ button {
   .awu-mascot:hover .awu-mascot-orbit,
   .awu-mascot:hover .awu-mascot-action {
     animation-duration: 1.4s;
-  }
-}
-
-@keyframes awu-breathe {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-2px) scale(1.006);
-  }
-}
-
-@keyframes awu-success-lift {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
-  }
-  30% {
-    transform: translateY(-5px) scale(1.016);
-  }
-  54% {
-    transform: translateY(-2px) scale(1.008);
   }
 }
 

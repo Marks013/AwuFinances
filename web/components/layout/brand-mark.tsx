@@ -24,11 +24,11 @@ export function BrandMark({ inverted = false, compact = false, className }: Bran
         <div className="absolute -bottom-3 left-1 size-8 rounded-full bg-[rgba(217,123,85,0.34)] blur-md" />
         <span
           className={cn(
-            "relative font-semibold tracking-normal",
-            compact ? "text-[1.02rem]" : "text-[1.28rem]"
+            "relative block max-w-[82%] text-center font-semibold leading-none tracking-[-0.06em] whitespace-nowrap",
+            compact ? "text-[0.82rem]" : "text-[1.02rem]"
           )}
         >
-          AW
+          AWU
         </span>
       </div>
       {compact ? (

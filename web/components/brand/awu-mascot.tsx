@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { useState, type CSSProperties, type PointerEvent } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -60,41 +59,13 @@ const mascotAssets: Record<AwuMascotVariant, { height: number; label: string; sr
 
 export function AwuMascot({ className, title, variant = "default" }: AwuMascotProps) {
   const asset = mascotAssets[variant];
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-
-  function handlePointerMove(event: PointerEvent<HTMLSpanElement>) {
-    if (event.pointerType === "touch") return;
-
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width - 0.5;
-    const y = (event.clientY - rect.top) / rect.height - 0.5;
-
-    setTilt({
-      x: Number(x.toFixed(3)),
-      y: Number(y.toFixed(3))
-    });
-  }
-
-  function resetTilt() {
-    setTilt({ x: 0, y: 0 });
-  }
 
   return (
     <span
       aria-label={title ?? asset.label}
       className={cn("awu-mascot relative inline-flex h-auto w-40 shrink-0", className)}
       data-variant={variant}
-      onPointerLeave={resetTilt}
-      onPointerMove={handlePointerMove}
       role="img"
-      style={
-        {
-          "--awu-tilt-rotate-x": `${(-tilt.y * 7).toFixed(2)}deg`,
-          "--awu-tilt-rotate-y": `${(tilt.x * 8).toFixed(2)}deg`,
-          "--awu-tilt-shift-x": `${(tilt.x * 4).toFixed(2)}px`,
-          "--awu-tilt-shift-y": `${(tilt.y * 3).toFixed(2)}px`
-        } as CSSProperties
-      }
     >
       <span className="awu-mascot-stage">
         <Image

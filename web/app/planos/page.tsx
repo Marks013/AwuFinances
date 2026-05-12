@@ -1,8 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Route } from "next";
-import { ArrowRight, Check, CircleDollarSign, LockKeyhole, MessageCircleMore, ShieldCheck, Sparkles, X } from "lucide-react";
+import { ArrowRight, AtSign, Check, CircleDollarSign, LockKeyhole, MessageCircleMore, ShieldCheck, Sparkles, X } from "lucide-react";
 
-import { AwuMascot } from "@/components/brand/awu-mascot";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { Button } from "@/components/ui/button";
 import { PlanCheckoutLink } from "@/features/billing/components/plan-checkout-link";
@@ -134,7 +134,16 @@ export default async function PlansPage() {
                   de conferência manual.
                 </p>
               </div>
-              <AwuMascot className="hidden w-28 sm:block" title="Awu comemorando" variant="success" />
+              <Image
+                alt="Planos Awu Finances"
+                className="hidden h-auto w-36 rounded-[26px] border border-white/12 object-cover sm:block"
+                height={1254}
+                priority
+                sizes="9rem"
+                src="/brand/awu-plans.webp?v=20260512"
+                unoptimized
+                width={1254}
+              />
             </div>
           </article>
         </div>
@@ -278,6 +287,24 @@ export default async function PlansPage() {
             A licença da conta é atualizada automaticamente após a confirmação do pagamento.
           </p>
         </article>
+      </section>
+
+      <section className="surface mt-6 rounded-[34px] p-6 md:p-8">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="eyebrow">Awu nas redes</div>
+            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">Veja novidades e conteúdos rápidos no Instagram.</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--color-muted-foreground)]">
+              O perfil oficial reúne atualizações do produto, lembretes de organização financeira e bastidores da plataforma.
+            </p>
+          </div>
+          <Button asChild variant="secondary">
+            <a href="https://www.instagram.com/awufinances" rel="noreferrer" target="_blank">
+              <AtSign className="size-4" />
+              @awufinances
+            </a>
+          </Button>
+        </div>
       </section>
     </main>
   );

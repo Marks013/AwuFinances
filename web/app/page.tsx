@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, BarChart3, CircleDollarSign, CreditCard, MessageCircleMore, ShieldCheck, Sparkles, Target } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight, AtSign, BarChart3, CircleDollarSign, CreditCard, MessageCircleMore, ShieldCheck, Sparkles, Target } from "lucide-react";
 
-import { AwuMascot } from "@/components/brand/awu-mascot";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { Button } from "@/components/ui/button";
 import { PlanCheckoutLink } from "@/features/billing/components/plan-checkout-link";
@@ -95,7 +95,16 @@ export default function HomePage() {
                     Saldo, compromissos e rotina financeira em uma narrativa única.
                   </p>
                 </div>
-                <AwuMascot className="w-28 sm:w-36" title="Awu acenando" variant="default" />
+                <Image
+                  alt="Mascote Awu Finances acenando"
+                  className="h-auto w-28 rounded-[24px] border border-white/12 object-cover sm:w-36"
+                  height={1254}
+                  priority
+                  sizes="(max-width: 640px) 7rem, 9rem"
+                  src="/brand/awu-logo-mascot.webp?v=20260512"
+                  unoptimized
+                  width={1254}
+                />
               </div>
               <div className="mt-6 grid gap-3">
                 {highlights.map((item) => (
@@ -259,6 +268,15 @@ export default function HomePage() {
 
         <article className="surface-strong rounded-[38px] px-8 py-10 md:px-10 md:py-12">
           <div className="section-stack">
+            <Image
+              alt="Serviços Awu Finances"
+              className="w-full rounded-[30px] border border-white/12 object-cover"
+              height={1254}
+              sizes="(max-width: 1024px) 100vw, 38vw"
+              src="/brand/awu-services.webp?v=20260512"
+              unoptimized
+              width={1254}
+            />
             <div className="flex items-center gap-3 text-white/78">
               <Sparkles className="size-5" />
               <span className="text-sm font-semibold uppercase tracking-[0.18em]">Entrada no painel</span>
@@ -320,6 +338,24 @@ export default function HomePage() {
               <p className="mt-3 text-sm leading-7 text-[var(--color-ink-700)]">{pillar.copy}</p>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="surface mt-6 rounded-[34px] p-6 md:p-8">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="eyebrow">Redes sociais</div>
+            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">Acompanhe o Awu Finances no Instagram.</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--color-muted-foreground)]">
+              Novidades, bastidores do produto e conteúdos rápidos sobre organização financeira também aparecem por lá.
+            </p>
+          </div>
+          <Button asChild variant="secondary">
+            <a href="https://www.instagram.com/awufinances" rel="noreferrer" target="_blank">
+              <AtSign className="size-4" />
+              @awufinances
+            </a>
+          </Button>
         </div>
       </section>
     </main>

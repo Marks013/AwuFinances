@@ -118,6 +118,9 @@ export function AwuMascot({ className, title, variant = "default" }: AwuMascotPr
         <span aria-hidden="true" className="awu-mascot-sparkle awu-mascot-sparkle-one" />
         <span aria-hidden="true" className="awu-mascot-sparkle awu-mascot-sparkle-two" />
         <span aria-hidden="true" className="awu-mascot-cue" />
+        <span aria-hidden="true" className="awu-mascot-action awu-mascot-action-one" />
+        <span aria-hidden="true" className="awu-mascot-action awu-mascot-action-two" />
+        <span aria-hidden="true" className="awu-mascot-action awu-mascot-action-three" />
       </span>
     </span>
   );

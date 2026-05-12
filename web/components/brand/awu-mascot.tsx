@@ -68,6 +68,7 @@ export function AwuMascot({ className, title, variant = "default" }: AwuMascotPr
       loading="lazy"
       sizes="(max-width: 640px) 7rem, 10rem"
       src={asset.src}
+      unoptimized
       width={asset.width}
     />
   );

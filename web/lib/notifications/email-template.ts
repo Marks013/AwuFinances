@@ -54,7 +54,7 @@ const brand = {
   white: "#ffffff"
 };
 
-const awuMascotImagePath = "/brand/awu-logo-mascot.webp?v=20260512";
+const awuMascotImagePath = "/brand/awu-logo-mascot.webp?v=20260512-transparent";
 const awuInstagramUrl = "https://www.instagram.com/awufinances";
 
 const themes: Record<EmailTheme, EmailThemeConfig> = {

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { LoginForm } from "@/features/auth/components/login-form";
 import { PlanCheckoutLink } from "@/features/billing/components/plan-checkout-link";
 import { getCurrentTenantAccess } from "@/lib/auth/session";
@@ -45,6 +46,7 @@ export default async function LoginPage() {
               O objetivo aqui nao e apenas entrar no sistema, e sentir que voce esta acessando um
               produto financeiro premium, organizado para uso serio.
             </p>
+            <AwuMascot className="w-28" title="Awu dando boas-vindas" variant="default" />
             <div className="grid gap-3">
               <div className="rounded-[22px] border border-white/12 bg-white/8 p-4">
                 <p className="metric-label text-white/78">Visao consolidada</p>

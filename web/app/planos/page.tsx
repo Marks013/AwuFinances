@@ -140,7 +140,7 @@ export default async function PlansPage() {
                 height={1254}
                 priority
                 sizes="9rem"
-                src="/brand/awu-plans.webp?v=20260512"
+                src="/brand/awu-plans.webp?v=20260512-transparent"
                 unoptimized
                 width={1254}
               />

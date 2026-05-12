@@ -1,3 +1,4 @@
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { ResetPasswordForm } from "@/features/password/components/reset-password-form";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { cookies } from "next/headers";
@@ -28,6 +29,7 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
             <p className="max-w-lg text-base leading-8 text-white/84">
               Use o token de recuperacao recebido e finalize o processo com uma senha nova.
             </p>
+            <AwuMascot className="w-28" title="Awu acompanhando nova senha" variant="alert" />
           </div>
         </div>
         <section className="surface rounded-[36px] p-8 md:p-10 md:max-w-[760px]">

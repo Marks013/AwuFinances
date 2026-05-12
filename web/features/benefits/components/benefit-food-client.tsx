@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Input } from "@/components/ui/input";
@@ -460,26 +461,29 @@ export function BenefitFoodClient() {
       <section className="surface content-section">
         <div className="page-intro">
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
+            <div className="min-w-0 flex-1">
               <div className="eyebrow">Vale Alimentação</div>
               <h1 className="text-3xl font-semibold tracking-[-0.04em]">Recarga, consumo e recorrência</h1>
             </div>
-            {accounts.length > 0 ? (
-              <div className="min-w-[240px] space-y-2">
-                <Label htmlFor="benefit-account-selector">Carteira ativa</Label>
-                <Select
-                  id="benefit-account-selector"
-                  value={activeAccountId}
-                  onChange={(event) => setSelectedAccountId(event.target.value)}
-                >
-                  {accounts.map((account) => (
-                    <option key={account.id} value={account.id}>
-                      {account.name}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-            ) : null}
+            <div className="flex items-start gap-3">
+              <AwuMascot className="hidden w-20 xl:block" title="Awu acompanhando benefícios" variant="success" />
+              {accounts.length > 0 ? (
+                <div className="min-w-[240px] space-y-2">
+                  <Label htmlFor="benefit-account-selector">Carteira ativa</Label>
+                  <Select
+                    id="benefit-account-selector"
+                    value={activeAccountId}
+                    onChange={(event) => setSelectedAccountId(event.target.value)}
+                  >
+                    {accounts.map((account) => (
+                      <option key={account.id} value={account.id}>
+                        {account.name}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+              ) : null}
+            </div>
           </div>
           <p className="text-sm leading-7 text-[var(--color-muted-foreground)]">
             Esta area separa o benefício do fluxo generico. Use recarga para entrada de saldo, consumo para gastos

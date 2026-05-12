@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 
 export default function MaintenancePage() {
@@ -16,6 +17,7 @@ export default function MaintenancePage() {
               O acesso foi pausado temporariamente para proteger a consistência dos dados enquanto a equipe
               conclui ajustes operacionais.
             </p>
+            <AwuMascot className="w-28" title="Awu sinalizando manutenção" variant="alert" />
             <div className="grid gap-3">
               <div className="rounded-[22px] border border-white/12 bg-white/8 p-4">
                 <p className="metric-label text-white/78">Estado atual</p>

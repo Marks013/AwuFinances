@@ -212,17 +212,20 @@ export function AccountsClient() {
     <div className="grid gap-6 2xl:grid-cols-[0.85fr_1.15fr]">
       <section className="surface content-section" ref={formSectionRef}>
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
+          <div className="min-w-0 flex-1">
             <div className="eyebrow">Contas</div>
             <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">
               {isEditing ? "Editar conta" : "Nova conta financeira"}
             </h1>
           </div>
-          {!showEditor ? (
-            <Button onClick={openCreateForm} type="button" variant="secondary">
-              Nova conta
-            </Button>
-          ) : null}
+          <div className="flex items-start gap-3">
+            <AwuMascot className="hidden w-20 xl:block" title="Awu acompanhando contas" variant="default" />
+            {!showEditor ? (
+              <Button onClick={openCreateForm} type="button" variant="secondary">
+                Nova conta
+              </Button>
+            ) : null}
+          </div>
         </div>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-muted-foreground)]">
           Cadastre contas bancárias e carteiras usadas no dia a dia. O saldo atual é recalculado a partir do saldo de

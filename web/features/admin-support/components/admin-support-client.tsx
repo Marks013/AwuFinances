@@ -5,6 +5,7 @@ import { CheckCircle2, Megaphone, RotateCw, SendHorizonal, Star } from "lucide-r
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -338,6 +339,7 @@ export function AdminSupportClient() {
               Acompanhe solicitações, falhas de entrega, respostas e histórico de cada conversa.
             </p>
           </div>
+          <AwuMascot className="hidden w-24 xl:block" title="Awu acompanhando atendimento" variant="whatsapp" />
           <article className="metric-card admin-section-metric">
             <p className="metric-label">No recorte</p>
             <p className="metric-value">{tickets.length}</p>

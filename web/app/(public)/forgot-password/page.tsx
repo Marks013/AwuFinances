@@ -1,3 +1,4 @@
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { ForgotPasswordForm } from "@/features/password/components/forgot-password-form";
 import { BrandMark } from "@/components/layout/brand-mark";
 
@@ -13,6 +14,7 @@ export default function ForgotPasswordPage() {
             <p className="max-w-lg text-base leading-8 text-white/84">
               Informe o e-mail cadastrado para iniciar a redefinicao de senha e retomar o acesso ao painel.
             </p>
+            <AwuMascot className="w-28" title="Awu apontando fluxo seguro" variant="alert" />
           </div>
         </div>
         <section className="surface rounded-[36px] p-8 md:p-10 md:max-w-[760px]">

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
@@ -489,7 +490,7 @@ export function CardsClient() {
     <div className="grid gap-6 2xl:grid-cols-[0.85fr_1.15fr]">
       <section className="surface content-section" ref={formSectionRef}>
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
+          <div className="min-w-0 flex-1">
             <div className="eyebrow">Cartões</div>
             <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">
               {isEditing ? "Editar cartão" : "Novo cartão"}
@@ -498,11 +499,14 @@ export function CardsClient() {
               Vale Alimentação é gerenciado na área dedicada, fora do fluxo de cartões.
             </p>
           </div>
-          {!showEditor ? (
-            <Button onClick={openCreateForm} type="button" variant="secondary">
-              Novo cartão
-            </Button>
-          ) : null}
+          <div className="flex items-start gap-3">
+            <AwuMascot className="hidden w-20 xl:block" title="Awu lendo cartões" variant="report" />
+            {!showEditor ? (
+              <Button onClick={openCreateForm} type="button" variant="secondary">
+                Novo cartão
+              </Button>
+            ) : null}
+          </div>
         </div>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-muted-foreground)]">
           Cadastre cartões usados no crédito para acompanhar limite, ciclo de compras, vencimento e impacto nos

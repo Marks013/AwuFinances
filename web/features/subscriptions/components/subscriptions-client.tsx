@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Input } from "@/components/ui/input";
@@ -402,17 +403,20 @@ export function SubscriptionsClient() {
     <div className="grid gap-6 2xl:grid-cols-[0.85fr_1.15fr]">
       <section className="surface content-section" ref={formSectionRef}>
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
+          <div className="min-w-0 flex-1">
             <div className="eyebrow">Assinaturas</div>
             <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">
               {isEditing ? "Editar recorrência" : "Nova recorrência"}
             </h1>
           </div>
-          {!showEditor ? (
-            <Button onClick={openCreateForm} type="button" variant="secondary">
-              Nova recorrência
-            </Button>
-          ) : null}
+          <div className="flex items-start gap-3">
+            <AwuMascot className="hidden w-20 xl:block" title="Awu acompanhando recorrências" variant="default" />
+            {!showEditor ? (
+              <Button onClick={openCreateForm} type="button" variant="secondary">
+                Nova recorrência
+              </Button>
+            ) : null}
+          </div>
         </div>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-muted-foreground)]">
           Use recorrências para registrar despesas e receitas que se repetem todo mês e manter o dashboard coerente com

@@ -101,7 +101,7 @@ export default function HomePage() {
                   height={1254}
                   priority
                   sizes="(max-width: 640px) 7rem, 9rem"
-                  src="/brand/awu-logo-mascot.webp?v=20260512"
+                  src="/brand/awu-logo-mascot.webp?v=20260512-transparent"
                   unoptimized
                   width={1254}
                 />
@@ -273,7 +273,7 @@ export default function HomePage() {
               className="w-full rounded-[30px] border border-white/12 object-cover"
               height={1254}
               sizes="(max-width: 1024px) 100vw, 38vw"
-              src="/brand/awu-services.webp?v=20260512"
+              src="/brand/awu-services.webp?v=20260512-transparent"
               unoptimized
               width={1254}
             />

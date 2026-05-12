@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { PublicRegistrationForm } from "@/features/auth/components/public-registration-form";
 import type { PublicRegistrationValues } from "@/features/password/schemas/password-schema";
@@ -35,6 +36,7 @@ export default async function CadastroPage({ searchParams }: CadastroPageProps) 
             <p className="max-w-lg text-base leading-8 text-white/84">
               O gratuito e a avaliação entram direto. Se escolher Premium, criamos a conta primeiro e abrimos o checkout do Mercado Pago em seguida.
             </p>
+            <AwuMascot className="w-28" title="Awu comemorando novo cadastro" variant="success" />
             <div className="grid gap-3 pt-4 text-sm text-white/78">
               <p>Plano gratuito: conta criada sem pagamento.</p>
               <p>Avaliação Pro: 14 dias liberados automaticamente.</p>

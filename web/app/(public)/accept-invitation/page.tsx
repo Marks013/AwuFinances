@@ -1,3 +1,4 @@
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { AcceptInvitationForm } from "@/features/invitations/components/accept-invitation-form";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { cookies } from "next/headers";
@@ -28,6 +29,7 @@ export default async function AcceptInvitationPage({ searchParams }: AcceptInvit
             <p className="max-w-lg text-base leading-8 text-white/84">
               Revise o convite, crie a sua senha e entre no painel com o perfil liberado para voce.
             </p>
+            <AwuMascot className="w-28" title="Awu dando boas-vindas ao convite" variant="default" />
           </div>
         </div>
         <section className="surface rounded-[36px] p-8 md:p-10">

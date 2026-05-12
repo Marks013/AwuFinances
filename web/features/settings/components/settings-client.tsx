@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { BillingSummaryCard } from "@/features/billing/components/billing-summary-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -357,11 +358,16 @@ export function SettingsClient() {
 
       <section className="surface content-section">
         <div className="page-intro">
-          <div className="eyebrow">Configurações</div>
-          <h1 className="text-3xl font-semibold tracking-[-0.03em]">Perfil, preferências e rotina</h1>
-          <p className="max-w-2xl text-sm leading-7 text-[var(--color-muted-foreground)]">
-            Esta área centraliza preferências pessoais, lembretes recorrentes e os sinais operacionais do seu dia a dia.
-          </p>
+          <div className="flex items-start justify-between gap-6">
+            <div className="min-w-0 flex-1">
+              <div className="eyebrow">Configurações</div>
+              <h1 className="text-3xl font-semibold tracking-[-0.03em]">Perfil, preferências e rotina</h1>
+              <p className="max-w-2xl text-sm leading-7 text-[var(--color-muted-foreground)]">
+                Esta área centraliza preferências pessoais, lembretes recorrentes e os sinais operacionais do seu dia a dia.
+              </p>
+            </div>
+            <AwuMascot className="hidden w-24 xl:block" title="Awu ajustando preferências" variant="default" />
+          </div>
         </div>
         {profileQuery.data?.isPlatformAdmin ? (
           <div className="warning-panel mt-6 text-sm">

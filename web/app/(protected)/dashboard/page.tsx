@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowRight, BellRing, CreditCard, Landmark, Target } from "lucide-react";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { SummaryCards } from "@/features/dashboard/components/summary-cards";
 import { syncDueSubscriptionTransactions } from "@/lib/automation/subscriptions";
 import { requireEndUserDashboardPageUser } from "@/lib/auth/session";
@@ -284,12 +285,17 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <article className="surface motion-card overflow-hidden rounded-[34px] p-6 md:p-8">
           <div className="section-stack">
             <div className="page-intro">
-              <div className="eyebrow">Painel financeiro</div>
-              <h1 className="page-title max-w-3xl">Visão central da operação em {monthLabel}</h1>
-              <p className="page-copy">
-                Acompanhe resultado por competência, caixa real das contas e compromissos do período sem misturar
-                naturezas diferentes.
-              </p>
+              <div className="flex items-start justify-between gap-6">
+                <div className="min-w-0 flex-1">
+                  <div className="eyebrow">Painel financeiro</div>
+                  <h1 className="page-title max-w-3xl">Visão central da operação em {monthLabel}</h1>
+                  <p className="page-copy">
+                    Acompanhe resultado por competência, caixa real das contas e compromissos do período sem misturar
+                    naturezas diferentes.
+                  </p>
+                </div>
+                <AwuMascot className="hidden w-28 lg:block" title="Awu acompanhando o painel" variant="default" />
+              </div>
             </div>
 
             <div className="metric-grid-compact">

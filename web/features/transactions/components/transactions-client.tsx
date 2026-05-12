@@ -6,6 +6,7 @@ import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Input } from "@/components/ui/input";
@@ -612,15 +613,18 @@ export function TransactionsClient() {
       <section className="surface content-section" ref={formSectionRef}>
         <div className="page-intro">
           <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
+            <div className="min-w-0 flex-1">
               <div className="eyebrow">{isEditing ? "Editar transação" : "Nova transação"}</div>
               <h1 className="text-3xl font-semibold tracking-[-0.04em]">Operação financeira</h1>
             </div>
-            {!showEditor ? (
-              <Button onClick={openCreateForm} type="button" variant="secondary">
-                Nova transação
-              </Button>
-            ) : null}
+            <div className="flex items-start gap-3">
+              <AwuMascot className="hidden w-20 xl:block" title="Awu para lançamentos financeiros" variant="default" />
+              {!showEditor ? (
+                <Button onClick={openCreateForm} type="button" variant="secondary">
+                  Nova transação
+                </Button>
+              ) : null}
+            </div>
           </div>
           <p className="text-sm leading-7 text-[var(--color-muted-foreground)]">
             Registre lançamentos, vincule contas ou cartões e mantenha o histórico financeiro conectado ao painel,

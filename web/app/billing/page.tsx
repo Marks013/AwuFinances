@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { BillingSummaryCard } from "@/features/billing/components/billing-summary-card";
 import { CheckoutClient } from "@/features/billing/components/checkout-client";
@@ -66,9 +67,12 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
                 direto com a licença da conta.
               </p>
             </div>
-            <Button asChild variant="secondary">
-              <Link href={pageData.access.license.canAccessApp ? "/dashboard/settings" : "/license"}>Voltar</Link>
-            </Button>
+            <div className="flex items-start gap-3">
+              <AwuMascot className="hidden w-24 xl:block" title="Awu comemorando assinatura" variant="success" />
+              <Button asChild variant="secondary">
+                <Link href={pageData.access.license.canAccessApp ? "/dashboard/settings" : "/license"}>Voltar</Link>
+              </Button>
+            </div>
           </div>
         </section>
 

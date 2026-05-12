@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
@@ -237,14 +238,19 @@ export function InstallmentsClient() {
   return (
     <div className="space-y-6">
       <section className="surface content-section">
-        <div className="eyebrow">Parcelamentos</div>
-        <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">Cartões e parcelas</h1>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-muted-foreground)]">
-          Esta visão agrega automaticamente compras parceladas registradas em transações com mais de uma parcela.
-        </p>
-        <p className="mt-3 text-sm font-medium text-[var(--color-primary)]">
-          Competência ativa: {formatMonthKeyLabel(month)}
-        </p>
+        <div className="flex items-start justify-between gap-6">
+          <div className="min-w-0 flex-1">
+            <div className="eyebrow">Parcelamentos</div>
+            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">Cartões e parcelas</h1>
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-muted-foreground)]">
+              Esta visão agrega automaticamente compras parceladas registradas em transações com mais de uma parcela.
+            </p>
+            <p className="mt-3 text-sm font-medium text-[var(--color-primary)]">
+              Competência ativa: {formatMonthKeyLabel(month)}
+            </p>
+          </div>
+          <AwuMascot className="hidden w-24 xl:block" title="Awu analisando parcelamentos" variant="report" />
+        </div>
         <div className="filter-shell mt-6">
           <p className="filter-kicker">Leitura</p>
           <p className="filter-copy">

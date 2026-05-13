@@ -82,6 +82,10 @@ export async function GET() {
     {
       status,
       service: "awufinances-web",
+      checks: {
+        database,
+        environment: { status: environment.status }
+      },
       latencyMs: Date.now() - startedAt,
       timestamp: new Date().toISOString()
     },

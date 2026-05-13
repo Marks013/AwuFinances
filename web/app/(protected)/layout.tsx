@@ -15,9 +15,7 @@ type ProtectedLayoutProps = {
 };
 
 const PATHNAME_HEADER = "x-awu-finances-pathname";
-const LEGACY_PATHNAME_HEADER = "x-savepoint-pathname";
 const SEARCH_HEADER = "x-awu-finances-search";
-const LEGACY_SEARCH_HEADER = "x-savepoint-search";
 
 function isNextRedirectError(error: unknown) {
   return typeof error === "object" && error !== null && "digest" in error && String(error.digest).startsWith("NEXT_REDIRECT");
@@ -26,8 +24,8 @@ function isNextRedirectError(error: unknown) {
 export default async function ProtectedLayout({ children }: ProtectedLayoutProps) {
   try {
     const requestHeaders = await headers();
-    const pathname = requestHeaders.get(PATHNAME_HEADER) ?? requestHeaders.get(LEGACY_PATHNAME_HEADER);
-    const search = sanitizeSearch(requestHeaders.get(SEARCH_HEADER) ?? requestHeaders.get(LEGACY_SEARCH_HEADER)) ?? "";
+    const pathname = requestHeaders.get(PATHNAME_HEADER);
+    const search = sanitizeSearch(requestHeaders.get(SEARCH_HEADER)) ?? "";
     const access = await getCurrentTenantAccess({
       allowBlocked: true
     });
@@ -93,7 +91,7 @@ export default async function ProtectedLayout({ children }: ProtectedLayoutProps
   }
 
   const requestHeaders = await headers();
-  const currentPathname = requestHeaders.get(PATHNAME_HEADER) ?? requestHeaders.get(LEGACY_PATHNAME_HEADER);
+  const currentPathname = requestHeaders.get(PATHNAME_HEADER);
 
   return <DashboardShell currentPathname={currentPathname}>{children}</DashboardShell>;
 }

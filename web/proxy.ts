@@ -7,15 +7,10 @@ const MAINTENANCE_PATH = "/manutencao";
 const ALLOWED_API_PREFIXES = ["/api/health", "/api/integrations"];
 const CSRF_EXEMPT_API_PREFIXES = ["/api/cron", "/api/health", "/api/integrations", "/api/webhooks"];
 const MAINTENANCE_BYPASS_HEADER = "x-awu-finances-maintenance-bypass";
-const LEGACY_MAINTENANCE_BYPASS_HEADER = "x-savepoint-maintenance-bypass";
 const INVITATION_TOKEN_COOKIE = "awu-finances-invitation-token";
-const LEGACY_INVITATION_TOKEN_COOKIE = "savepoint-invitation-token";
 const RESET_TOKEN_COOKIE = "awu-finances-reset-token";
-const LEGACY_RESET_TOKEN_COOKIE = "savepoint-reset-token";
 const PATHNAME_HEADER = "x-awu-finances-pathname";
-const LEGACY_PATHNAME_HEADER = "x-savepoint-pathname";
 const SEARCH_HEADER = "x-awu-finances-search";
-const LEGACY_SEARCH_HEADER = "x-savepoint-search";
 const isProduction = process.env.NODE_ENV === "production";
 
 function isAllowedDuringMaintenance(pathname: string) {
@@ -33,10 +28,7 @@ function hasMaintenanceBypass(request: NextRequest) {
     return false;
   }
 
-  return (
-    request.headers.get(MAINTENANCE_BYPASS_HEADER)?.trim() === expectedToken ||
-    request.headers.get(LEGACY_MAINTENANCE_BYPASS_HEADER)?.trim() === expectedToken
-  );
+  return request.headers.get(MAINTENANCE_BYPASS_HEADER)?.trim() === expectedToken;
 }
 
 function isSecureRequest(request: NextRequest) {
@@ -189,7 +181,6 @@ export function proxy(request: NextRequest) {
     const response = NextResponse.redirect(safeUrl);
 
     const cookieName = pathname === "/accept-invitation" ? INVITATION_TOKEN_COOKIE : RESET_TOKEN_COOKIE;
-    const legacyCookieName = pathname === "/accept-invitation" ? LEGACY_INVITATION_TOKEN_COOKIE : LEGACY_RESET_TOKEN_COOKIE;
     const cookieOptions = {
       httpOnly: true,
       maxAge: 10 * 60,
@@ -199,7 +190,6 @@ export function proxy(request: NextRequest) {
     } as const;
 
     response.cookies.set(cookieName, token, cookieOptions);
-    response.cookies.set(legacyCookieName, token, cookieOptions);
 
     return applySecurityHeaders(response, contentSecurityPolicy, request);
   }
@@ -211,9 +201,7 @@ export function proxy(request: NextRequest) {
   }
 
   requestHeaders.set(PATHNAME_HEADER, pathname);
-  requestHeaders.set(LEGACY_PATHNAME_HEADER, pathname);
   requestHeaders.set(SEARCH_HEADER, sanitizedSearch);
-  requestHeaders.set(LEGACY_SEARCH_HEADER, sanitizedSearch);
 
   if (isStateChangingApiRequest(request) && !isCsrfExemptApiPath(pathname) && !hasValidOrigin(request)) {
     return applySecurityHeaders(NextResponse.json({ message: "Forbidden" }, { status: 403 }), contentSecurityPolicy, request);

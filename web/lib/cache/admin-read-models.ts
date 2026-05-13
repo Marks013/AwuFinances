@@ -3,7 +3,13 @@ import { revalidateTag, unstable_cache } from "next/cache";
 
 import { prisma } from "@/lib/prisma/client";
 
-const HIDDEN_ADMIN_USER_EMAILS = ["smoke-family@savepoint.local", "owner@savepoint.local", "admin@savepointfinanca.site"];
+const HIDDEN_ADMIN_USER_EMAILS = [
+  "smoke-family@awufinances.local",
+  "owner@awu-finances.local",
+  "owner@awufinances.local",
+  "admin@awufinances.com.br",
+  "admin@awu-finances.local",
+];
 
 type AdminUsersQueryInput = {
   tenantId?: string;

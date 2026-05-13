@@ -15,7 +15,6 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
   const token =
     params.token ??
     cookieStore.get("awu-finances-reset-token")?.value ??
-    cookieStore.get("savepoint-reset-token")?.value ??
     "";
 
   return (

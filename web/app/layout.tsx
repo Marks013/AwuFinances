@@ -28,7 +28,7 @@ type RootLayoutProps = {
 
 export default async function RootLayout({ children }: RootLayoutProps) {
   const [cookieStore, headerStore] = await Promise.all([cookies(), headers()]);
-  const storedTheme = cookieStore.get("awu-finances-theme")?.value ?? cookieStore.get("savepoint-theme")?.value;
+  const storedTheme = cookieStore.get("awu-finances-theme")?.value;
   const nonce = headerStore.get("x-nonce") ?? undefined;
   const initialTheme = storedTheme === "light" ? "light" : "dark";
   const initialSession = await auth().catch((error) => {

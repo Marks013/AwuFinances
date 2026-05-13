@@ -198,9 +198,10 @@ async function ensureAdmin(client) {
     `
       INSERT INTO "Tenant" ("id", "name", "slug", "planId", "isActive", "trialDays", "createdAt", "updatedAt")
       VALUES ('tenant-bootstrap', $1, $2, $3, true, 0, NOW(), NOW())
-      ON CONFLICT ("slug")
+      ON CONFLICT ("id")
       DO UPDATE SET
         "name" = EXCLUDED."name",
+        "slug" = EXCLUDED."slug",
         "planId" = EXCLUDED."planId",
         "isActive" = true,
         "updatedAt" = NOW()
@@ -208,7 +209,7 @@ async function ensureAdmin(client) {
     [ADMIN_TENANT_NAME, ADMIN_TENANT_SLUG, bootstrapPlan.id]
   );
 
-  const tenantResult = await client.query('SELECT "id" FROM "Tenant" WHERE "slug" = $1 LIMIT 1', [ADMIN_TENANT_SLUG]);
+  const tenantResult = await client.query('SELECT "id" FROM "Tenant" WHERE "id" = $1 LIMIT 1', ["tenant-bootstrap"]);
   const tenantId = tenantResult.rows[0]?.id;
 
   if (!tenantId) {
@@ -221,9 +222,10 @@ async function ensureAdmin(client) {
         "id", "tenantId", "email", "name", "passwordHash", "role", "isPlatformAdmin", "isActive", "loginCount", "createdAt", "updatedAt"
       )
       VALUES ('user-bootstrap-admin', $1, $2, $3, $4, 'admin', true, true, 0, NOW(), NOW())
-      ON CONFLICT ("email")
+      ON CONFLICT ("id")
       DO UPDATE SET
         "tenantId" = EXCLUDED."tenantId",
+        "email" = EXCLUDED."email",
         "name" = EXCLUDED."name",
         "passwordHash" = EXCLUDED."passwordHash",
         "role" = 'admin',
@@ -234,7 +236,7 @@ async function ensureAdmin(client) {
     [tenantId, ADMIN_EMAIL, ADMIN_NAME, passwordHash]
   );
 
-  const userResult = await client.query('SELECT "id" FROM "User" WHERE "email" = $1 LIMIT 1', [ADMIN_EMAIL]);
+  const userResult = await client.query('SELECT "id" FROM "User" WHERE "id" = $1 LIMIT 1', ["user-bootstrap-admin"]);
   const userId = userResult.rows[0]?.id;
 
   if (!userId) {
@@ -256,9 +258,10 @@ async function ensureAdmin(client) {
         "id", "tenantId", "email", "name", "passwordHash", "role", "isPlatformAdmin", "isActive", "loginCount", "createdAt", "updatedAt"
       )
       VALUES ('user-bootstrap-owner', $1, $2, $3, $4, 'admin', false, true, 0, NOW(), NOW())
-      ON CONFLICT ("email")
+      ON CONFLICT ("id")
       DO UPDATE SET
         "tenantId" = EXCLUDED."tenantId",
+        "email" = EXCLUDED."email",
         "name" = EXCLUDED."name",
         "passwordHash" = EXCLUDED."passwordHash",
         "role" = 'admin',
@@ -269,7 +272,7 @@ async function ensureAdmin(client) {
     [tenantId, LOCAL_OWNER_EMAIL, LOCAL_OWNER_NAME, ownerPasswordHash]
   );
 
-  const ownerResult = await client.query('SELECT "id" FROM "User" WHERE "email" = $1 LIMIT 1', [LOCAL_OWNER_EMAIL]);
+  const ownerResult = await client.query('SELECT "id" FROM "User" WHERE "id" = $1 LIMIT 1', ["user-bootstrap-owner"]);
   const ownerId = ownerResult.rows[0]?.id;
 
   if (!ownerId) {
@@ -292,9 +295,10 @@ async function ensureAdmin(client) {
           "id", "tenantId", "email", "name", "passwordHash", "role", "isPlatformAdmin", "isActive", "loginCount", "createdAt", "updatedAt"
         )
         VALUES ('user-bootstrap-family', $1, $2, $3, $4, 'member', false, true, 0, NOW(), NOW())
-        ON CONFLICT ("email")
+        ON CONFLICT ("id")
         DO UPDATE SET
           "tenantId" = EXCLUDED."tenantId",
+          "email" = EXCLUDED."email",
           "name" = EXCLUDED."name",
           "passwordHash" = EXCLUDED."passwordHash",
           "role" = 'member',
@@ -305,7 +309,7 @@ async function ensureAdmin(client) {
       [tenantId, FAMILY_USER_EMAIL, FAMILY_USER_NAME, familyPasswordHash]
     );
 
-    const familyResult = await client.query('SELECT "id" FROM "User" WHERE "email" = $1 LIMIT 1', [FAMILY_USER_EMAIL]);
+    const familyResult = await client.query('SELECT "id" FROM "User" WHERE "id" = $1 LIMIT 1', ["user-bootstrap-family"]);
     const familyId = familyResult.rows[0]?.id;
 
     if (!familyId) {

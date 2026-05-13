@@ -15,7 +15,6 @@ export default async function AcceptInvitationPage({ searchParams }: AcceptInvit
   const token =
     params.token ??
     cookieStore.get("awu-finances-invitation-token")?.value ??
-    cookieStore.get("savepoint-invitation-token")?.value ??
     "";
 
   return (

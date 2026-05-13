@@ -134,7 +134,7 @@ function escapeHtml(value: string) {
 }
 
 function buildAbsolutePublicUrl(path: string) {
-  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL?.trim() || process.env.AUTH_URL?.trim() || "https://savepointfinanca.site").replace(
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL?.trim() || process.env.AUTH_URL?.trim() || "https://awufinances.com.br").replace(
     /\/+$/,
     ""
   );

@@ -469,7 +469,7 @@ export function ReportsClient() {
           </div>
         </div>
         <div className="muted-panel mt-4 flex flex-wrap items-start justify-between gap-3 text-sm">
-          <p className="filter-summary-meta shrink-0">{`Base de leitura: ${monthLabel} • Janela ativa: ${periodLabel}.`}</p>
+          <p className="filter-summary-meta w-full min-w-0 break-words sm:w-auto sm:shrink-0">{`Base de leitura: ${monthLabel} • Janela ativa: ${periodLabel}.`}</p>
           <p className="filter-summary-copy min-w-0 flex-1 break-words text-left sm:text-right">{refinements.length > 0 ? refinements.join(" • ") : "Sem recortes adicionais no momento."}</p>
         </div>
       </section>
@@ -664,7 +664,7 @@ export function ReportsClient() {
                     onMouseEnter={() => setActiveCategoryIndex(index)}
                     onFocus={() => setActiveCategoryIndex(index)}
                     onClick={() => setActiveCategoryIndex(index)}
-                    className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition duration-200 ${
+                    className={`min-h-9 rounded-full border px-3 py-2 text-xs font-semibold leading-4 transition duration-200 ${
                       isActive
                         ? "border-white/20 bg-white/12 text-[var(--color-foreground)] shadow-[0_14px_30px_-18px_rgba(255,255,255,0.45)]"
                         : "border-white/8 bg-white/5 text-[var(--color-muted-foreground)] hover:border-white/16 hover:bg-white/9"

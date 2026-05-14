@@ -10,15 +10,81 @@ import { isAuthError, isPermissionError } from "@/lib/observability/errors";
 
 type BillingPageProps = {
   searchParams?: Promise<{
+    checkout_status?: string;
+    collection_status?: string;
     cycle?: string;
     intent?: string;
+    merchant_order_id?: string;
+    payment_id?: string;
+    preference_id?: string;
+    preapproval_id?: string;
+    status?: string;
   }>;
 };
+
+function normalizeCheckoutReturnStatus(params: Awaited<BillingPageProps["searchParams"]>) {
+  const candidates = [params?.checkout_status, params?.collection_status, params?.status]
+    .map((value) => value?.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (candidates.some((value) => value === "approved" || value === "accredited")) {
+    return "approved" as const;
+  }
+
+  if (candidates.some((value) => value === "pending" || value === "in_process" || value === "in_mediation")) {
+    return "pending" as const;
+  }
+
+  if (
+    candidates.some(
+      (value) => value === "rejected" || value === "failure" || value === "cancelled" || value === "canceled"
+    )
+  ) {
+    return "rejected" as const;
+  }
+
+  const hasMercadoPagoReference = Boolean(
+    params?.payment_id || params?.preapproval_id || params?.preference_id || params?.merchant_order_id
+  );
+
+  return hasMercadoPagoReference ? ("unknown" as const) : null;
+}
+
+function BillingLoadFallback() {
+  return (
+    <main id="main-content" className="page-shell">
+      <div className="mx-auto max-w-3xl py-10 sm:py-14">
+        <section className="surface content-section">
+          <div className="eyebrow">Mercado Pago</div>
+          <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">
+            Nao foi possivel abrir a central de assinatura
+          </h1>
+          <p className="mt-4 text-sm leading-7 text-[var(--color-muted-foreground)]">
+            A sua sessao foi reconhecida, mas os dados de billing nao responderam com seguranca agora. Volte ao painel e
+            tente novamente; se o pagamento ja foi feito, a liberacao continua sendo conferida pelos webhooks.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button asChild>
+              <Link href="/dashboard/settings">Voltar ao painel</Link>
+            </Button>
+            <Button asChild variant="secondary">
+              <Link href="/license">Ver status da licenca</Link>
+            </Button>
+            <Button asChild variant="ghost">
+              <Link href="/billing">Tentar novamente</Link>
+            </Button>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
 
 export default async function BillingPage({ searchParams }: BillingPageProps) {
   const params = searchParams ? await searchParams : undefined;
   const initialCycle = params?.cycle === "annual" ? "annual" : "monthly";
   const initialIntent = params?.intent === "manage-card" ? "manage-card" : "checkout";
+  const checkoutReturnStatus = normalizeCheckoutReturnStatus(params);
   let pageData: Awaited<ReturnType<typeof getBillingCheckoutPageData>>;
 
   try {
@@ -32,7 +98,7 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
       redirect("/dashboard/admin");
     }
 
-    redirect("/login");
+    return <BillingLoadFallback />;
   }
 
   const profile = {
@@ -82,6 +148,17 @@ export default async function BillingPage({ searchParams }: BillingPageProps) {
           amount={pageData.amount}
           annualAmount={pageData.annualAmount}
           annualMaxInstallments={pageData.annualMaxInstallments}
+          checkoutReturn={
+            checkoutReturnStatus
+              ? {
+                  merchantOrderId: params?.merchant_order_id ?? null,
+                  paymentId: params?.payment_id ?? null,
+                  preapprovalId: params?.preapproval_id ?? null,
+                  preferenceId: params?.preference_id ?? null,
+                  status: checkoutReturnStatus
+                }
+              : null
+          }
           currencyId={pageData.currencyId}
           initialCycle={initialCycle}
           initialIntent={initialIntent}

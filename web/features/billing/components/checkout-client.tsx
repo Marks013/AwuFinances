@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CardPayment, initMercadoPago } from "@mercadopago/sdk-react";
@@ -26,6 +26,7 @@ type CheckoutClientProps = {
   amount: number | null;
   annualAmount: number | null;
   annualMaxInstallments: number;
+  checkoutReturn?: CheckoutReturnSnapshot | null;
   currencyId: string;
   planName: string;
   promotions: CheckoutPromotion[];
@@ -37,6 +38,20 @@ type CheckoutClientProps = {
 type CreateSubscriptionPayload = {
   url?: string | null;
   message?: string;
+};
+
+type CheckoutReturnSnapshot = {
+  status: "approved" | "pending" | "rejected" | "unknown";
+  merchantOrderId?: string | null;
+  paymentId?: string | null;
+  preferenceId?: string | null;
+  preapprovalId?: string | null;
+};
+
+type CheckoutFeedback = {
+  tone: "success" | "warning" | "danger" | "info";
+  title: string;
+  description: string;
 };
 
 type CardPaymentFormData = {
@@ -115,10 +130,79 @@ function formatMoney(amount: number, currencyId: string) {
   }).format(amount);
 }
 
+function getFeedbackClassName(tone: CheckoutFeedback["tone"]) {
+  if (tone === "success") {
+    return "border-emerald-200 bg-emerald-50 text-emerald-900";
+  }
+
+  if (tone === "danger") {
+    return "border-red-200 bg-red-50 text-red-800";
+  }
+
+  if (tone === "warning") {
+    return "border-amber-200 bg-amber-50 text-amber-900";
+  }
+
+  return "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-muted-foreground)]";
+}
+
+function resolveCheckoutReturnFeedback(checkoutReturn: CheckoutReturnSnapshot): CheckoutFeedback {
+  if (checkoutReturn.status === "approved") {
+    return {
+      tone: "success",
+      title: "Pagamento aprovado pelo Mercado Pago",
+      description:
+        "Recebemos o retorno de aprovacao. A licenca e sincronizada pelo webhook; se o acesso ainda nao mudou, aguarde alguns instantes e confira a tela de licenca."
+    };
+  }
+
+  if (checkoutReturn.status === "pending") {
+    return {
+      tone: "warning",
+      title: "Pagamento em analise ou aguardando compensacao",
+      description:
+        "O Mercado Pago retornou um status pendente. Evite pagar novamente agora; acompanhe a licenca e aguarde a confirmacao final do provedor."
+    };
+  }
+
+  if (checkoutReturn.status === "rejected") {
+    return {
+      tone: "danger",
+      title: "Pagamento nao aprovado",
+      description:
+        "O provedor recusou ou cancelou a tentativa. Voce pode tentar novamente, revisar os dados do cartao ou escolher o checkout anual com outro meio de pagamento."
+    };
+  }
+
+  return {
+    tone: "info",
+    title: "Retorno do Mercado Pago recebido",
+    description:
+      "O retorno chegou sem um status conclusivo. Mantemos a conferencia pela integracao e exibimos a licenca assim que houver confirmacao segura."
+  };
+}
+
+function CheckoutFeedbackPanel({
+  children,
+  feedback
+}: {
+  children?: ReactNode;
+  feedback: CheckoutFeedback;
+}) {
+  return (
+    <div className={`rounded-[1rem] border p-4 text-sm ${getFeedbackClassName(feedback.tone)}`} role="status">
+      <p className="font-semibold text-current">{feedback.title}</p>
+      <p className="mt-2 leading-6 text-current opacity-80">{feedback.description}</p>
+      {children ? <div className="mt-4 flex flex-wrap gap-3">{children}</div> : null}
+    </div>
+  );
+}
+
 export function CheckoutClient({
   amount,
   annualAmount,
   annualMaxInstallments,
+  checkoutReturn = null,
   currencyId,
   initialCycle = "monthly",
   initialIntent = "checkout",
@@ -132,6 +216,7 @@ export function CheckoutClient({
   const [brickError, setBrickError] = useState<string | null>(null);
   const [brickDiagnostic, setBrickDiagnostic] = useState<string | null>(null);
   const [couponCode, setCouponCode] = useState("");
+  const [checkoutFeedback, setCheckoutFeedback] = useState<CheckoutFeedback | null>(null);
   const [formMode, setFormMode] = useState<"subscribe" | "update-card">(
     initialIntent === "manage-card" ? "update-card" : "subscribe"
   );
@@ -168,10 +253,12 @@ export function CheckoutClient({
     visiblePromotions.find(
       (promotion) => promotion.highlightPriceCard && (promotion.appliesTo === "annual" || promotion.appliesTo === "both")
     ) ?? null;
+  const checkoutReturnFeedback = checkoutReturn ? resolveCheckoutReturnFeedback(checkoutReturn) : null;
   const createSubscriptionMutation = useMutation({
     mutationFn: createSubscription,
     onSuccess: async (payload) => {
       toast.success(payload.message ?? "Assinatura criada com sucesso");
+      setCheckoutFeedback(null);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["billing"] }),
         queryClient.invalidateQueries({ queryKey: ["profile"] })
@@ -180,6 +267,12 @@ export function CheckoutClient({
       window.location.href = payload.url ?? "/license";
     },
     onError: (error) => {
+      setCheckoutFeedback({
+        tone: "danger",
+        title: "Nao foi possivel criar a assinatura mensal",
+        description:
+          error.message || "O provedor nao confirmou a assinatura. Revise os dados do cartao e tente novamente."
+      });
       toast.error(error.message);
     }
   });
@@ -187,12 +280,27 @@ export function CheckoutClient({
     mutationFn: createAnnualPayment,
     onSuccess: (payload) => {
       toast.success(payload.message ?? "Checkout anual iniciado");
+      setCheckoutFeedback(null);
 
       if (payload.url) {
         window.location.href = payload.url;
+        return;
       }
+
+      setCheckoutFeedback({
+        tone: "warning",
+        title: "Checkout anual criado sem URL de redirecionamento",
+        description:
+          "A tentativa foi registrada, mas o Mercado Pago nao devolveu o link de pagamento. Atualize a pagina e tente novamente antes de criar outra cobranca."
+      });
     },
     onError: (error) => {
+      setCheckoutFeedback({
+        tone: "danger",
+        title: "Nao foi possivel abrir o checkout anual",
+        description:
+          error.message || "A comunicacao com o Mercado Pago falhou antes de gerar o link de pagamento."
+      });
       toast.error(error.message);
     }
   });
@@ -200,6 +308,7 @@ export function CheckoutClient({
     mutationFn: updateBillingCard,
     onSuccess: async (payload) => {
       toast.success(payload.message ?? "Cartao atualizado");
+      setCheckoutFeedback(null);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["billing"] }),
         queryClient.invalidateQueries({ queryKey: ["profile"] })
@@ -208,6 +317,12 @@ export function CheckoutClient({
       window.location.href = payload.url ?? "/billing";
     },
     onError: (error) => {
+      setCheckoutFeedback({
+        tone: "danger",
+        title: "Nao foi possivel atualizar o cartao",
+        description:
+          error.message || "O provedor nao confirmou a troca do cartao. Revise os dados e tente novamente."
+      });
       toast.error(error.message);
     }
   });
@@ -311,6 +426,17 @@ export function CheckoutClient({
         <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-muted-foreground)]">
           O ambiente precisa expor chave pública e valor da recorrência para liberar o Brick do Mercado Pago.
         </p>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Button onClick={() => window.location.reload()} type="button">
+            Atualizar checkout
+          </Button>
+          <Button asChild variant="secondary">
+            <Link href="/license">Ver status da licenca</Link>
+          </Button>
+          <Button asChild variant="ghost">
+            <Link href="/dashboard/settings">Voltar ao painel</Link>
+          </Button>
+        </div>
       </section>
     );
   }
@@ -335,6 +461,37 @@ export function CheckoutClient({
           <Link href="/license">Voltar para licença</Link>
         </Button>
       </div>
+
+      {checkoutReturnFeedback ? (
+        <div className="mt-6">
+          <CheckoutFeedbackPanel feedback={checkoutReturnFeedback}>
+            <Button asChild variant="secondary">
+              <Link href="/license">Ver status da licenca</Link>
+            </Button>
+            <Button onClick={() => window.location.reload()} type="button" variant="secondary">
+              Atualizar agora
+            </Button>
+            {checkoutReturn?.status === "rejected" ? (
+              <Button asChild variant="ghost">
+                <Link href="/billing?intent=checkout">Tentar novamente</Link>
+              </Button>
+            ) : null}
+          </CheckoutFeedbackPanel>
+        </div>
+      ) : null}
+
+      {checkoutFeedback ? (
+        <div className="mt-6">
+          <CheckoutFeedbackPanel feedback={checkoutFeedback}>
+            <Button onClick={() => window.location.reload()} type="button" variant="secondary">
+              Atualizar checkout
+            </Button>
+            <Button asChild variant="ghost">
+              <Link href="/license">Ver status da licenca</Link>
+            </Button>
+          </CheckoutFeedbackPanel>
+        </div>
+      ) : null}
 
       <div className="mt-6 grid gap-4 md:grid-cols-3">
         <article className="metric-card">
@@ -495,11 +652,36 @@ export function CheckoutClient({
           </div>
         ) : null}
         {brickError ? (
-          <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">{brickError}</div>
+          <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <p className="font-semibold">Nao foi possivel carregar os campos seguros</p>
+            <p className="mt-2 leading-6">{brickError}</p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Button onClick={() => window.location.reload()} type="button" variant="secondary">
+                Recarregar checkout
+              </Button>
+              <Button asChild variant="ghost">
+                <Link href="/license">Ver licenca</Link>
+              </Button>
+            </div>
+          </div>
         ) : null}
         {brickDiagnostic ? (
           <div className="mb-4 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-            {brickDiagnostic}
+            <p className="font-semibold">Campos de pagamento demorando para carregar</p>
+            <p className="mt-2 leading-6">{brickDiagnostic}</p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Button onClick={() => window.location.reload()} type="button" variant="secondary">
+                Tentar recarregar
+              </Button>
+              <Button
+                disabled={createAnnualPaymentMutation.isPending || typeof annualCheckoutAmount !== "number" || annualCheckoutAmount <= 0}
+                onClick={() => createAnnualPaymentMutation.mutate({ couponCode: activeCoupon || null })}
+                type="button"
+                variant="ghost"
+              >
+                Usar checkout anual
+              </Button>
+            </div>
           </div>
         ) : null}
         <div className="min-h-[520px]">

@@ -6,6 +6,7 @@ import { serverEnv } from "@/lib/env/server";
 export const MERCADO_PAGO_PROVIDER = "mercado_pago";
 export const BILLING_MANAGE_PATH = "/billing";
 export const BILLING_CHECKOUT_PATH = "/billing?intent=checkout";
+export type BillingCheckoutReturnStatus = "approved" | "pending" | "rejected";
 
 export class BillingConfigurationError extends Error {
   constructor(message: string) {
@@ -238,6 +239,18 @@ export function buildBillingManageUrl() {
 
 export function buildBillingCheckoutUrl() {
   return buildPublicUrl(BILLING_CHECKOUT_PATH);
+}
+
+export function buildBillingCheckoutReturnUrl(status: BillingCheckoutReturnStatus) {
+  const params = new URLSearchParams({
+    checkout_status: status
+  });
+
+  if (status === "rejected") {
+    params.set("intent", "checkout");
+  }
+
+  return buildPublicUrl(`/billing?${params.toString()}`);
 }
 
 export function buildMercadoPagoExternalReference(input: { tenantId: string; planId: string }) {

@@ -13,6 +13,7 @@ import {
   BILLING_MANAGE_PATH,
   MERCADO_PAGO_PROVIDER,
   BillingConfigurationError,
+  buildBillingCheckoutReturnUrl,
   buildBillingCheckoutUrl,
   buildBillingManageUrl,
   buildMercadoPagoExternalReference,
@@ -251,6 +252,10 @@ function addYears(date: Date, years: number) {
   const nextDate = new Date(date);
   nextDate.setFullYear(nextDate.getFullYear() + years);
   return nextDate;
+}
+
+function getRecentCheckoutThreshold() {
+  return new Date(Date.now() - 6 * 60 * 60 * 1000);
 }
 
 async function upsertBillingSubscriptionFromResource(
@@ -609,6 +614,26 @@ export async function createRecurringBillingSubscriptionForSession(input: Checko
     throw new BillingError("A conta já possui uma assinatura ativa ou pendente de regularização", 409);
   }
 
+  const reusablePendingSubscription = await prisma.billingSubscription.findFirst({
+    where: {
+      tenantId: access.tenantId,
+      status: "pending",
+      createdAt: {
+        gte: getRecentCheckoutThreshold()
+      }
+    },
+    orderBy: [{ createdAt: "desc" }]
+  });
+  const reusablePendingCheckoutUrl = ((reusablePendingSubscription?.metadata ?? {}) as Prisma.JsonObject).checkoutUrl;
+
+  if (typeof reusablePendingCheckoutUrl === "string" && reusablePendingCheckoutUrl.trim()) {
+    return {
+      url: reusablePendingCheckoutUrl,
+      message: "Checkout mensal ja estava em aberto",
+      billing: await createBillingOverview(access)
+    };
+  }
+
   const billingConfig = getMercadoPagoBillingFrequencyConfig();
   const billingSettings = await getBillingSettings();
   const pricing = calculateBillingCheckoutPricing({
@@ -633,7 +658,7 @@ export async function createRecurringBillingSubscriptionForSession(input: Checko
           transaction_amount: pricing.finalAmount,
           currency_id: pricing.currencyId
         },
-        back_url: buildBillingManageUrl(),
+        back_url: buildBillingCheckoutReturnUrl("approved"),
         card_token_id: input.cardToken,
         external_reference: externalReference,
         payer_email: payerEmail,
@@ -660,7 +685,7 @@ export async function createRecurringBillingSubscriptionForSession(input: Checko
           transaction_amount: pricing.finalAmount,
           currency_id: pricing.currencyId
         },
-        back_url: buildBillingManageUrl(),
+        back_url: buildBillingCheckoutReturnUrl("pending"),
         external_reference: externalReference,
         payer_email: payerEmail,
         reason: getMercadoPagoBillingReason(plan.name),
@@ -775,6 +800,31 @@ export async function createAnnualBillingPaymentForSession(input: { couponCode?:
     tenantId: access.tenantId,
     planId: plan.id
   });
+
+  const reusablePendingSubscriptions = await prisma.billingSubscription.findMany({
+    where: {
+      tenantId: access.tenantId,
+      status: "pending",
+      createdAt: {
+        gte: getRecentCheckoutThreshold()
+      }
+    },
+    orderBy: [{ createdAt: "desc" }],
+    take: 5
+  });
+  const reusableAnnualSubscription = reusablePendingSubscriptions.find((subscription) => {
+    const metadata = (subscription.metadata ?? {}) as Prisma.JsonObject;
+    return metadata.billingMode === "annual_one_time" && typeof metadata.checkoutUrl === "string";
+  });
+  const reusableAnnualCheckoutUrl = ((reusableAnnualSubscription?.metadata ?? {}) as Prisma.JsonObject).checkoutUrl;
+
+  if (typeof reusableAnnualCheckoutUrl === "string" && reusableAnnualCheckoutUrl.trim()) {
+    return {
+      url: reusableAnnualCheckoutUrl,
+      message: "Checkout anual ja estava em aberto"
+    };
+  }
+
   const subscription = await prisma.billingSubscription.create({
     data: {
       tenantId: access.tenantId,
@@ -815,9 +865,9 @@ export async function createAnnualBillingPaymentForSession(input: { couponCode?:
       external_reference: externalReference,
       notification_url: buildMercadoPagoWebhookUrl(),
       back_urls: {
-        success: buildBillingManageUrl(),
-        pending: buildBillingManageUrl(),
-        failure: buildBillingCheckoutUrl()
+        success: buildBillingCheckoutReturnUrl("approved"),
+        pending: buildBillingCheckoutReturnUrl("pending"),
+        failure: buildBillingCheckoutReturnUrl("rejected")
       },
       auto_return: "approved",
       payment_methods: {

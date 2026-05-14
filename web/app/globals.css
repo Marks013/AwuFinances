@@ -572,8 +572,10 @@ button {
 
 @media (max-width: 767px) {
   .display-title {
-    font-size: clamp(2rem, 10vw, 3.15rem);
-    line-height: 1.04;
+    font-size: clamp(1.9rem, 7.8vw, 3.15rem);
+    line-height: 1.08;
+    text-wrap: pretty;
+    word-break: break-word;
   }
 
   .page-title {
@@ -702,7 +704,8 @@ button {
 
 @media (max-width: 420px) {
   .display-title {
-    font-size: clamp(1.9rem, 9.4vw, 2.65rem);
+    font-size: clamp(1.75rem, 7.6vw, 2.15rem);
+    line-height: 1.1;
   }
 
   .amount-nowrap {

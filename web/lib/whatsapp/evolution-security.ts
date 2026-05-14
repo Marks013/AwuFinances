@@ -22,6 +22,20 @@ function extractBearerToken(value: string | null) {
   return value.slice("Bearer ".length).trim() || null;
 }
 
+function normalizeSecretCandidate(value: string | null) {
+  const trimmed = value?.trim();
+  if (!trimmed) {
+    return [];
+  }
+
+  const eventSuffixIndex = trimmed.indexOf("/");
+  if (eventSuffixIndex > 0) {
+    return [trimmed, trimmed.slice(0, eventSuffixIndex)];
+  }
+
+  return [trimmed];
+}
+
 export function verifyEvolutionWebhookSecret(request: Request) {
   const expected = serverEnv.EVOLUTION_WEBHOOK_SECRET;
   if (!expected) {
@@ -35,7 +49,7 @@ export function verifyEvolutionWebhookSecret(request: Request) {
     request.headers.get("apikey"),
     extractBearerToken(request.headers.get("authorization")),
     url.searchParams.get("secret")
-  ].filter((value): value is string => Boolean(value));
+  ].flatMap(normalizeSecretCandidate);
 
   return candidates.some((candidate) => constantTimeEquals(candidate, expected));
 }

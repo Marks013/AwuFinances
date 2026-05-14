@@ -413,7 +413,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 Onde o gasto mais pesa, quanto está classificado e qual parte é estrutural.
               </p>
             </div>
-            <Link className="text-sm font-medium text-[var(--color-primary)]" href={`/dashboard/reports?month=${month}`}>
+            <Link className="inline-flex min-h-9 items-center rounded-full px-1 text-sm font-medium text-[var(--color-primary)]" href={`/dashboard/reports?month=${month}`}>
               Abrir análise completa
             </Link>
           </div>
@@ -480,7 +480,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 {movementSectionCopy}
               </p>
             </div>
-            <Link className="text-sm font-medium text-[var(--color-primary)]" href={`/dashboard/transactions?month=${month}`}>
+            <Link className="inline-flex min-h-9 items-center rounded-full px-1 text-sm font-medium text-[var(--color-primary)]" href={`/dashboard/transactions?month=${month}`}>
               Abrir transações
             </Link>
           </div>

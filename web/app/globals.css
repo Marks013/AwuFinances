@@ -113,6 +113,20 @@ video {
   max-width: 100%;
 }
 
+.grid > *,
+.inline-grid > *,
+.flex > * {
+  min-width: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  overflow-wrap: anywhere;
+}
+
 .subtle-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--color-border) 76%, transparent) transparent;
@@ -304,6 +318,8 @@ button {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .page-title {
@@ -1185,6 +1201,8 @@ button {
 .section-stack {
   display: grid;
   gap: 1.5rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .metric-grid {

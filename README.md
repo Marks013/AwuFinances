@@ -258,28 +258,33 @@ As categorias padrao do tenant sao provisionadas automaticamente no bootstrap in
 
 ## Assistente no WhatsApp
 
-O projeto agora suporta integracao direta com `WhatsApp Cloud API`, sem `n8n`, com estas regras:
+O projeto agora suporta integracao com `Evolution API` em modo inbound-only, sem envios proativos, com estas regras:
 
 - o numero de WhatsApp fica vinculado ao usuario em `Configuracoes`
 - contas e cartoes sao filtrados por usuario
+- o agente responde apenas mensagens iniciadas pelo usuario
+- notificacoes, automacoes, campanhas e lembretes por WhatsApp ficam bloqueados no codigo
 - o assistente consegue:
   - registrar despesa
   - registrar receita
   - consultar saldo
   - consultar fatura e limite
+  - analisar audio, imagem e video quando a Evolution entregar a midia em base64 ou URL
 
 Webhook:
 
-- `GET/POST /api/integrations/whatsapp/webhook`
+- `POST /api/integrations/whatsapp/evolution`
+- `POST /api/integrations/whatsapp/webhook` continua como alias de compatibilidade
 
 Configure no `.env`:
 
 - `WHATSAPP_ASSISTANT_ENABLED=true`
-- `WHATSAPP_VERIFY_TOKEN`
-- `WHATSAPP_ACCESS_TOKEN`
-- `WHATSAPP_PHONE_NUMBER_ID`
-- `WHATSAPP_GRAPH_VERSION`
-- `WHATSAPP_APP_SECRET` opcional
+- `WHATSAPP_PROVIDER=evolution`
+- `WHATSAPP_INBOUND_ONLY=true`
+- `EVOLUTION_API_URL`
+- `EVOLUTION_API_KEY`
+- `EVOLUTION_INSTANCE`
+- `EVOLUTION_WEBHOOK_SECRET`
 
 ## E-mail transacional
 

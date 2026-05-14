@@ -57,11 +57,17 @@ const serverEnvSchema = z
     GEMINI_MODEL: optionalString,
     GEMINI_BASE_URL: optionalUrl,
     WHATSAPP_ASSISTANT_ENABLED: z.enum(["true", "false"]).default("false"),
-    WHATSAPP_VERIFY_TOKEN: optionalString,
-    WHATSAPP_ACCESS_TOKEN: optionalString,
-    WHATSAPP_PHONE_NUMBER_ID: optionalString,
-    WHATSAPP_GRAPH_VERSION: z.string().default("v22.0"),
-    WHATSAPP_APP_SECRET: optionalString,
+    WHATSAPP_PROVIDER: z.literal("evolution").default("evolution"),
+    WHATSAPP_INBOUND_ONLY: z.enum(["true", "false"]).default("true"),
+    WHATSAPP_MAX_REPLIES_PER_INBOUND: z.coerce.number().int().positive().default(1),
+    WHATSAPP_MIN_REPLY_DELAY_MS: z.coerce.number().int().nonnegative().default(900),
+    WHATSAPP_MAX_REPLY_DELAY_MS: z.coerce.number().int().nonnegative().default(2500),
+    WHATSAPP_USER_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(8),
+    WHATSAPP_USER_RATE_LIMIT_PER_DAY: z.coerce.number().int().positive().default(200),
+    EVOLUTION_API_URL: optionalUrl,
+    EVOLUTION_API_KEY: optionalString,
+    EVOLUTION_INSTANCE: optionalString,
+    EVOLUTION_WEBHOOK_SECRET: optionalString,
     EMAIL_PROVIDER: z.enum(["webhook", "resend", "brevo"]).default("webhook"),
     EMAIL_FROM: optionalString,
     EMAIL_FROM_NAME: optionalString,
@@ -71,7 +77,6 @@ const serverEnvSchema = z
     RESEND_WEBHOOK_SECRET: optionalString,
     BREVO_API_KEY: optionalString,
     NOTIFICATION_EMAIL_WEBHOOK_URL: optionalUrl,
-    NOTIFICATION_WHATSAPP_WEBHOOK_URL: optionalUrl,
     MP_BILLING_ENABLED: z.enum(["true", "false"]).default("false"),
     MP_ACCESS_TOKEN: optionalString,
     MP_PUBLIC_KEY: optionalString,
@@ -86,12 +91,20 @@ const serverEnvSchema = z
     MP_BILLING_FREQUENCY_TYPE: z.string().default("months")
   })
   .superRefine((value, context) => {
+    if (value.WHATSAPP_MIN_REPLY_DELAY_MS > value.WHATSAPP_MAX_REPLY_DELAY_MS) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["WHATSAPP_MAX_REPLY_DELAY_MS"],
+        message: "WHATSAPP_MAX_REPLY_DELAY_MS must be greater than or equal to WHATSAPP_MIN_REPLY_DELAY_MS"
+      });
+    }
+
     if (value.WHATSAPP_ASSISTANT_ENABLED === "true") {
       for (const key of [
-        "WHATSAPP_VERIFY_TOKEN",
-        "WHATSAPP_ACCESS_TOKEN",
-        "WHATSAPP_PHONE_NUMBER_ID",
-        "WHATSAPP_APP_SECRET"
+        "EVOLUTION_API_URL",
+        "EVOLUTION_API_KEY",
+        "EVOLUTION_INSTANCE",
+        "EVOLUTION_WEBHOOK_SECRET"
       ] as const) {
         if (!value[key]) {
           context.addIssue({
@@ -127,11 +140,17 @@ export const serverEnv = serverEnvSchema.parse({
   GEMINI_MODEL: process.env.GEMINI_MODEL,
   GEMINI_BASE_URL: process.env.GEMINI_BASE_URL,
   WHATSAPP_ASSISTANT_ENABLED: process.env.WHATSAPP_ASSISTANT_ENABLED,
-  WHATSAPP_VERIFY_TOKEN: process.env.WHATSAPP_VERIFY_TOKEN,
-  WHATSAPP_ACCESS_TOKEN: process.env.WHATSAPP_ACCESS_TOKEN,
-  WHATSAPP_PHONE_NUMBER_ID: process.env.WHATSAPP_PHONE_NUMBER_ID,
-  WHATSAPP_GRAPH_VERSION: process.env.WHATSAPP_GRAPH_VERSION,
-  WHATSAPP_APP_SECRET: process.env.WHATSAPP_APP_SECRET,
+  WHATSAPP_PROVIDER: process.env.WHATSAPP_PROVIDER,
+  WHATSAPP_INBOUND_ONLY: process.env.WHATSAPP_INBOUND_ONLY,
+  WHATSAPP_MAX_REPLIES_PER_INBOUND: process.env.WHATSAPP_MAX_REPLIES_PER_INBOUND,
+  WHATSAPP_MIN_REPLY_DELAY_MS: process.env.WHATSAPP_MIN_REPLY_DELAY_MS,
+  WHATSAPP_MAX_REPLY_DELAY_MS: process.env.WHATSAPP_MAX_REPLY_DELAY_MS,
+  WHATSAPP_USER_RATE_LIMIT_PER_MINUTE: process.env.WHATSAPP_USER_RATE_LIMIT_PER_MINUTE,
+  WHATSAPP_USER_RATE_LIMIT_PER_DAY: process.env.WHATSAPP_USER_RATE_LIMIT_PER_DAY,
+  EVOLUTION_API_URL: process.env.EVOLUTION_API_URL,
+  EVOLUTION_API_KEY: process.env.EVOLUTION_API_KEY,
+  EVOLUTION_INSTANCE: process.env.EVOLUTION_INSTANCE,
+  EVOLUTION_WEBHOOK_SECRET: process.env.EVOLUTION_WEBHOOK_SECRET,
   EMAIL_PROVIDER: process.env.EMAIL_PROVIDER,
   EMAIL_FROM: process.env.EMAIL_FROM,
   EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME,
@@ -141,7 +160,6 @@ export const serverEnv = serverEnvSchema.parse({
   RESEND_WEBHOOK_SECRET: process.env.RESEND_WEBHOOK_SECRET,
   BREVO_API_KEY: process.env.BREVO_API_KEY,
   NOTIFICATION_EMAIL_WEBHOOK_URL: process.env.NOTIFICATION_EMAIL_WEBHOOK_URL,
-  NOTIFICATION_WHATSAPP_WEBHOOK_URL: process.env.NOTIFICATION_WHATSAPP_WEBHOOK_URL,
   MP_BILLING_ENABLED: process.env.MP_BILLING_ENABLED,
   MP_ACCESS_TOKEN: process.env.MP_ACCESS_TOKEN,
   MP_PUBLIC_KEY: process.env.MP_PUBLIC_KEY,

@@ -4,9 +4,9 @@ import { prisma } from "@/lib/prisma/client";
 import { captureUnexpectedError } from "@/lib/observability/sentry";
 import { processIncomingWhatsAppTextMessage } from "@/lib/whatsapp/assistant";
 import { buildCommandFromWhatsAppMedia } from "@/lib/whatsapp/media-understanding";
-import { sendWhatsAppTextMessage } from "@/lib/whatsapp/cloud-api";
+import { sendWhatsAppReply } from "@/lib/whatsapp/evolution-api";
 import { sanitizeAssistantText } from "@/lib/whatsapp/text-sanitizer";
-import { type WhatsAppWebhookPayload } from "@/lib/whatsapp/webhook-payload";
+import { type EvolutionWebhookPayload } from "@/lib/whatsapp/evolution-payload";
 
 export type ProcessWhatsAppMessageAsyncInput = {
   eventId: string;
@@ -16,7 +16,7 @@ export type ProcessWhatsAppMessageAsyncInput = {
   mediaId: string | null;
   mimeType: string | null;
   caption: string | null;
-  payload: WhatsAppWebhookPayload;
+  payload: EvolutionWebhookPayload;
 };
 
 const WHATSAPP_WEBHOOK_BATCH_SIZE = 10;
@@ -241,7 +241,7 @@ export async function processWhatsAppMessageAsync(input: ProcessWhatsAppMessageA
         phoneNumber: input.phoneNumber,
         body: input.body
       });
-    } else if ((input.type === "audio" || input.type === "image") && input.mediaId) {
+    } else if ((input.type === "audio" || input.type === "image" || input.type === "video") && input.mediaId) {
       let mediaDraft:
         | Awaited<ReturnType<typeof buildCommandFromWhatsAppMedia>>
         | {
@@ -345,7 +345,13 @@ export async function processWhatsAppMessageAsync(input: ProcessWhatsAppMessageA
         }
       }
 
-      const delivery = await sendWhatsAppTextMessage(result.to, sanitizedResponse);
+      const delivery = await sendWhatsAppReply({
+        to: result.to,
+        body: sanitizedResponse,
+        inboundEventId: input.eventId,
+        tenantId: result.logContext?.tenantId,
+        userId: result.logContext?.userId
+      });
 
       if (result.logContext && outboundLogId) {
         try {

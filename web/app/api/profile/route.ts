@@ -79,7 +79,7 @@ export async function GET(request: Request) {
       integrations: {
         whatsappAssistantEnabled: serverEnv.WHATSAPP_ASSISTANT_ENABLED === "true",
         whatsappConfigured: whatsappHealth.configured,
-        whatsappWebhookPath: "/api/integrations/whatsapp/webhook",
+        whatsappWebhookPath: "/api/integrations/whatsapp/evolution",
         smartClassificationEnabled:
           serverEnv.GEMINI_ENABLED === "true" && Boolean(serverEnv.GEMINI_API_KEY?.trim()),
         emailProvider: emailHealth.provider,

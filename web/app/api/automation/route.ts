@@ -8,7 +8,7 @@ import {
   getStatementPaymentDate,
   getCardStatementSnapshot
 } from "@/lib/cards/statement";
-import { getEmailChannelHealth, getWhatsAppChannelHealth } from "@/lib/notifications/channel-health";
+import { getEmailChannelHealth } from "@/lib/notifications/channel-health";
 import { captureRequestError } from "@/lib/observability/sentry";
 import { prisma } from "@/lib/prisma/client";
 
@@ -22,7 +22,6 @@ export async function GET(request: Request) {
     reminderWindow.setDate(reminderWindow.getDate() + 7);
     reminderWindow.setHours(23, 59, 59, 999);
     const emailHealth = getEmailChannelHealth();
-    const whatsappHealth = getWhatsAppChannelHealth();
 
     const [dueSubscriptions, upcomingGoals, upcomingSubscriptions, cards] = await Promise.all([
       prisma.subscription.count({
@@ -155,7 +154,10 @@ export async function GET(request: Request) {
       warningPreview,
       delivery: {
         email: emailHealth,
-        whatsapp: whatsappHealth
+        whatsapp: {
+          configured: false,
+          issue: "Automacoes por WhatsApp foram desativadas. O agente responde apenas mensagens inbound."
+        }
       }
     });
   } catch (error) {

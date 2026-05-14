@@ -1,127 +1,94 @@
 import assert from "node:assert/strict";
 
-type IncomingWhatsAppWebhookMessage = {
-  eventId: string;
-  phoneNumber: string | null;
-  body: string | null;
-  type: string | null;
-  mediaId: string | null;
-  mimeType: string | null;
-  caption: string | null;
-};
+import { extractIncomingEvolutionWebhookMessages } from "../lib/whatsapp/evolution-payload";
 
-type WhatsAppWebhookPayload = {
-  entry?: Array<{
-    changes?: Array<{
-      value?: {
-        contacts?: Array<{
-          wa_id?: string;
-        }>;
-        messages?: Array<{
-          id?: string;
-          from?: string;
-          type?: string;
-          text?: {
-            body?: string;
-          };
-          image?: {
-            id?: string;
-            mime_type?: string;
-            caption?: string;
-          };
-          audio?: {
-            id?: string;
-            mime_type?: string;
-          };
-        }>;
-      };
-    }>;
-  }>;
-};
-
-function extractIncomingWhatsAppWebhookMessages(
-  payload: WhatsAppWebhookPayload
-): IncomingWhatsAppWebhookMessage[] {
-  const dedupedMessages = new Map<string, IncomingWhatsAppWebhookMessage>();
-
-  for (const entry of payload.entry ?? []) {
-    for (const change of entry.changes ?? []) {
-      const value = change.value;
-      const fallbackPhoneNumber = value?.contacts?.[0]?.wa_id ?? null;
-
-      for (const message of value?.messages ?? []) {
-        if (!message.id) continue;
-
-        dedupedMessages.set(message.id, {
-          eventId: message.id,
-          phoneNumber: message.from ?? fallbackPhoneNumber,
-          body: message.text?.body?.trim() ?? null,
-          type: message.type ?? null,
-          mediaId: message.image?.id ?? message.audio?.id ?? null,
-          mimeType: message.image?.mime_type ?? message.audio?.mime_type ?? null,
-          caption: message.image?.caption?.trim() ?? null
-        });
-      }
-    }
-  }
-
-  return [...dedupedMessages.values()];
-}
-
-const payload: WhatsAppWebhookPayload = {
-  entry: [
-    {
-      changes: [
-        {
-          value: {
-            contacts: [{ wa_id: "554499999999" }],
-            messages: [
-              {
-                id: "img-1",
-                type: "image",
-                image: {
-                  id: "media-image-123",
-                  mime_type: "image/jpeg",
-                  caption: "farmácia no PicPay"
-                }
-              },
-              {
-                id: "aud-1",
-                from: "554488888888",
-                type: "audio",
-                audio: {
-                  id: "media-audio-456",
-                  mime_type: "audio/ogg"
-                }
-              }
-            ]
+const payload = {
+  event: "MESSAGES_UPSERT",
+  instance: "awu-test",
+  data: {
+    messages: [
+      {
+        key: {
+          id: "img-1",
+          fromMe: false,
+          remoteJid: "554499999999@s.whatsapp.net"
+        },
+        messageType: "imageMessage",
+        message: {
+          imageMessage: {
+            base64: Buffer.from([255, 216, 255, 224]).toString("base64"),
+            mimetype: "image/jpeg",
+            caption: "farmacia no PicPay"
           }
         }
-      ]
-    }
-  ]
+      },
+      {
+        key: {
+          id: "aud-1",
+          fromMe: false,
+          remoteJid: "554488888888@s.whatsapp.net"
+        },
+        messageType: "audioMessage",
+        message: {
+          audioMessage: {
+            base64: Buffer.from([79, 103, 103, 83]).toString("base64"),
+            mimetype: "audio/ogg"
+          }
+        }
+      },
+      {
+        key: {
+          id: "vid-1",
+          fromMe: false,
+          remoteJid: "554477777777@s.whatsapp.net"
+        },
+        messageType: "videoMessage",
+        message: {
+          videoMessage: {
+            base64: Buffer.from([0, 0, 0, 24]).toString("base64"),
+            mimetype: "video/mp4",
+            caption: "cupom em video"
+          }
+        }
+      }
+    ]
+  }
 };
 
-const messages = extractIncomingWhatsAppWebhookMessages(payload);
+const messages = extractIncomingEvolutionWebhookMessages(payload);
 
-assert.equal(messages.length, 2);
-assert.deepEqual(messages[0], {
-  eventId: "img-1",
-  phoneNumber: "554499999999",
-  body: null,
-  type: "image",
-  mediaId: "media-image-123",
-  mimeType: "image/jpeg",
-  caption: "farmácia no PicPay"
-});
-assert.deepEqual(messages[1], {
-  eventId: "aud-1",
-  phoneNumber: "554488888888",
-  body: null,
-  type: "audio",
-  mediaId: "media-audio-456",
-  mimeType: "audio/ogg",
-  caption: null
-});
+assert.equal(messages.length, 3);
+assert.deepEqual(
+  messages.map((message) => ({
+    eventId: message.eventId,
+    phoneNumber: message.phoneNumber,
+    type: message.type,
+    mimeType: message.mimeType,
+    caption: message.caption
+  })),
+  [
+    {
+      eventId: "img-1",
+      phoneNumber: "554499999999",
+      type: "image",
+      mimeType: "image/jpeg",
+      caption: "farmacia no PicPay"
+    },
+    {
+      eventId: "aud-1",
+      phoneNumber: "554488888888",
+      type: "audio",
+      mimeType: "audio/ogg",
+      caption: null
+    },
+    {
+      eventId: "vid-1",
+      phoneNumber: "554477777777",
+      type: "video",
+      mimeType: "video/mp4",
+      caption: "cupom em video"
+    }
+  ]
+);
 
-console.log("WhatsApp media audit passed.");
+console.log("WhatsApp Evolution media audit passed.");

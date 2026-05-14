@@ -4,7 +4,6 @@ import { serverEnv } from "@/lib/env/server";
 import { buildGenericNotificationEmail } from "@/lib/notifications/email-template";
 import { captureUnexpectedError } from "@/lib/observability/sentry";
 import { prisma } from "@/lib/prisma/client";
-import { sendWhatsAppTextMessage } from "@/lib/whatsapp/cloud-api";
 
 type NotificationInput = {
   tenantId: string;
@@ -45,7 +44,7 @@ function webhookForChannel(channel: NotificationChannel) {
     return serverEnv.NOTIFICATION_EMAIL_WEBHOOK_URL;
   }
 
-  return serverEnv.NOTIFICATION_WHATSAPP_WEBHOOK_URL;
+  return undefined;
 }
 
 function buildEmailHtml(input: NotificationInput) {
@@ -92,19 +91,19 @@ async function sendWithResend(input: NotificationInput): Promise<DeliveryResult>
   const response = await fetchWithTimeout(
     "https://api.resend.com/emails",
     {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${serverEnv.RESEND_API_KEY}`
-    },
-    body: JSON.stringify({
-      from,
-      to: [input.target],
-      subject: input.subject,
-      text: input.message,
-      html: buildEmailHtml(input),
-      ...(serverEnv.EMAIL_REPLY_TO ? { reply_to: serverEnv.EMAIL_REPLY_TO } : {})
-    })
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${serverEnv.RESEND_API_KEY}`
+      },
+      body: JSON.stringify({
+        from,
+        to: [input.target],
+        subject: input.subject,
+        text: input.message,
+        html: buildEmailHtml(input),
+        ...(serverEnv.EMAIL_REPLY_TO ? { reply_to: serverEnv.EMAIL_REPLY_TO } : {})
+      })
     },
     EMAIL_DELIVERY_TIMEOUT_MS,
     "Entrega de e-mail via Resend"
@@ -130,7 +129,11 @@ async function sendWithResend(input: NotificationInput): Promise<DeliveryResult>
     ok: response.ok,
     skipped: false,
     status: response.status,
-    error: response.ok ? null : providerError ? `Resend respondeu ${response.status}: ${providerError}` : `Resend respondeu ${response.status}`,
+    error: response.ok
+      ? null
+      : providerError
+        ? `Resend respondeu ${response.status}: ${providerError}`
+        : `Resend respondeu ${response.status}`,
     providerMessageId
   } satisfies DeliveryResult;
 }
@@ -150,22 +153,22 @@ async function sendWithBrevo(input: NotificationInput): Promise<DeliveryResult> 
   const response = await fetchWithTimeout(
     "https://api.brevo.com/v3/smtp/email",
     {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "api-key": serverEnv.BREVO_API_KEY
-    },
-    body: JSON.stringify({
-      sender: {
-        email: fromEmail,
-        ...(serverEnv.EMAIL_FROM_NAME ? { name: serverEnv.EMAIL_FROM_NAME } : {})
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": serverEnv.BREVO_API_KEY
       },
-      to: [{ email: input.target }],
-      subject: input.subject,
-      textContent: input.message,
-      htmlContent: buildEmailHtml(input),
-      ...(serverEnv.EMAIL_REPLY_TO ? { replyTo: { email: serverEnv.EMAIL_REPLY_TO } } : {})
-    })
+      body: JSON.stringify({
+        sender: {
+          email: fromEmail,
+          ...(serverEnv.EMAIL_FROM_NAME ? { name: serverEnv.EMAIL_FROM_NAME } : {})
+        },
+        to: [{ email: input.target }],
+        subject: input.subject,
+        textContent: input.message,
+        htmlContent: buildEmailHtml(input),
+        ...(serverEnv.EMAIL_REPLY_TO ? { replyTo: { email: serverEnv.EMAIL_REPLY_TO } } : {})
+      })
     },
     EMAIL_DELIVERY_TIMEOUT_MS,
     "Entrega de e-mail via Brevo"
@@ -194,21 +197,21 @@ async function sendViaWebhook(input: NotificationInput, attemptedAt: Date): Prom
   const response = await fetchWithTimeout(
     webhookUrl,
     {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      channel: input.channel,
-      tenantId: input.tenantId,
-      userId: input.userId,
-      goalId: input.goalId,
-      target: input.target,
-      subject: input.subject,
-      message: input.message,
-      html: input.channel === NotificationChannel.email ? buildEmailHtml(input) : undefined,
-      attemptedAt: attemptedAt.toISOString()
-    })
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        channel: input.channel,
+        tenantId: input.tenantId,
+        userId: input.userId,
+        goalId: input.goalId,
+        target: input.target,
+        subject: input.subject,
+        message: input.message,
+        html: input.channel === NotificationChannel.email ? buildEmailHtml(input) : undefined,
+        attemptedAt: attemptedAt.toISOString()
+      })
     },
     WEBHOOK_DELIVERY_TIMEOUT_MS,
     "Entrega via webhook"
@@ -222,28 +225,13 @@ async function sendViaWebhook(input: NotificationInput, attemptedAt: Date): Prom
   } satisfies DeliveryResult;
 }
 
-async function sendWithWhatsAppCloud(input: NotificationInput): Promise<DeliveryResult> {
-  if (
-    serverEnv.WHATSAPP_ASSISTANT_ENABLED !== "true" ||
-    !serverEnv.WHATSAPP_ACCESS_TOKEN ||
-    !serverEnv.WHATSAPP_PHONE_NUMBER_ID
-  ) {
-    return {
-      ok: false,
-      skipped: false,
-      status: 0,
-      error: "WhatsApp Cloud API nao configurada. Defina o token, o numero e ative a integração."
-    } satisfies DeliveryResult;
-  }
-
-  const response = await sendWhatsAppTextMessage(input.target, `${input.subject}\n\n${input.message}`);
-
+function blockProactiveWhatsApp(): DeliveryResult {
   return {
-    ok: response.ok,
-    skipped: false,
-    status: response.status,
-    error: response.ok ? null : "Falha ao entregar via WhatsApp Cloud API."
-  } satisfies DeliveryResult;
+    ok: false,
+    skipped: true,
+    status: 0,
+    error: "WhatsApp proativo desativado. O agente responde apenas mensagens iniciadas pelo usuario."
+  };
 }
 
 export async function deliverNotification(input: NotificationInput) {
@@ -251,12 +239,12 @@ export async function deliverNotification(input: NotificationInput) {
 
   try {
     const delivery =
-      input.channel === NotificationChannel.email && serverEnv.EMAIL_PROVIDER === "resend"
-        ? await sendWithResend(input)
-        : input.channel === NotificationChannel.email && serverEnv.EMAIL_PROVIDER === "brevo"
-          ? await sendWithBrevo(input)
-          : input.channel === NotificationChannel.whatsapp
-            ? await sendWithWhatsAppCloud(input)
+      input.channel === NotificationChannel.whatsapp
+        ? blockProactiveWhatsApp()
+        : input.channel === NotificationChannel.email && serverEnv.EMAIL_PROVIDER === "resend"
+          ? await sendWithResend(input)
+          : input.channel === NotificationChannel.email && serverEnv.EMAIL_PROVIDER === "brevo"
+            ? await sendWithBrevo(input)
             : await sendViaWebhook(input, attemptedAt);
 
     return prisma.notificationDelivery.create({

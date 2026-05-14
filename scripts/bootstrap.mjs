@@ -72,15 +72,25 @@ function buildFallbackRootEnv(modeName) {
     "GEMINI_API_KEY=",
     "GEMINI_MODEL=gemini-1.5-flash",
     "GEMINI_BASE_URL=",
-    "EMAIL_PROVIDER=console",
+    "EMAIL_PROVIDER=webhook",
     "EMAIL_FROM=no-reply@awu-finances.local",
     "EMAIL_FROM_NAME=Awu Finances",
     "EMAIL_REPLY_TO=",
     "RESEND_API_KEY=",
     "BREVO_API_KEY=",
     "NOTIFICATION_EMAIL_WEBHOOK_URL=",
-    "NOTIFICATION_WHATSAPP_WEBHOOK_URL=",
-    "WHATSAPP_VERIFY_TOKEN=",
+    "WHATSAPP_ASSISTANT_ENABLED=false",
+    "WHATSAPP_PROVIDER=evolution",
+    "WHATSAPP_INBOUND_ONLY=true",
+    "WHATSAPP_MAX_REPLIES_PER_INBOUND=1",
+    "WHATSAPP_MIN_REPLY_DELAY_MS=900",
+    "WHATSAPP_MAX_REPLY_DELAY_MS=2500",
+    "WHATSAPP_USER_RATE_LIMIT_PER_MINUTE=8",
+    "WHATSAPP_USER_RATE_LIMIT_PER_DAY=200",
+    "EVOLUTION_API_URL=",
+    "EVOLUTION_API_KEY=",
+    "EVOLUTION_INSTANCE=",
+    "EVOLUTION_WEBHOOK_SECRET=",
     "MAINTENANCE_MODE=false",
     "MP_BILLING_ENABLED=false",
     "MP_ACCESS_TOKEN=",
@@ -184,7 +194,7 @@ function ensureRootEnv(modeName) {
     ["replace-with-a-local-admin-password", randomPassword()],
     ["replace-with-a-strong-postgres-password", randomPassword()],
     ["replace-with-a-long-random-passphrase", randomSecret()],
-    ["replace-with-whatsapp-verify-token", randomSecret()]
+    ["EVOLUTION_WEBHOOK_SECRET=", `EVOLUTION_WEBHOOK_SECRET=${randomSecret()}`]
   ]);
 
   let content = readFileSync(templatePath, "utf8");

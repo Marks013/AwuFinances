@@ -12,12 +12,7 @@ type HealthCheck = {
 };
 
 const requiredEnvKeys = ["DATABASE_URL", "AUTH_SECRET", "AUTOMATION_CRON_SECRET"] as const;
-const whatsappEnvKeys = [
-  "WHATSAPP_VERIFY_TOKEN",
-  "WHATSAPP_ACCESS_TOKEN",
-  "WHATSAPP_PHONE_NUMBER_ID",
-  "WHATSAPP_APP_SECRET"
-] as const;
+const whatsappEnvKeys = ["EVOLUTION_API_URL", "EVOLUTION_API_KEY", "EVOLUTION_INSTANCE", "EVOLUTION_WEBHOOK_SECRET"] as const;
 const mercadoPagoEnvKeys = ["MP_ACCESS_TOKEN", "MP_PUBLIC_KEY", "MP_WEBHOOK_SECRET"] as const;
 
 function hasEnvValue(key: string) {

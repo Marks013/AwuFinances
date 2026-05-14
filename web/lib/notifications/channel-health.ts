@@ -48,13 +48,18 @@ export function getEmailChannelHealth(): EmailChannelHealth {
 export function getWhatsAppChannelHealth(): NotificationChannelHealth {
   const configured = Boolean(
     serverEnv.WHATSAPP_ASSISTANT_ENABLED === "true" &&
-      serverEnv.WHATSAPP_VERIFY_TOKEN &&
-      serverEnv.WHATSAPP_PHONE_NUMBER_ID &&
-      serverEnv.WHATSAPP_ACCESS_TOKEN
+      serverEnv.WHATSAPP_PROVIDER === "evolution" &&
+      serverEnv.WHATSAPP_INBOUND_ONLY === "true" &&
+      serverEnv.EVOLUTION_API_URL &&
+      serverEnv.EVOLUTION_API_KEY &&
+      serverEnv.EVOLUTION_INSTANCE &&
+      serverEnv.EVOLUTION_WEBHOOK_SECRET
   );
 
   return {
     configured,
-    issue: configured ? null : "Defina token, phone number id e access token do WhatsApp para liberar envios."
+    issue: configured
+      ? null
+      : "Defina Evolution API URL, API key, instancia e webhook secret para liberar o agente inbound."
   };
 }

@@ -469,14 +469,14 @@ export function SettingsClient() {
                   </p>
                 </article>
                 <article className="data-card p-4">
-                  <p className="text-sm font-semibold">Entrega por WhatsApp</p>
+                  <p className="text-sm font-semibold">Agente WhatsApp inbound</p>
                   <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">
-                    {automationQuery.data?.delivery.whatsapp.configured ? "Pronta para envio." : "Ainda não pronta para envio."}
+                    {automationQuery.data?.delivery.whatsapp.configured ? "Pronto para responder." : "Ainda nao pronto para responder."}
                   </p>
                   <p className="mt-2 break-words text-xs text-[var(--color-muted-foreground)]">
                     {automationQuery.data?.delivery.whatsapp.configured
-                      ? "Os lembretes podem sair pelo número vinculado no perfil."
-                      : automationQuery.data?.delivery.whatsapp.issue ?? profileQuery.data?.integrations.whatsappIssue ?? "Revise a configuração do WhatsApp Cloud API."}
+                      ? "Lembretes e automacoes nao saem por WhatsApp; somente respostas a mensagens recebidas."
+                      : automationQuery.data?.delivery.whatsapp.issue ?? profileQuery.data?.integrations.whatsappIssue ?? "Revise a configuração da Evolution API."}
                   </p>
                 </article>
               </div>

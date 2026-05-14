@@ -156,7 +156,7 @@ export function WhatsAppClient() {
             <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">Central do assistente</h1>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted-foreground)]">
               O WhatsApp é o atalho mais rápido do Awu Finances para lançar gastos, consultar saldo, olhar cartão e manter
-              o financeiro em dia sem sair da conversa.
+              o financeiro em dia. O agente responde apenas conversas iniciadas por você.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -179,7 +179,7 @@ export function WhatsAppClient() {
             </p>
           </article>
           <article className="metric-card motion-card">
-            <p className="metric-label">Webhook</p>
+            <p className="metric-label">Evolution</p>
             <p className="metric-value">{webhookConfigured ? "Pronto" : "Pendente"}</p>
           </article>
           <article className="metric-card motion-card">
@@ -197,7 +197,7 @@ export function WhatsAppClient() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <div className="eyebrow">Configuracao</div>
-            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">Numero e integracao</h2>
+            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">Numero e agente inbound</h2>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--color-muted-foreground)]">
               Cadastre aqui o numero que identifica sua conta nas mensagens do assistente.
             </p>
@@ -239,10 +239,10 @@ export function WhatsAppClient() {
             </Button>
           </article>
           <article className="data-card p-5">
-            <p className="text-sm font-semibold">Status da integracao</p>
+            <p className="text-sm font-semibold">Status da Evolution API</p>
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               <div className="muted-panel">
-                <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-muted-foreground)]">Endpoint</p>
+                <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-muted-foreground)]">Webhook inbound</p>
                 <p className="mt-2 break-all text-sm">
                   {whatsappEnabledForPlan ? profile?.integrations.whatsappWebhookPath : "Recurso indisponivel no plano atual"}
                 </p>
@@ -346,8 +346,8 @@ export function WhatsAppClient() {
             <div className="danger-panel">
               <p className="danger-kicker">Acesso seguro</p>
               <p className="danger-copy">
-                Os atalhos desta central levam apenas para a configuração do WhatsApp e validação de transações. Convites
-                familiares continuam isolados na área própria e obedecem às permissões do titular.
+                Os atalhos desta central mantem o WhatsApp em modo inbound: respostas apenas para mensagens recebidas,
+                sem disparos por automacoes ou convites familiares.
               </p>
             </div>
 

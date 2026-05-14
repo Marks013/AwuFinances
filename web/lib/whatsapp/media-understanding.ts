@@ -1,7 +1,7 @@
 import { serverEnv } from "@/lib/env/server";
-import { downloadWhatsAppMedia } from "@/lib/whatsapp/cloud-api";
+import { downloadEvolutionMedia } from "@/lib/whatsapp/evolution-media";
 
-type MediaKind = "audio" | "image";
+type MediaKind = "audio" | "image" | "video";
 
 type BuildMessageFromMediaInput = {
   mediaId: string;
@@ -193,7 +193,7 @@ async function callGeminiWithMedia(input: BuildMessageFromMediaInput) {
     throw new Error("Gemini não está habilitado para análise de mídia.");
   }
 
-  const downloaded = await downloadWhatsAppMedia(input.mediaId);
+  const downloaded = await downloadEvolutionMedia(input.mediaId, input.mimeType);
 
   const model = serverEnv.GEMINI_MODEL || DEFAULT_MODEL;
   const url =

@@ -68,9 +68,7 @@ async function sendUserNotifications({
   userId,
   goalId,
   email,
-  whatsappNumber,
   sendEmail,
-  sendWhatsApp,
   subject,
   message,
   dedupeSince
@@ -79,9 +77,7 @@ async function sendUserNotifications({
   userId: string;
   goalId?: string | null;
   email?: string | null;
-  whatsappNumber?: string | null;
   sendEmail: boolean;
-  sendWhatsApp: boolean;
   subject: string;
   message: string;
   dedupeSince: Date;
@@ -104,35 +100,6 @@ async function sendUserNotifications({
         goalId: goalId ?? null,
         channel: NotificationChannel.email,
         target: email,
-        subject,
-        message
-      });
-
-      deliveries.push({
-        id: delivery.id,
-        channel: delivery.channel,
-        status: delivery.status,
-        target: delivery.target
-      });
-    }
-  }
-
-  if (sendWhatsApp && whatsappNumber) {
-    const skip = await alreadyDeliveredSince({
-      tenantId,
-      userId,
-      channel: NotificationChannel.whatsapp,
-      subject,
-      since: dedupeSince
-    });
-
-    if (!skip) {
-      const delivery = await deliverNotification({
-        tenantId,
-        userId,
-        goalId: goalId ?? null,
-        channel: NotificationChannel.whatsapp,
-        target: whatsappNumber,
         subject,
         message
       });
@@ -570,9 +537,7 @@ export async function runRecurringAutomation(tenantId: string, userId: string) {
         userId: tenantUser.id,
         goalId: goal.id,
         email: tenantUser.email,
-        whatsappNumber: tenantUser.whatsappNumber,
         sendEmail: Boolean(tenantUser.preferences?.emailNotifications),
-        sendWhatsApp: false,
         subject,
         message,
         dedupeSince: startOfDay(now)
@@ -605,9 +570,7 @@ export async function runRecurringAutomation(tenantId: string, userId: string) {
         tenantId,
         userId: tenantUser.id,
         email: tenantUser.email,
-        whatsappNumber: tenantUser.whatsappNumber,
         sendEmail: Boolean(tenantUser.preferences?.emailNotifications && tenantUser.preferences?.dueReminders),
-        sendWhatsApp: false,
         subject,
         message,
         dedupeSince: startOfDay(now)
@@ -671,9 +634,7 @@ export async function runRecurringAutomation(tenantId: string, userId: string) {
         tenantId,
         userId: tenantUser.id,
         email: tenantUser.email,
-        whatsappNumber: tenantUser.whatsappNumber,
         sendEmail: Boolean(tenantUser.preferences?.emailNotifications && tenantUser.preferences?.dueReminders),
-        sendWhatsApp: false,
         subject,
         message,
         dedupeSince: startOfDay(now)
@@ -694,9 +655,7 @@ export async function runRecurringAutomation(tenantId: string, userId: string) {
           tenantId,
           userId: tenantUser.id,
           email: tenantUser.email,
-          whatsappNumber: tenantUser.whatsappNumber,
           sendEmail: Boolean(tenantUser.preferences?.emailNotifications && tenantUser.preferences?.budgetAlerts),
-          sendWhatsApp: false,
           subject,
           message,
           dedupeSince: startOfDay(now)
@@ -713,9 +672,7 @@ export async function runRecurringAutomation(tenantId: string, userId: string) {
           tenantId,
           userId: tenantUser.id,
           email: tenantUser.email,
-          whatsappNumber: tenantUser.whatsappNumber,
           sendEmail: Boolean(tenantUser.preferences?.emailNotifications && tenantUser.preferences?.budgetAlerts),
-          sendWhatsApp: false,
           subject,
           message,
           dedupeSince: startOfDay(now)
@@ -806,9 +763,7 @@ export async function runRecurringAutomation(tenantId: string, userId: string) {
           tenantId,
           userId: tenantUser.id,
           email: tenantUser.email,
-          whatsappNumber: tenantUser.whatsappNumber,
           sendEmail: Boolean(tenantUser.preferences?.emailNotifications && tenantUser.preferences?.budgetAlerts),
-          sendWhatsApp: false,
           subject,
           message,
           dedupeSince: startOfDay(now)
@@ -829,9 +784,7 @@ export async function runRecurringAutomation(tenantId: string, userId: string) {
           tenantId,
           userId: tenantUser.id,
           email: tenantUser.email,
-          whatsappNumber: tenantUser.whatsappNumber,
           sendEmail: Boolean(tenantUser.preferences?.emailNotifications && tenantUser.preferences?.budgetAlerts),
-          sendWhatsApp: false,
           subject,
           message,
           dedupeSince: startOfDay(now)
@@ -864,9 +817,7 @@ export async function runRecurringAutomation(tenantId: string, userId: string) {
         tenantId,
         userId: tenantUser.id,
         email: tenantUser.email,
-        whatsappNumber: tenantUser.whatsappNumber,
         sendEmail: Boolean(tenantUser.preferences?.emailNotifications),
-        sendWhatsApp: false,
         subject,
         message,
         dedupeSince: startOfMonth(now)

@@ -124,8 +124,8 @@ export async function DashboardShell({ children, currentPathname }: DashboardShe
   );
 
   return (
-    <div className="page-shell flex min-h-screen flex-col gap-5 py-4 md:py-5 lg:grid lg:h-screen lg:grid-cols-[256px_minmax(0,1fr)] lg:gap-5 lg:overflow-y-hidden xl:grid-cols-[264px_minmax(0,1fr)] xl:gap-6">
-      <aside className="surface subtle-scrollbar flex min-h-0 flex-col overflow-visible rounded-[30px] p-4 lg:max-h-none lg:overflow-y-auto xl:p-5">
+    <div className="page-shell flex min-h-dvh flex-col gap-4 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))] md:gap-5 md:py-5 lg:grid lg:h-dvh lg:grid-cols-[256px_minmax(0,1fr)] lg:gap-5 lg:overflow-y-hidden xl:grid-cols-[264px_minmax(0,1fr)] xl:gap-6">
+      <aside className="surface subtle-scrollbar flex min-h-0 max-h-[72dvh] flex-col overflow-y-auto rounded-[24px] p-3 sm:p-4 lg:max-h-none lg:rounded-[30px] xl:p-5">
         <div className="mb-6 rounded-[24px] border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-card)_86%,transparent)] p-4">
           <div className="flex flex-col gap-3">
             <BrandMark compact />
@@ -173,7 +173,7 @@ export async function DashboardShell({ children, currentPathname }: DashboardShe
 
       <main
         id="main-content"
-        className="subtle-scrollbar min-h-0 min-w-0 w-full max-w-full overflow-x-hidden overflow-y-auto pb-8 pr-0 lg:pb-10 lg:pr-1"
+        className="subtle-scrollbar min-h-0 min-w-0 w-full max-w-full overflow-x-clip overflow-y-auto pb-8 pr-0 lg:pb-10 lg:pr-1"
       >
         {children}
       </main>

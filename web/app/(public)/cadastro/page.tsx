@@ -24,7 +24,7 @@ export default async function CadastroPage({ searchParams }: CadastroPageProps) 
   const initialPlan = normalizePlan(params.plan);
 
   return (
-    <main id="main-content" className="page-shell grid min-h-screen items-center py-8">
+    <main id="main-content" className="page-shell grid min-h-dvh items-center py-8">
       <section className="grid gap-6 lg:grid-cols-[0.92fr_1.08fr]">
         <div className="surface-strong rounded-[36px] p-8 md:p-10">
           <div className="section-stack">

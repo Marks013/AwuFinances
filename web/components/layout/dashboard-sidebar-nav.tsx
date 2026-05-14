@@ -189,7 +189,7 @@ export function DashboardSidebarNav({ canManageSharing, isPlatformAdmin }: Dashb
         </p>
       </div>
 
-      <nav className="space-y-2">
+      <nav className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:block lg:space-y-2">
         {items.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname?.startsWith(`${item.href}/`));
@@ -198,20 +198,20 @@ export function DashboardSidebarNav({ canManageSharing, isPlatformAdmin }: Dashb
             <Link
               key={item.href}
               className={cn(
-                "group flex items-center gap-3 rounded-[1.15rem] border border-transparent px-3.5 py-3 text-sm font-medium text-[var(--color-foreground)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(19,111,79,0.14)] hover:bg-[color-mix(in_srgb,var(--color-card)_82%,var(--color-muted))]",
+                "group flex min-w-0 items-center gap-2 rounded-[1.15rem] border border-transparent px-3 py-3 text-sm font-medium leading-5 text-[var(--color-foreground)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(19,111,79,0.14)] hover:bg-[color-mix(in_srgb,var(--color-card)_82%,var(--color-muted))] sm:gap-3 sm:px-3.5",
                 isActive && "border-[rgba(19,111,79,0.18)] bg-[color-mix(in_srgb,var(--color-card)_82%,var(--color-muted))]"
               )}
               href={isPlatformAdmin ? item.href : (`${item.href}?month=${month}` as Route)}
             >
               <span
                 className={cn(
-                  "flex size-8 items-center justify-center rounded-[0.9rem] bg-[color-mix(in_srgb,var(--color-card)_84%,var(--color-muted))] text-[var(--color-primary)] transition group-hover:bg-[var(--color-primary)] group-hover:text-[var(--color-primary-foreground)]",
+                  "flex size-8 shrink-0 items-center justify-center rounded-[0.9rem] bg-[color-mix(in_srgb,var(--color-card)_84%,var(--color-muted))] text-[var(--color-primary)] transition group-hover:bg-[var(--color-primary)] group-hover:text-[var(--color-primary-foreground)]",
                   isActive && "bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
                 )}
               >
                 <Icon className="size-4" />
               </span>
-              <span>{item.label}</span>
+              <span className="min-w-0 truncate">{item.label}</span>
             </Link>
           );
         })}

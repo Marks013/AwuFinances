@@ -571,7 +571,7 @@ button {
 }
 
 .admin-hero-section {
-  overflow: visible;
+  overflow: hidden;
 }
 
 .admin-hero-grid {
@@ -584,6 +584,35 @@ button {
   display: grid;
   gap: 0.9rem;
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+}
+
+.admin-hero-rail .metric-card {
+  min-height: 6.75rem;
+  padding: clamp(0.95rem, 1.4vw, 1.15rem);
+}
+
+.admin-hero-primary-card {
+  grid-column: 1 / -1;
+}
+
+.admin-hero-rail .metric-value {
+  margin-top: 0.45rem;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  line-height: 1.05;
+}
+
+.admin-hero-rail .metric-footnote {
+  margin-top: 0.55rem;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.report-hero-rail {
+  container-type: inline-size;
+}
+
+.report-hero-rail .hero-amount {
+  font-size: clamp(1.65rem, 8cqw, 3rem);
 }
 
 @media (max-width: 767px) {
@@ -665,6 +694,10 @@ button {
   .admin-hero-rail .metric-card {
     min-height: auto;
     padding: 0.85rem;
+  }
+
+  .admin-hero-primary-card {
+    grid-column: 1 / -1;
   }
 
   .admin-hero-rail .metric-label,
@@ -856,7 +889,12 @@ button {
 
 @media (min-width: 1080px) {
   .admin-hero-grid {
-    grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 0.95fr);
+    grid-template-columns: minmax(0, 1fr) minmax(22rem, 0.9fr);
+    align-items: stretch;
+  }
+
+  .admin-hero-rail {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -1582,8 +1620,7 @@ button {
 }
 
 .awu-mascot[data-variant="default"] .awu-mascot-sparkle,
-.awu-mascot[data-variant="success"] .awu-mascot-sparkle,
-.awu-mascot[data-variant="admin"] .awu-mascot-sparkle {
+.awu-mascot[data-variant="success"] .awu-mascot-sparkle {
   animation: awu-sparkle 2.8s ease-in-out infinite;
 }
 
@@ -1904,15 +1941,7 @@ button {
 }
 
 .awu-mascot[data-variant="admin"] .awu-mascot-action {
-  background: color-mix(in srgb, white 86%, var(--color-primary));
-  border: 1px solid color-mix(in srgb, var(--color-primary) 42%, transparent);
-  border-radius: 0.72rem;
-  box-shadow: 0 18px 34px color-mix(in srgb, var(--color-midnight) 18%, transparent);
-  height: 2rem;
-  right: 4%;
-  top: 16%;
-  width: 2.8rem;
-  animation: awu-admin-card 3.4s ease-in-out infinite;
+  display: none;
 }
 
 .awu-mascot[data-variant="admin"] .awu-mascot-action::before {
@@ -1946,6 +1975,20 @@ button {
   top: 45%;
   transform: scale(0.72);
   animation-delay: 0.74s;
+}
+
+.awu-mascot[data-variant="admin"] .awu-mascot-sparkle,
+.awu-mascot[data-variant="admin"] .awu-mascot-motion-line,
+.awu-mascot[data-variant="admin"] .awu-mascot-cue,
+.awu-mascot[data-variant="admin"] .awu-mascot-orbit {
+  display: none;
+}
+
+.awu-mascot[data-variant="alert"] .awu-mascot-action-one,
+.awu-mascot[data-variant="alert"] .awu-mascot-action-two,
+.awu-mascot[data-variant="alert"] .awu-mascot-cue,
+.awu-mascot[data-variant="alert"] .awu-mascot-motion-line {
+  display: none;
 }
 
 @media (hover: hover) and (pointer: fine) {

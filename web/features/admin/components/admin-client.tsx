@@ -1209,14 +1209,14 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
           </div>
         {isPlatformAdmin ? (
           <div className="admin-hero-rail">
-            <article className="metric-card overflow-hidden">
+            <article className="metric-card admin-hero-primary-card overflow-hidden">
               <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0">
                   <p className="metric-label">Clientes</p>
                   <p className="metric-value">Central</p>
                   <p className="metric-footnote">Visão de relacionamento e suporte.</p>
                 </div>
-                <AwuMascot className="w-24" title="Awu Clientes" variant="admin" />
+                <AwuMascot className="w-16 sm:w-20" title="Awu Clientes" variant="admin" />
               </div>
             </article>
             <article className="metric-card">

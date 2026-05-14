@@ -395,8 +395,8 @@ export function ReportsClient() {
               <span>{`${data?.summary?.transactions ?? 0} lançamentos`}</span>
             </div>
           </div>
-          <div className="grid w-full gap-4 xl:max-w-[34rem] xl:grid-cols-2">
-            <article className="flex items-center justify-between gap-4 rounded-[1.5rem] border border-white/10 bg-white/8 p-4 backdrop-blur-sm xl:col-span-2">
+          <div className="report-hero-rail grid w-full gap-4 xl:max-w-[38rem] 2xl:grid-cols-2">
+            <article className="flex items-center justify-between gap-4 rounded-[1.5rem] border border-white/10 bg-white/8 p-4 backdrop-blur-sm 2xl:col-span-2">
               <div className="min-w-0">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60">Awu Report</p>
                 <p className="mt-3 text-lg font-semibold text-white">Leitura visual para enxergar o mês sem esforço.</p>
@@ -405,16 +405,16 @@ export function ReportsClient() {
             </article>
             <article className="rounded-[1.5rem] border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60">Resultado</p>
-              <p className={`hero-amount mt-3 ${amountClass(data?.summary?.balance ?? 0)}`}>{formatCurrency(data?.summary?.balance ?? 0)}</p>
+              <p className={`hero-amount amount-nowrap mt-3 ${amountClass(data?.summary?.balance ?? 0)}`}>{formatCurrency(data?.summary?.balance ?? 0)}</p>
               <p className="mt-3 text-sm text-white/70">{data?.annualInsights?.narrative?.summary ?? "Resultado consolidado do período."}</p>
             </article>
             <article className="rounded-[1.5rem] border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
-              <div className="flex items-start justify-between gap-3">
-                <div>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60">Leitura executiva</p>
-                  <p className="mt-3 text-lg font-semibold text-white">{data?.annualInsights?.narrative?.headline ?? "Aguardando leitura consolidada"}</p>
+                  <p className="mt-3 text-lg font-semibold leading-7 text-pretty text-white">{data?.annualInsights?.narrative?.headline ?? "Aguardando leitura consolidada"}</p>
                 </div>
-                <div className={`rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${toneBadgeClass(data?.annualInsights?.narrative?.tone ?? "attention")}`}>
+                <div className={`shrink-0 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${toneBadgeClass(data?.annualInsights?.narrative?.tone ?? "attention")}`}>
                   {toneLabel(data?.annualInsights?.narrative?.tone ?? "attention")}
                 </div>
               </div>

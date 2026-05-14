@@ -1986,8 +1986,10 @@ button {
 
 .awu-mascot[data-variant="alert"] .awu-mascot-action-one,
 .awu-mascot[data-variant="alert"] .awu-mascot-action-two,
+.awu-mascot[data-variant="alert"] .awu-mascot-sparkle,
 .awu-mascot[data-variant="alert"] .awu-mascot-cue,
-.awu-mascot[data-variant="alert"] .awu-mascot-motion-line {
+.awu-mascot[data-variant="alert"] .awu-mascot-motion-line,
+.awu-mascot[data-variant="alert"] .awu-mascot-orbit {
   display: none;
 }
 

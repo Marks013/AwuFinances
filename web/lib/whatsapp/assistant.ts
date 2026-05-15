@@ -1,9 +1,11 @@
 import { PaymentMethod, Prisma, Transaction, TransactionSource, TransactionType } from "@prisma/client";
 
 import {
+  buildCardBillingSnapshotForDate,
   getCardStatementSnapshot,
   getCurrentPayableStatementMonth,
 } from "@/lib/cards/statement";
+import { revalidateFinanceReports } from "@/lib/cache/finance-read-models";
 import { ensureTenantCardStatementSnapshots } from "@/lib/cards/snapshot-sync";
 import { getAccountsWithComputedBalance } from "@/lib/finance/accounts";
 import { BenefitWalletRuleError, validateBenefitWalletTransaction } from "@/lib/finance/benefit-wallet";
@@ -454,6 +456,10 @@ function buildTransactionExternalMessageId(messageId: string | null | undefined,
   return messageId ? `${messageId}:${installmentNumber}` : null;
 }
 
+function getStatementDuplicateKey(snapshot: { closeDate: Date; dueDate: Date }) {
+  return `${snapshot.closeDate.toISOString()}|${snapshot.dueDate.toISOString()}`;
+}
+
 async function createExpenseOrIncomeFromText(
   user: WhatsAppUser,
   body: string,
@@ -623,10 +629,42 @@ async function createExpenseOrIncomeFromText(
   const existingByInstallment = new Map(
     existingTransactions.map((transaction) => [transaction.installmentNumber, transaction.id])
   );
+  const affectedCompetences: string[] = [];
+  const usedCardStatementKeys = new Set<string>();
+  let nextCardInstallmentOffset = 0;
 
   for (let index = 0; index < installments; index += 1) {
     const installmentNumber = index + 1;
     const existingId = existingByInstallment.get(installmentNumber);
+    let installmentOffset = selectedCard ? nextCardInstallmentOffset : index;
+    let transactionDate = addMonthsClamped(new Date(), installmentOffset);
+    let cardSnapshot = selectedCard
+      ? await buildCardBillingSnapshotForDate({
+          tenantId: user.tenantId,
+          card: selectedCard,
+          referenceDate: transactionDate,
+          client: prisma
+        })
+      : null;
+
+    while (selectedCard && cardSnapshot && usedCardStatementKeys.has(getStatementDuplicateKey(cardSnapshot))) {
+      installmentOffset += 1;
+      transactionDate = addMonthsClamped(new Date(), installmentOffset);
+      cardSnapshot = await buildCardBillingSnapshotForDate({
+        tenantId: user.tenantId,
+        card: selectedCard,
+        referenceDate: transactionDate,
+        client: prisma
+      });
+    }
+
+    if (cardSnapshot) {
+      usedCardStatementKeys.add(getStatementDuplicateKey(cardSnapshot));
+      nextCardInstallmentOffset = installmentOffset + 1;
+    }
+
+    const competence = cardSnapshot?.competence ?? getCurrentMonthKey(transactionDate);
+    affectedCompetences.push(competence);
 
     if (existingId) {
       if (index === 0) {
@@ -639,7 +677,8 @@ async function createExpenseOrIncomeFromText(
       data: {
         tenantId: user.tenantId,
         userId: user.id,
-        date: addMonthsClamped(new Date(), index),
+        date: transactionDate,
+        competence,
         amount: new Prisma.Decimal(installmentAmounts[index].toFixed(2)),
         description:
           installments > 1 ? `${description} (${index + 1}/${installments})` : description,
@@ -653,6 +692,8 @@ async function createExpenseOrIncomeFromText(
         installmentNumber,
         parentId,
         externalMessageId: buildTransactionExternalMessageId(messageId, installmentNumber),
+        statementCloseDate: cardSnapshot?.closeDate ?? null,
+        statementDueDate: cardSnapshot?.dueDate ?? null,
         classificationSource: classification.classificationSource,
         classificationKeyword: classification.classificationKeyword,
         classificationReason: classification.reason,
@@ -666,6 +707,10 @@ async function createExpenseOrIncomeFromText(
     if (index === 0) {
       parentId = created.id;
     }
+  }
+
+  if (affectedCompetences.length > 0) {
+    revalidateFinanceReports(user.tenantId);
   }
 
   const targetLabel = selectedCard

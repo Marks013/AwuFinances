@@ -21,6 +21,25 @@ function readAccountUsage(account: unknown) {
   return (account as { usage?: "standard" | "benefit_food" }).usage ?? "standard";
 }
 
+const CLASSIFICATION_REVIEW_CONFIDENCE_THRESHOLD = 0.72;
+
+function isAutomaticClassification(source: Transaction["classificationSource"]) {
+  return source !== "manual_input" && source !== "manual_rule" && source !== "unknown";
+}
+
+function needsClassificationReview(transaction: Pick<Transaction, "aiConfidence" | "classificationSource">) {
+  if (!isAutomaticClassification(transaction.classificationSource)) {
+    return false;
+  }
+
+  if (transaction.classificationSource === "fallback") {
+    return true;
+  }
+
+  const confidence = transaction.aiConfidence ? Number(transaction.aiConfidence) : null;
+  return confidence !== null && confidence < CLASSIFICATION_REVIEW_CONFIDENCE_THRESHOLD;
+}
+
 function getStatementDuplicateKey(snapshot: { closeDate: Date; dueDate: Date }) {
   return `${snapshot.closeDate.toISOString()}|${snapshot.dueDate.toISOString()}`;
 }
@@ -153,10 +172,8 @@ export async function GET(request: Request) {
         applyTithe: Number(transaction.titheAmount ?? 0) > 0,
         classification: transaction.categoryId
           ? {
-              auto:
-                transaction.classificationSource !== "manual_input" &&
-                transaction.classificationSource !== "manual_rule" &&
-                transaction.classificationSource !== "unknown",
+              auto: isAutomaticClassification(transaction.classificationSource),
+              needsReview: needsClassificationReview(transaction),
               ai: transaction.aiClassified,
               confidence: transaction.aiConfidence ? Number(transaction.aiConfidence) : null,
               source: transaction.classificationSource
@@ -383,6 +400,13 @@ export async function POST(request: Request) {
         classification: categoryId
           ? {
               auto: !body.categoryId,
+              needsReview:
+                !body.categoryId &&
+                needsClassificationReview({
+                  aiConfidence:
+                    classification.confidence !== null ? new Prisma.Decimal(classification.confidence.toFixed(2)) : null,
+                  classificationSource: classification.classificationSource
+                }),
               ai: classification.aiClassified,
               confidence: classification.confidence,
               source: classification.classificationSource,

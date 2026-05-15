@@ -152,6 +152,11 @@ enum BillingPaymentStatus {
   in_process
 }
 
+enum AccessCouponTarget {
+  trial
+  subscription
+}
+
 enum InvitationKind {
   admin_isolated
   shared_wallet
@@ -198,6 +203,7 @@ model Tenant {
   whatsappMessages WhatsAppMessage[]
   billingSubscriptions BillingSubscription[]
   billingPayments BillingPayment[]
+  accessCouponRedemptions AccessCouponRedemption[]
   cardStatementCycles CardStatementCycle[]
 
   @@index([planId])
@@ -256,6 +262,7 @@ model User {
   whatsappMessages  WhatsAppMessage[]
   adminAuditLogs    AdminAuditLog[] @relation("AuditActorUser")
   auditTargets      AdminAuditLog[] @relation("AuditTargetUser")
+  accessCouponRedemptions AccessCouponRedemption[]
   popupCampaignViews PopupCampaignView[]
   supportTickets   SupportTicket[]
   supportReplies   SupportTicketReply[] @relation("SupportReplyAdmin")
@@ -810,6 +817,49 @@ model BillingWebhookEvent {
   @@index([provider, topic, createdAt])
   @@index([resourceId, createdAt])
   @@index([status, nextAttemptAt, createdAt])
+}
+
+model AccessCoupon {
+  id                      String                   @id @default(cuid())
+  code                    String                   @unique
+  title                   String
+  description             String?
+  target                  AccessCouponTarget      @default(trial)
+  days                    Int
+  enabled                 Boolean                  @default(true)
+  startsAt                DateTime?
+  endsAt                  DateTime?
+  maxRedemptions          Int?
+  maxRedemptionsPerTenant Int                      @default(1)
+  maxRedemptionsPerUser   Int                      @default(1)
+  createdByUserId         String?
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  redemptions             AccessCouponRedemption[]
+
+  @@index([enabled, startsAt, endsAt])
+  @@index([target, enabled])
+}
+
+model AccessCouponRedemption {
+  id                     String       @id @default(cuid())
+  couponId               String
+  tenantId               String
+  userId                 String
+  daysApplied            Int
+  previousTrialExpiresAt DateTime?
+  newTrialExpiresAt      DateTime?
+  previousExpiresAt      DateTime?
+  newExpiresAt           DateTime?
+  createdAt              DateTime     @default(now())
+  coupon                 AccessCoupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  tenant                 Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user                   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([couponId, createdAt])
+  @@index([tenantId, createdAt])
+  @@index([userId, createdAt])
+  @@index([couponId, tenantId])
 }
 
 model PlatformSetting {

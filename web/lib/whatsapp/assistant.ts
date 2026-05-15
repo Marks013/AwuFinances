@@ -1,10 +1,12 @@
 import { PaymentMethod, Prisma, Transaction, TransactionSource, TransactionType } from "@prisma/client";
 
 import {
+  buildCardBillingSnapshotForDate,
   getCardStatementSnapshot,
   getCurrentPayableStatementMonth,
 } from "@/lib/cards/statement";
 import { ensureTenantCardStatementSnapshots } from "@/lib/cards/snapshot-sync";
+import { revalidateFinanceReports } from "@/lib/cache/finance-read-models";
 import { getAccountsWithComputedBalance } from "@/lib/finance/accounts";
 import { BenefitWalletRuleError, validateBenefitWalletTransaction } from "@/lib/finance/benefit-wallet";
 import { FOOD_BENEFIT_CATEGORY_SYSTEM_KEYS } from "@/lib/finance/benefit-wallet-rules";
@@ -50,6 +52,14 @@ type AssistantResult = {
   intent: string;
   status: string;
   response: string;
+};
+
+type AssistantLogContext = {
+  tenantId: string;
+  userId: string;
+  phoneNumber: string;
+  intent: string;
+  status: string;
 };
 
 type IncomingTextMessage = {
@@ -454,6 +464,10 @@ function buildTransactionExternalMessageId(messageId: string | null | undefined,
   return messageId ? `${messageId}:${installmentNumber}` : null;
 }
 
+function getStatementDuplicateKey(snapshot: { closeDate: Date; dueDate: Date }) {
+  return `${snapshot.closeDate.toISOString()}|${snapshot.dueDate.toISOString()}`;
+}
+
 async function createExpenseOrIncomeFromText(
   user: WhatsAppUser,
   body: string,
@@ -623,10 +637,42 @@ async function createExpenseOrIncomeFromText(
   const existingByInstallment = new Map(
     existingTransactions.map((transaction) => [transaction.installmentNumber, transaction.id])
   );
+  const affectedCompetences: string[] = [];
+  const usedCardStatementKeys = new Set<string>();
+  let nextCardInstallmentOffset = 0;
 
   for (let index = 0; index < installments; index += 1) {
     const installmentNumber = index + 1;
     const existingId = existingByInstallment.get(installmentNumber);
+    let installmentOffset = selectedCard ? nextCardInstallmentOffset : index;
+    let transactionDate = addMonthsClamped(new Date(), installmentOffset);
+    let cardSnapshot = selectedCard
+      ? await buildCardBillingSnapshotForDate({
+          tenantId: user.tenantId,
+          card: selectedCard,
+          referenceDate: transactionDate,
+          client: prisma
+        })
+      : null;
+
+    while (selectedCard && cardSnapshot && usedCardStatementKeys.has(getStatementDuplicateKey(cardSnapshot))) {
+      installmentOffset += 1;
+      transactionDate = addMonthsClamped(new Date(), installmentOffset);
+      cardSnapshot = await buildCardBillingSnapshotForDate({
+        tenantId: user.tenantId,
+        card: selectedCard,
+        referenceDate: transactionDate,
+        client: prisma
+      });
+    }
+
+    if (cardSnapshot) {
+      usedCardStatementKeys.add(getStatementDuplicateKey(cardSnapshot));
+      nextCardInstallmentOffset = installmentOffset + 1;
+    }
+
+    const competence = cardSnapshot?.competence ?? getCurrentMonthKey(transactionDate);
+    affectedCompetences.push(competence);
 
     if (existingId) {
       if (index === 0) {
@@ -639,7 +685,8 @@ async function createExpenseOrIncomeFromText(
       data: {
         tenantId: user.tenantId,
         userId: user.id,
-        date: addMonthsClamped(new Date(), index),
+        date: transactionDate,
+        competence,
         amount: new Prisma.Decimal(installmentAmounts[index].toFixed(2)),
         description:
           installments > 1 ? `${description} (${index + 1}/${installments})` : description,
@@ -653,6 +700,8 @@ async function createExpenseOrIncomeFromText(
         installmentNumber,
         parentId,
         externalMessageId: buildTransactionExternalMessageId(messageId, installmentNumber),
+        statementCloseDate: cardSnapshot?.closeDate ?? null,
+        statementDueDate: cardSnapshot?.dueDate ?? null,
         classificationSource: classification.classificationSource,
         classificationKeyword: classification.classificationKeyword,
         classificationReason: classification.reason,
@@ -666,6 +715,10 @@ async function createExpenseOrIncomeFromText(
     if (index === 0) {
       parentId = created.id;
     }
+  }
+
+  if (affectedCompetences.length > 0) {
+    revalidateFinanceReports(user.tenantId);
   }
 
   const targetLabel = selectedCard
@@ -1183,10 +1236,18 @@ export async function processIncomingWhatsAppTextMessage(message: IncomingTextMe
       handled: true,
       to: formattedPhone,
       response:
-        "⚠️ Seu número ainda não está vinculado a uma pessoa ativa no Awu Finances.\n\n" +
-        "Abra Configurações no app e atualize o WhatsApp cadastrado."
+        "⚠️ Este número ainda não está cadastrado no Awu Finances.\n\n" +
+        "Entre no site, abra Configurações e salve este WhatsApp no seu perfil. Depois me envie uma nova mensagem por aqui."
     };
   }
+
+  const buildLogContext = (intent: string, status: string): AssistantLogContext => ({
+    tenantId: user.tenantId,
+    userId: user.id,
+    phoneNumber: formattedPhone,
+    intent,
+    status
+  });
 
   const license = resolveTenantLicenseState(user.tenant);
 
@@ -1194,7 +1255,8 @@ export async function processIncomingWhatsAppTextMessage(message: IncomingTextMe
     return {
       handled: true,
       to: formattedPhone,
-      response: "⚠️ A conta vinculada a você está com a licença indisponível no momento."
+      response: "⚠️ A conta vinculada a você está com a licença indisponível no momento.",
+      logContext: buildLogContext("license_blocked", "account_unavailable")
     };
   }
 
@@ -1202,7 +1264,8 @@ export async function processIncomingWhatsAppTextMessage(message: IncomingTextMe
     return {
       handled: true,
       to: formattedPhone,
-      response: "🔒 O assistente no WhatsApp está disponível apenas no plano Premium."
+      response: "🔒 O assistente no WhatsApp está disponível apenas no plano Premium.",
+      logContext: buildLogContext("license_blocked", "whatsapp_unavailable")
     };
   }
 
@@ -1225,12 +1288,6 @@ export async function processIncomingWhatsAppTextMessage(message: IncomingTextMe
     handled: true,
     to: formattedPhone,
     response: result.response,
-    logContext: {
-      tenantId: user.tenantId,
-      userId: user.id,
-      phoneNumber: formattedPhone,
-      intent: result.intent,
-      status: result.status
-    }
+    logContext: buildLogContext(result.intent, result.status)
   };
 }

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma/client";
 import { captureUnexpectedError } from "@/lib/observability/sentry";
 
 import {
+  BillingConfigurationError,
   MERCADO_PAGO_PROVIDER,
   buildMercadoPagoWebhookDedupeKey,
   verifyMercadoPagoWebhookSignature
@@ -144,6 +145,10 @@ function isMercadoPagoWebhookPayload(value: Prisma.JsonValue | null): value is M
   return Boolean(value) && typeof value === "object";
 }
 
+function isMissingMercadoPagoResourceError(error: unknown) {
+  return error instanceof BillingConfigurationError && /not found/i.test(error.message);
+}
+
 async function processBillingWebhookRecord(event: Pick<BillingWebhookEvent, "id" | "topic" | "resourceId" | "attempts" | "payload">) {
   try {
     const claimed = await claimBillingWebhookEvent(event.id);
@@ -186,6 +191,13 @@ async function processBillingWebhookRecord(event: Pick<BillingWebhookEvent, "id"
       processed: true
     };
   } catch (error) {
+    if (isMissingMercadoPagoResourceError(error)) {
+      await markBillingWebhookProcessed(event.id, "ignored", `${event.topic} ${event.resourceId} not found at Mercado Pago.`);
+      return {
+        ignored: true
+      };
+    }
+
     const errorMessage = getErrorMessage(error);
     captureUnexpectedError(error, {
       surface: "billing-webhook-processing",

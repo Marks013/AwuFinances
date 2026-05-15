@@ -70,6 +70,7 @@ type TransactionItem = {
   applyTithe: boolean;
   classification: {
     auto: boolean;
+    needsReview: boolean;
     ai: boolean;
     confidence: number | null;
   } | null;
@@ -281,7 +282,7 @@ export function TransactionsClient() {
   const preferredAutoTithe = Boolean(profileQuery.data?.preferences.autoTithe);
   const automaticSuggestions = useMemo(() => {
     return transactions
-      .filter((item) => item.classification?.auto && item.type !== "transfer")
+      .filter((item) => item.classification?.needsReview && item.type !== "transfer")
       .sort((a, b) => (a.classification?.confidence ?? 0) - (b.classification?.confidence ?? 0))
       .slice(0, 6);
   }, [transactions]);

@@ -81,7 +81,7 @@ export async function GET() {
         ? prisma.billingWebhookEvent.count({
             where: {
               status: {
-                in: ["pending", "processing", "failed"]
+                in: ["pending", "processing"]
               }
             }
           })
@@ -89,7 +89,9 @@ export async function GET() {
       admin.isPlatformAdmin
         ? prisma.billingWebhookEvent.count({
             where: {
-              status: "dead_letter"
+              status: {
+                in: ["failed", "dead_letter"]
+              }
             }
           })
         : Promise.resolve(0),

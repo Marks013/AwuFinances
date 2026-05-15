@@ -277,10 +277,32 @@ extract_critical_files() {
     return
   fi
 
+  if [[ "${RESTORE_EXTRACT_CRITICAL_FILES:-false}" != "true" ]]; then
+    log "Critical files bundle was not extracted. Set RESTORE_EXTRACT_CRITICAL_FILES=true only when you really need it."
+    return
+  fi
+
   local destination="${RESTORE_FILES_DESTINATION:-/backups/restored-files/$(basename "${ARCHIVE_SOURCE_PATH%.tar.gz.enc}")}"
+  umask 077
   mkdir -p "$destination"
+  chmod 700 "$destination"
   log "Extracting critical files to ${destination}"
   tar -xzf "$CRITICAL_FILES_PATH" -C "$destination"
+
+  RESTORED_FILES_DESTINATION="$destination"
+  if [[ "${RESTORE_FILES_CLEANUP:-true}" == "true" ]]; then
+    log "RESTORE_FILES_CLEANUP=true; extracted critical files will be removed before exit."
+  else
+    log "RESTORE_FILES_CLEANUP=false; remove extracted critical files manually after use."
+  fi
+}
+
+cleanup() {
+  rm -rf "$WORK_ROOT"
+
+  if [[ -n "${RESTORED_FILES_DESTINATION:-}" && "${RESTORE_FILES_CLEANUP:-true}" == "true" ]]; then
+    rm -rf "$RESTORED_FILES_DESTINATION"
+  fi
 }
 
 export TZ="${TZ:-America/Sao_Paulo}"
@@ -289,11 +311,12 @@ DB_PORT="${BACKUP_DB_PORT:-5432}"
 DB_USER="${POSTGRES_USER:-awufinances}"
 DB_PASSWORD="${POSTGRES_PASSWORD:-}"
 WORK_ROOT="/tmp/restore-$(date '+%Y-%m-%dT%H-%M-%S%z')"
+RESTORED_FILES_DESTINATION=""
 
 require_env POSTGRES_PASSWORD
 export PGPASSWORD="$DB_PASSWORD"
 
-trap 'rm -rf "$WORK_ROOT"' EXIT
+trap cleanup EXIT
 
 mkdir -p "$WORK_ROOT"
 

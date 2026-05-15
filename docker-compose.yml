@@ -11,15 +11,65 @@ services:
         SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT}
     container_name: awu_finances_web
     restart: unless-stopped
-    # Puxa TODAS as variáveis do .env automaticamente
-    env_file:
-      - .env
-      - ./.deploy/runtime.env
     environment:
-      # Mantemos apenas o que é exclusivo do Docker ou montado dinamicamente
       NODE_ENV: production
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      # Destrava a memória do Node.js para usar até 4GB da sua RAM (evita travamentos no app)
+      DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY:-}
+      AUTH_SECRET: ${AUTH_SECRET:-}
+      AUTH_TRUST_HOST: ${AUTH_TRUST_HOST:-true}
+      AUTH_URL: ${AUTH_URL:-}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-}
+      AUTOMATION_CRON_SECRET: ${AUTOMATION_CRON_SECRET:-}
+      MAINTENANCE_MODE: ${MAINTENANCE_MODE:-false}
+      MAINTENANCE_BYPASS_TOKEN: ${MAINTENANCE_BYPASS_TOKEN:-}
+      GEMINI_ENABLED: ${GEMINI_ENABLED:-false}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-}
+      GEMINI_BASE_URL: ${GEMINI_BASE_URL:-}
+      GEMINI_TIMEOUT_MS: ${GEMINI_TIMEOUT_MS:-}
+      GEMINI_RETRY_ATTEMPTS: ${GEMINI_RETRY_ATTEMPTS:-}
+      GEMINI_CANDIDATE_LIMIT: ${GEMINI_CANDIDATE_LIMIT:-}
+      WHATSAPP_ASSISTANT_ENABLED: ${WHATSAPP_ASSISTANT_ENABLED:-false}
+      WHATSAPP_PROVIDER: ${WHATSAPP_PROVIDER:-evolution}
+      WHATSAPP_INBOUND_ONLY: ${WHATSAPP_INBOUND_ONLY:-true}
+      WHATSAPP_MAX_REPLIES_PER_INBOUND: ${WHATSAPP_MAX_REPLIES_PER_INBOUND:-1}
+      WHATSAPP_MIN_REPLY_DELAY_MS: ${WHATSAPP_MIN_REPLY_DELAY_MS:-900}
+      WHATSAPP_MAX_REPLY_DELAY_MS: ${WHATSAPP_MAX_REPLY_DELAY_MS:-2500}
+      WHATSAPP_USER_RATE_LIMIT_PER_MINUTE: ${WHATSAPP_USER_RATE_LIMIT_PER_MINUTE:-8}
+      WHATSAPP_USER_RATE_LIMIT_PER_DAY: ${WHATSAPP_USER_RATE_LIMIT_PER_DAY:-200}
+      EVOLUTION_API_URL: ${EVOLUTION_API_URL:-}
+      EVOLUTION_API_KEY: ${EVOLUTION_API_KEY:-}
+      EVOLUTION_INSTANCE: ${EVOLUTION_INSTANCE:-}
+      EVOLUTION_WEBHOOK_SECRET: ${EVOLUTION_WEBHOOK_SECRET:-}
+      EVOLUTION_MEDIA_TIMEOUT_MS: ${EVOLUTION_MEDIA_TIMEOUT_MS:-}
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-webhook}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+      EMAIL_FROM_NAME: ${EMAIL_FROM_NAME:-}
+      EMAIL_REPLY_TO: ${EMAIL_REPLY_TO:-}
+      SUPPORT_EMAIL_TO: ${SUPPORT_EMAIL_TO:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_WEBHOOK_SECRET: ${RESEND_WEBHOOK_SECRET:-}
+      BREVO_API_KEY: ${BREVO_API_KEY:-}
+      NOTIFICATION_EMAIL_WEBHOOK_URL: ${NOTIFICATION_EMAIL_WEBHOOK_URL:-}
+      MP_BILLING_ENABLED: ${MP_BILLING_ENABLED:-false}
+      MP_ACCESS_TOKEN: ${MP_ACCESS_TOKEN:-}
+      MP_PUBLIC_KEY: ${MP_PUBLIC_KEY:-}
+      MP_WEBHOOK_SECRET: ${MP_WEBHOOK_SECRET:-}
+      MP_BILLING_PLAN_SLUG: ${MP_BILLING_PLAN_SLUG:-premium-completo}
+      MP_BILLING_REASON: ${MP_BILLING_REASON:-Awu Finances Premium}
+      MP_BILLING_AMOUNT: ${MP_BILLING_AMOUNT:-}
+      MP_BILLING_ANNUAL_AMOUNT: ${MP_BILLING_ANNUAL_AMOUNT:-}
+      MP_BILLING_ANNUAL_MAX_INSTALLMENTS: ${MP_BILLING_ANNUAL_MAX_INSTALLMENTS:-12}
+      MP_BILLING_CURRENCY: ${MP_BILLING_CURRENCY:-BRL}
+      MP_BILLING_FREQUENCY: ${MP_BILLING_FREQUENCY:-1}
+      MP_BILLING_FREQUENCY_TYPE: ${MP_BILLING_FREQUENCY_TYPE:-months}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-production}
+      SENTRY_RELEASE: ${SENTRY_RELEASE:-}
+      SENTRY_TRACES_SAMPLE_RATE: ${SENTRY_TRACES_SAMPLE_RATE:-}
+      NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+      NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE: ${NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE:-0.2}
+      TZ: ${TZ:-America/Sao_Paulo}
       NODE_OPTIONS: "--max_old_space_size=4096"
     # Limita os logs para não devorar seus 100GB de disco com o tempo
     logging:
@@ -50,11 +100,9 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    env_file:
-      - .env
-      - ./.deploy/runtime.env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY:-}
     command: ["npx", "prisma", "migrate", "deploy", "--schema", "prisma/schema.prisma"]
     networks:
       - awu_finances
@@ -70,15 +118,19 @@ services:
         condition: service_healthy
       web:
         condition: service_started
-    env_file:
-      - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY:-}
       AUDIT_BASE_URL: ${AUDIT_BASE_URL:-http://web:3000}
-      SMOKE_USER_EMAIL: ${SMOKE_USER_EMAIL}
-      SMOKE_USER_PASSWORD: ${SMOKE_USER_PASSWORD}
-      FAMILY_USER_EMAIL: ${FAMILY_USER_EMAIL}
-      FAMILY_USER_PASSWORD: ${FAMILY_USER_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      LOCAL_OWNER_EMAIL: ${LOCAL_OWNER_EMAIL:-}
+      LOCAL_OWNER_PASSWORD: ${LOCAL_OWNER_PASSWORD:-}
+      SMOKE_USER_EMAIL: ${SMOKE_USER_EMAIL:-}
+      SMOKE_USER_PASSWORD: ${SMOKE_USER_PASSWORD:-}
+      FAMILY_USER_EMAIL: ${FAMILY_USER_EMAIL:-}
+      FAMILY_USER_PASSWORD: ${FAMILY_USER_PASSWORD:-}
+      SMOKE_MONTH: ${SMOKE_MONTH:-}
     command: ["npm", "run", "audit:server-smoke"]
     networks:
       - awu_finances      
@@ -92,10 +144,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    env_file:
-      - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      LOCAL_OWNER_EMAIL: ${LOCAL_OWNER_EMAIL:-}
+      LOCAL_OWNER_PASSWORD: ${LOCAL_OWNER_PASSWORD:-}
+      FAMILY_USER_EMAIL: ${FAMILY_USER_EMAIL:-}
+      FAMILY_USER_PASSWORD: ${FAMILY_USER_PASSWORD:-}
     command: ["node", "scripts/bootstrap-admin.mjs"]
     networks:
       - awu_finances
@@ -111,11 +167,11 @@ services:
         condition: service_healthy
       web:
         condition: service_started
-    env_file:
-      - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       AUDIT_BASE_URL: ${AUDIT_BASE_URL:-http://web:3000}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
     command: ["npm", "run", "audit:invitations"]
     networks:
       - awu_finances
@@ -126,10 +182,14 @@ services:
       dockerfile: Dockerfile
       target: tools
     profiles: ["ops"]
-    env_file:
-      - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      AUTH_SECRET: ${AUTH_SECRET:-}
+      AUTOMATION_CRON_SECRET: ${AUTOMATION_CRON_SECRET:-}
+      MP_BILLING_ENABLED: ${MP_BILLING_ENABLED:-false}
+      MP_WEBHOOK_SECRET: ${MP_WEBHOOK_SECRET:-}
+      MP_BILLING_ANNUAL_AMOUNT: ${MP_BILLING_ANNUAL_AMOUNT:-}
+      MP_BILLING_ANNUAL_MAX_INSTALLMENTS: ${MP_BILLING_ANNUAL_MAX_INSTALLMENTS:-12}
     command: ["npm", "run", "audit:billing-webhook"]
     networks:
       - awu_finances

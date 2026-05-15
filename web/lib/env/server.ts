@@ -48,6 +48,7 @@ const optionalPositiveNumber = z.preprocess(
 const serverEnvSchema = z
   .object({
     DATABASE_URL: z.string().min(1),
+    DATA_ENCRYPTION_KEY: z.string().min(32).optional(),
     AUTH_SECRET: z.string().min(1),
     AUTH_TRUST_HOST: z.enum(["true", "false"]).default("false"),
     AUTOMATION_CRON_SECRET: z.string().min(1),
@@ -131,6 +132,7 @@ const serverEnvSchema = z
 
 export const serverEnv = serverEnvSchema.parse({
   DATABASE_URL: process.env.DATABASE_URL,
+  DATA_ENCRYPTION_KEY: process.env.DATA_ENCRYPTION_KEY,
   AUTH_SECRET: process.env.AUTH_SECRET,
   AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST,
   AUTOMATION_CRON_SECRET: process.env.AUTOMATION_CRON_SECRET,

@@ -25,6 +25,7 @@ import {
 } from "@/features/admin/components/admin-shared";
 import { AdminTenantCard } from "@/features/admin/components/admin-tenant-card";
 import { AdminUserCard } from "@/features/admin/components/admin-user-card";
+import { AccessCouponsCard } from "@/features/admin/components/access-coupons-card";
 import { BillingSettingsCard } from "@/features/admin/components/billing-settings-card";
 import { PopupCampaignManager } from "@/features/admin/components/popup-campaign-manager";
 import type { InvitationValues } from "@/features/password/schemas/password-schema";
@@ -1230,9 +1231,14 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
               <p className="metric-footnote">Assinaturas que pedem atenção.</p>
             </article>
             <article className="metric-card">
-              <p className="metric-label">Fila webhook</p>
+              <p className="metric-label">Fila billing</p>
               <p className="metric-value">{statsQuery.data?.billingWebhookQueueDepth ?? 0}</p>
-              <p className="metric-footnote">Eventos pendentes na fila de billing.</p>
+              <p className="metric-footnote">Eventos pendentes ou em processamento.</p>
+            </article>
+            <article className="metric-card">
+              <p className="metric-label">Falhas billing</p>
+              <p className="metric-value">{statsQuery.data?.billingWebhookFailures ?? 0}</p>
+              <p className="metric-footnote">Eventos que precisam auditoria ou descarte.</p>
             </article>
             <article className="metric-card">
               <p className="metric-label">Usuários ativos</p>
@@ -1539,7 +1545,7 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
               <p className="metric-value">{statsQuery.data?.billingAttentionSubscriptions ?? 0}</p>
             </article>
             <article className="metric-card min-w-0">
-              <p className="metric-label">Fila webhooks</p>
+              <p className="metric-label">Fila billing</p>
               <p className="metric-value">{statsQuery.data?.billingWebhookQueueDepth ?? 0}</p>
             </article>
             <article className="metric-card min-w-0">
@@ -1555,6 +1561,7 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
 
       {isPlatformAdmin ? <PopupCampaignManager /> : null}
       {isPlatformAdmin ? <BillingSettingsCard /> : null}
+      {isPlatformAdmin ? <AccessCouponsCard /> : null}
 
       <div className={adminSectionsLayoutClassName}>
         <section className="surface content-section admin-content-section">

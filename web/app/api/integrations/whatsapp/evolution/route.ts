@@ -12,6 +12,8 @@ import {
 } from "@/lib/whatsapp/evolution-payload";
 import { verifyEvolutionWebhookSecret } from "@/lib/whatsapp/evolution-security";
 
+const MAX_MESSAGES_PER_WEBHOOK = 5;
+
 export async function POST(request: Request) {
   if (serverEnv.WHATSAPP_ASSISTANT_ENABLED !== "true") {
     return NextResponse.json({ message: "Not found" }, { status: 404 });
@@ -30,7 +32,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid payload" }, { status: 200 });
   }
 
-  const messages = extractIncomingEvolutionWebhookMessages(payload);
+  const messages = extractIncomingEvolutionWebhookMessages(payload).slice(0, MAX_MESSAGES_PER_WEBHOOK);
 
   if (!messages.length) {
     return NextResponse.json({ status: "ignored" }, { status: 200 });

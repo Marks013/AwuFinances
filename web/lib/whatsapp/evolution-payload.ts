@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 import { normalizeWhatsAppPhone } from "@/lib/whatsapp/phone";
 
 export type EvolutionWebhookPayload = Record<string, unknown>;
@@ -45,6 +47,11 @@ function getMessageCandidates(payload: EvolutionWebhookPayload) {
   }
 
   return [payload].filter(isRecord);
+}
+
+function isMessagesUpsertEvent(payload: EvolutionWebhookPayload) {
+  const event = asString(payload.event)?.toLowerCase().replace(/[._-]/g, "");
+  return event === "messagesupsert";
 }
 
 function getNestedMessageText(message: Record<string, unknown>) {
@@ -119,6 +126,12 @@ export function extractIncomingEvolutionWebhookMessages(
 ): IncomingEvolutionWebhookMessage[] {
   const dedupedMessages = new Map<string, IncomingEvolutionWebhookMessage>();
 
+  if (!isMessagesUpsertEvent(payload)) {
+    return [];
+  }
+
+  const instance = asString(payload.instance) ?? "unknown-instance";
+
   for (const item of getMessageCandidates(payload)) {
     const key = asRecord(item.key);
     const message = asRecord(item.message);
@@ -141,8 +154,8 @@ export function extractIncomingEvolutionWebhookMessages(
       continue;
     }
 
-    const eventId = asString(key.id);
-    if (!eventId) {
+    const rawEventId = asString(key.id);
+    if (!rawEventId) {
       continue;
     }
 
@@ -150,6 +163,9 @@ export function extractIncomingEvolutionWebhookMessages(
     const body = getNestedMessageText(message);
     const { mediaId, mimeType } = getMediaInfo(message);
     const type = resolveMessageType(rawType, message);
+    const eventId = `evolution:${createHash("sha256")
+      .update([instance, jidForRouting, rawEventId, type ?? "unknown"].join("|"))
+      .digest("hex")}`;
 
     dedupedMessages.set(eventId, {
       eventId,

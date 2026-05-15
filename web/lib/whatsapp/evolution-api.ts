@@ -1,8 +1,10 @@
 import { serverEnv } from "@/lib/env/server";
 import { prisma } from "@/lib/prisma/client";
+import { takeThrottleHit } from "@/lib/security/request-throttle";
 import { normalizeWhatsAppPhone } from "@/lib/whatsapp/phone";
 
 const EVOLUTION_SEND_TIMEOUT_MS = 10_000;
+const UNLINKED_PHONE_REPLY_LIMIT_PER_HOUR = 2;
 
 type SendWhatsAppReplyInput = {
   to: string;
@@ -164,6 +166,59 @@ async function assertReplyAllowed(input: SendWhatsAppReplyInput) {
       messageId: null,
       skipped: true,
       reason: "WhatsApp daily reply rate limit reached."
+    };
+  }
+
+  const [persistentMinuteThrottle, persistentDayThrottle, unlinkedPhoneThrottle] = await Promise.all([
+    takeThrottleHit({
+      key: normalizedPhone,
+      limit: serverEnv.WHATSAPP_USER_RATE_LIMIT_PER_MINUTE,
+      namespace: "whatsapp-outbound-phone-minute",
+      windowMs: 60_000
+    }),
+    takeThrottleHit({
+      key: normalizedPhone,
+      limit: serverEnv.WHATSAPP_USER_RATE_LIMIT_PER_DAY,
+      namespace: "whatsapp-outbound-phone-day",
+      windowMs: 24 * 60 * 60_000
+    }),
+    input.userId
+      ? Promise.resolve({ allowed: true, remaining: UNLINKED_PHONE_REPLY_LIMIT_PER_HOUR, retryAfterMs: 0 })
+      : takeThrottleHit({
+          key: normalizedPhone,
+          limit: UNLINKED_PHONE_REPLY_LIMIT_PER_HOUR,
+          namespace: "whatsapp-unlinked-phone-hour",
+          windowMs: 60 * 60_000
+        })
+  ]);
+
+  if (!persistentMinuteThrottle.allowed) {
+    return {
+      ok: false,
+      status: 429,
+      messageId: null,
+      skipped: true,
+      reason: "WhatsApp persistent per-minute reply rate limit reached."
+    };
+  }
+
+  if (!persistentDayThrottle.allowed) {
+    return {
+      ok: false,
+      status: 429,
+      messageId: null,
+      skipped: true,
+      reason: "WhatsApp persistent daily reply rate limit reached."
+    };
+  }
+
+  if (!unlinkedPhoneThrottle.allowed) {
+    return {
+      ok: false,
+      status: 429,
+      messageId: null,
+      skipped: true,
+      reason: "WhatsApp unlinked phone reply rate limit reached."
     };
   }
 

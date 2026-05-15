@@ -10,6 +10,7 @@ import {
   startBillingCheckout
 } from "@/features/billing/lib/billing-api";
 import type { BillingProfileSnapshot } from "@/features/billing/types";
+import { AccessCouponRedeemCard } from "@/features/billing/components/access-coupon-redeem-card";
 import { formatDateDisplay } from "@/lib/date";
 import { Button } from "@/components/ui/button";
 
@@ -234,6 +235,10 @@ export function BillingSummaryCard({ profile, compact = false }: BillingSummaryC
             </div>
           ) : null}
         </article>
+      </div>
+
+      <div className="mt-4">
+        <AccessCouponRedeemCard canRedeem={canManageBilling && !overview.permissions.isPlatformAdmin} />
       </div>
     </section>
   );

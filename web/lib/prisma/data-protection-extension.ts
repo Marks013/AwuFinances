@@ -11,7 +11,16 @@ const protectedModelFields = {
 const protectedFieldNames = new Set<string>(Object.values(protectedModelFields).flat());
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value) && !(value instanceof Date);
+  if (typeof value !== "object" || value === null || Array.isArray(value) || value instanceof Date) {
+    return false;
+  }
+
+  if (value instanceof Prisma.Decimal) {
+    return false;
+  }
+
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
 }
 
 function modelKey(model: string | undefined) {

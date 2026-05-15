@@ -50,9 +50,11 @@ function createNonce() {
 function buildContentSecurityPolicy(nonce: string, options: { allowMercadoPagoCheckout?: boolean } = {}) {
   const mercadoPagoSources =
     "https://sdk.mercadopago.com https://secure-fields.mercadopago.com https://api-static.mercadopago.com https://*.mercadopago.com https://*.mercadopago.com.br https://*.mercadolibre.com https://*.mercadolivre.com https://*.mlstatic.com";
+  const cloudflareInsightsSources = "https://static.cloudflareinsights.com https://cloudflareinsights.com";
+  const cloudflareInsightsInlineHash = "'sha256-ZswfTY7H35rbv8WC7NXBoiC7WNu86vSzCDChNWwZZDM='";
   const scriptElementPolicy = options.allowMercadoPagoCheckout
-    ? `script-src-elem 'self' 'unsafe-inline' ${mercadoPagoSources}`
-    : `script-src-elem 'self' 'nonce-${nonce}'`;
+    ? `script-src-elem 'self' 'unsafe-inline' ${mercadoPagoSources} ${cloudflareInsightsSources}`
+    : `script-src-elem 'self' 'nonce-${nonce}' ${cloudflareInsightsInlineHash} ${cloudflareInsightsSources}`;
 
   return [
     "default-src 'self'",
@@ -62,8 +64,12 @@ function buildContentSecurityPolicy(nonce: string, options: { allowMercadoPagoCh
     "object-src 'none'",
     `img-src 'self' data: blob: ${mercadoPagoSources}`,
     "font-src 'self' data:",
-    isProduction ? `connect-src 'self' ${mercadoPagoSources}` : "connect-src 'self' ws: wss: http: https:",
-    isProduction ? `script-src 'self' 'nonce-${nonce}'` : `script-src 'self' 'nonce-${nonce}' 'unsafe-eval'`,
+    isProduction
+      ? `connect-src 'self' ${mercadoPagoSources} ${cloudflareInsightsSources}`
+      : "connect-src 'self' ws: wss: http: https:",
+    isProduction
+      ? `script-src 'self' 'nonce-${nonce}' ${cloudflareInsightsInlineHash} ${cloudflareInsightsSources}`
+      : `script-src 'self' 'nonce-${nonce}' 'unsafe-eval'`,
     scriptElementPolicy,
     "script-src-attr 'none'",
     "style-src 'self' 'unsafe-inline'",

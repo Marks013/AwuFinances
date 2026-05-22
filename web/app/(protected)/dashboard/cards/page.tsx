@@ -1,8 +1,5 @@
-import { requireEndUserDashboardPageUser } from "@/lib/auth/session";
-import { CardsClient } from "@/features/cards/components/cards-client";
+import { redirect } from "next/navigation";
 
-export default async function CardsPage() {
-  await requireEndUserDashboardPageUser();
-
-  return <CardsClient />;
+export default function CardsPage() {
+  redirect("/dashboard/accounts");
 }

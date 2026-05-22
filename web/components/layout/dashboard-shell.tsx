@@ -142,9 +142,7 @@ export async function DashboardShell({ children, currentPathname }: DashboardShe
       : session?.user?.role === "admin"
         ? "Admin de Conta"
         : "Familiar da carteira compartilhada";
-  const showUsageLock = Boolean(
-    usageLock && currentPathname !== "/dashboard/accounts" && currentPathname !== "/dashboard/cards"
-  );
+  const showUsageLock = Boolean(usageLock && currentPathname !== "/dashboard/accounts");
 
   return (
     <div className="page-shell flex min-h-dvh flex-col gap-4 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))] md:gap-5 md:py-5 lg:grid lg:h-dvh lg:grid-cols-[256px_minmax(0,1fr)] lg:gap-5 lg:overflow-y-hidden xl:grid-cols-[264px_minmax(0,1fr)] xl:gap-6">
@@ -267,9 +265,6 @@ export async function DashboardShell({ children, currentPathname }: DashboardShe
             <div className="mt-5 flex flex-wrap gap-3">
               <Button asChild>
                 <Link href="/dashboard/accounts">Ajustar contas</Link>
-              </Button>
-              <Button asChild variant="secondary">
-                <Link href="/dashboard/cards">Ajustar cartoes</Link>
               </Button>
             </div>
           </section>

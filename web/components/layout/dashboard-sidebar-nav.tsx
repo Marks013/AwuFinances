@@ -9,7 +9,6 @@ import {
   ChartColumnBig,
   ChevronLeft,
   ChevronRight,
-  CreditCard,
   FolderTree,
   Landmark,
   LayoutDashboard,
@@ -18,10 +17,8 @@ import {
   RefreshCcw,
   Settings,
   ShieldCheck,
-  Split,
   Target,
-  UsersRound,
-  Wallet
+  UsersRound
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -38,16 +35,13 @@ type NavItem = {
 const primaryNavigation = [
   { href: "/dashboard" as Route, label: "Painel", icon: LayoutDashboard },
   { href: "/dashboard/transactions" as Route, label: "Transacoes", icon: ReceiptText },
+  { href: "/dashboard/accounts" as Route, label: "Carteira", icon: Landmark },
+  { href: "/dashboard/subscriptions" as Route, label: "Recorrencias", icon: RefreshCcw },
   { href: "/dashboard/reports" as Route, label: "Relatorios", icon: ChartColumnBig },
   { href: "/dashboard/settings" as Route, label: "Ajustes", icon: Settings }
 ] satisfies NavItem[];
 
-const walletNavigation = [
-  { href: "/dashboard/accounts" as Route, label: "Contas", icon: Landmark },
-  { href: "/dashboard/cards" as Route, label: "Cartoes", icon: CreditCard },
-  { href: "/dashboard/benefits" as Route, label: "Vale", icon: Wallet },
-  { href: "/dashboard/subscriptions" as Route, label: "Recorrencias", icon: RefreshCcw },
-  { href: "/dashboard/installments" as Route, label: "Parcelas", icon: Split },
+const secondaryNavigation = [
   { href: "/dashboard/goals" as Route, label: "Metas", icon: Target },
   { href: "/dashboard/categories" as Route, label: "Categorias", icon: FolderTree }
 ] satisfies NavItem[];
@@ -73,10 +67,10 @@ export function DashboardSidebarNav({ canManageSharing, compact = false, isPlatf
   const draftMonth = draftMonthState.sourceMonth === month ? draftMonthState.value : month;
   const [isPending, startTransition] = useTransition();
   const primaryItems = isPlatformAdmin ? platformAdminNavigation : primaryNavigation;
-  const walletItems = isPlatformAdmin
+  const secondaryItems = isPlatformAdmin
     ? []
     : [
-        ...walletNavigation,
+        ...secondaryNavigation,
         ...(canManageSharing ? [{ href: "/dashboard/sharing" as Route, label: "Compartilhar", icon: UsersRound }] : [])
       ];
 
@@ -217,24 +211,10 @@ export function DashboardSidebarNav({ canManageSharing, compact = false, isPlatf
           {primaryItems.map((item) => renderItem(item, "primary"))}
         </div>
 
-        {walletItems.length > 0 ? (
-          <details
-            className="rounded-[1rem] border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-muted)_24%,transparent)] p-1"
-            open={
-              walletItems.some((item) => pathname === item.href || pathname?.startsWith(`${item.href}/`)) || undefined
-            }
-          >
-            <summary className="flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-[0.85rem] px-2.5 py-2 text-sm font-semibold text-[var(--color-foreground)] [&::-webkit-details-marker]:hidden">
-              <span className="flex size-7 shrink-0 items-center justify-center rounded-[0.75rem] bg-[color-mix(in_srgb,var(--color-card)_84%,var(--color-muted))] text-[var(--color-primary)]">
-                <Landmark className="size-3.5" />
-              </span>
-              <span className="min-w-0 flex-1 truncate">Carteira</span>
-              <span className="text-xs text-[var(--color-muted-foreground)]">abrir</span>
-            </summary>
-            <div className={cn("mt-1 grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:block lg:space-y-1", compact && "gap-1")}>
-              {walletItems.map((item) => renderItem(item, "secondary"))}
-            </div>
-          </details>
+        {secondaryItems.length > 0 ? (
+          <div className={cn("grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:block lg:space-y-1", compact && "gap-1")}>
+            {secondaryItems.map((item) => renderItem(item, "secondary"))}
+          </div>
         ) : null}
       </nav>
     </>

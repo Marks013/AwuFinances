@@ -126,31 +126,21 @@ function SubscriptionServiceCard({
 }) {
   return (
     <button
-      className="service-preset-card"
+      className="flex w-full cursor-pointer list-none items-center gap-3 rounded-[1rem] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3 text-left transition hover:border-[rgba(19,111,79,0.22)]"
       onClick={onSelect}
       style={{
-        background: `linear-gradient(180deg, ${preset.background} 0%, color-mix(in srgb, ${preset.background} 82%, transparent) 100%)`,
         borderColor: active ? "color-mix(in srgb, var(--color-foreground) 32%, var(--color-border))" : undefined
       }}
       type="button"
     >
-      <div className="relative z-10 flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <span
-            className="service-badge"
-            style={{
-              background: `linear-gradient(135deg, ${preset.color} 0%, ${preset.accent} 100%)`
-            }}
-          >
-            {preset.monogram}
-          </span>
-          <p className="mt-3 text-sm font-semibold text-[var(--color-foreground)]">{preset.label}</p>
-          <p className="mt-1 text-xs leading-6 text-[var(--color-muted-foreground)]">{preset.description}</p>
-        </div>
-        <span className="rounded-full border border-[var(--color-border)] px-2.5 py-1 text-[11px] font-semibold text-[var(--color-muted-foreground)]">
-          Modelo
-        </span>
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-[0.85rem] border border-[var(--color-border)] text-xs font-semibold" style={{ color: preset.color }}>
+        {preset.monogram}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-semibold text-[var(--color-foreground)]">{preset.label}</p>
+        <p className="mt-1 line-clamp-2 text-xs leading-5 text-[var(--color-muted-foreground)]">{preset.description}</p>
       </div>
+      <span className="text-xs font-semibold text-[var(--color-muted-foreground)]">usar</span>
     </button>
   );
 }
@@ -427,14 +417,15 @@ export function SubscriptionsClient() {
           <>
             <div className="mt-6 space-y-3">
               <Label>Modelos rápidos</Label>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="divide-y divide-[var(--color-border)] overflow-hidden rounded-[1.15rem] border border-[var(--color-border)] bg-[var(--color-card)]">
                 {subscriptionServicePresets.map((preset) => (
-                  <SubscriptionServiceCard
-                    active={selectedName === preset.label}
-                    key={preset.value}
-                    onSelect={() => applyServicePreset(preset)}
-                    preset={preset}
-                  />
+                  <div key={preset.value} className="p-2">
+                    <SubscriptionServiceCard
+                      active={selectedName === preset.label}
+                      onSelect={() => applyServicePreset(preset)}
+                      preset={preset}
+                    />
+                  </div>
                 ))}
               </div>
               <p className="text-sm text-[var(--color-muted-foreground)]">

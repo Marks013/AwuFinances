@@ -692,11 +692,11 @@ async function run() {
   });
   results.push("Tela de assinaturas carregou com conteudo esperado");
 
-  await expectPage(dataJar, "/dashboard/cards", {
-    markers: ['id="card-name"', 'id="statement-card"', 'id="statement-month"', "Central de fatura", "Pagar fatura"],
+  await expectPage(dataJar, "/dashboard/accounts", {
+    markers: ["Contas, cartoes e vale", 'id="card-name"', 'id="statement-card"', "Vale alimentacao"],
     minimumMatches: 3
   });
-  results.push("Tela de cartoes carregou com conteudo esperado");
+  results.push("Tela de carteira carregou contas, cartoes e vale");
 
   await expectPage(dataJar, "/dashboard/reports", {
     markers: ['id="reports-period-mode"', 'id="reports-filter-type"', "Despesas por categoria", "Mapa de categorias", "Movimentações recentes"],

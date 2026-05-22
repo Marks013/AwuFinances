@@ -764,12 +764,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               </div>
             </div>
 
-            <div className="metric-grid-compact mt-5">
-              <QuickAccessLink copy="Saldo, bancos e movimentação por conta." href="/dashboard/accounts" label="Contas" month={month} />
-              <QuickAccessLink copy="Faturas, limite e uso mensal." href="/dashboard/cards" label="Cartões" month={month} />
+            <div className="metric-grid-compact mt-5">              <QuickAccessLink copy="Contas, cartoes e vale no mesmo lugar." href="/dashboard/accounts" label="Carteira" month={month} />
+              <QuickAccessLink copy="Recorrencias e parcelas agrupadas." href="/dashboard/subscriptions" label="Recorrencias" month={month} />
               <QuickAccessLink copy="Objetivos e reservas planejadas." href="/dashboard/goals" label="Metas" month={month} />
               <QuickAccessLink copy="Número do assistente e suporte no mesmo lugar." href="/dashboard/settings" label="Ajustes" month={month} />
-              <QuickAccessLink copy="Perfil, notificações e automações." href="/dashboard/settings" label="Configurações" month={month} />
+
             </div>
           </article>
         </div>

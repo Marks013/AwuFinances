@@ -1,8 +1,5 @@
-import { requireEndUserDashboardPageUser } from "@/lib/auth/session";
-import { InstallmentsClient } from "@/features/installments/components/installments-client";
+import { redirect } from "next/navigation";
 
-export default async function InstallmentsPage() {
-  await requireEndUserDashboardPageUser();
-
-  return <InstallmentsClient />;
+export default function InstallmentsPage() {
+  redirect("/dashboard/subscriptions");
 }

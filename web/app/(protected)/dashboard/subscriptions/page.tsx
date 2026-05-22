@@ -1,6 +1,7 @@
-import Link from "next/link";
 import type { Route } from "next";
+import { RefreshCcw, Split } from "lucide-react";
 
+import { ModuleSwitcher } from "@/components/navigation/module-switcher";
 import { requireEndUserDashboardPageUser } from "@/lib/auth/session";
 import { InstallmentsClient } from "@/features/installments/components/installments-client";
 import { SubscriptionsClient } from "@/features/subscriptions/components/subscriptions-client";
@@ -16,12 +17,14 @@ const recurringViews = [
   {
     value: "subscriptions",
     label: "Recorrências",
-    description: "Assinaturas, receitas fixas e cobranças mensais."
+    description: "Assinaturas, receitas fixas e cobranças mensais.",
+    icon: RefreshCcw
   },
   {
     value: "installments",
     label: "Parcelas",
-    description: "Compras parceladas, vencidas e saldo restante."
+    description: "Compras parceladas, vencidas e saldo restante.",
+    icon: Split
   }
 ] as const;
 
@@ -49,7 +52,10 @@ export default async function SubscriptionsPage({ searchParams }: SubscriptionsP
   const params = searchParams ? await searchParams : undefined;
   const activeView = normalizeRecurringView(params?.view);
   const month = firstParam(params?.month);
-  const activeViewCopy = recurringViews.find((item) => item.value === activeView)?.description;
+  const switcherItems = recurringViews.map((item) => ({
+    ...item,
+    href: recurringHref(item.value, month)
+  }));
 
   return (
     <div className="space-y-6">
@@ -60,28 +66,7 @@ export default async function SubscriptionsPage({ searchParams }: SubscriptionsP
           Uma área única para acompanhar compromissos fixos e compras parceladas sem transformar tudo em uma lista longa.
         </p>
 
-        <div className="mt-6 grid gap-2 rounded-[1.2rem] border border-[var(--color-border)] bg-[var(--color-muted)]/18 p-2 md:grid-cols-2">
-          {recurringViews.map((item) => {
-            const active = activeView === item.value;
-
-            return (
-              <Link
-                aria-current={active ? "page" : undefined}
-                className={
-                  active
-                    ? "rounded-[1rem] border border-[rgba(19,111,79,0.24)] bg-[var(--color-card)] px-4 py-3 text-sm shadow-sm"
-                    : "rounded-[1rem] px-4 py-3 text-sm text-[var(--color-muted-foreground)] transition hover:bg-[var(--color-card)]"
-                }
-                href={recurringHref(item.value, month)}
-                key={item.value}
-              >
-                <span className="block font-semibold text-[var(--color-foreground)]">{item.label}</span>
-                <span className="mt-1 block text-pretty text-xs leading-5">{item.description}</span>
-              </Link>
-            );
-          })}
-        </div>
-        <p className="mt-4 text-sm text-[var(--color-muted-foreground)]">{activeViewCopy}</p>
+        <ModuleSwitcher activeValue={activeView} items={switcherItems} label="Alternar area de recorrencias" />
       </section>
 
       {activeView === "subscriptions" ? <SubscriptionsClient /> : null}

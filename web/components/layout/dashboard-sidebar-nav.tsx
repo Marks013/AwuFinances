@@ -38,12 +38,9 @@ const primaryNavigation = [
   { href: "/dashboard/accounts" as Route, label: "Carteira", icon: Landmark },
   { href: "/dashboard/subscriptions" as Route, label: "Recorrências", icon: RefreshCcw },
   { href: "/dashboard/reports" as Route, label: "Relatórios", icon: ChartColumnBig },
-  { href: "/dashboard/settings" as Route, label: "Ajustes", icon: Settings }
-] satisfies NavItem[];
-
-const secondaryNavigation = [
   { href: "/dashboard/goals" as Route, label: "Metas", icon: Target },
-  { href: "/dashboard/categories" as Route, label: "Categorias", icon: FolderTree }
+  { href: "/dashboard/categories" as Route, label: "Categorias", icon: FolderTree },
+  { href: "/dashboard/settings" as Route, label: "Ajustes", icon: Settings }
 ] satisfies NavItem[];
 
 const platformAdminNavigation = [
@@ -66,12 +63,12 @@ export function DashboardSidebarNav({ canManageSharing, compact = false, isPlatf
   const [draftMonthState, setDraftMonthState] = useState({ sourceMonth: month, value: month });
   const draftMonth = draftMonthState.sourceMonth === month ? draftMonthState.value : month;
   const [isPending, startTransition] = useTransition();
-  const primaryItems = isPlatformAdmin ? platformAdminNavigation : primaryNavigation;
-  const secondaryItems = isPlatformAdmin
-    ? []
+  const primaryItems = isPlatformAdmin
+    ? platformAdminNavigation
     : [
-        ...secondaryNavigation,
-        ...(canManageSharing ? [{ href: "/dashboard/sharing" as Route, label: "Compartilhar", icon: UsersRound }] : [])
+        ...primaryNavigation.slice(0, -1),
+        ...(canManageSharing ? [{ href: "/dashboard/sharing" as Route, label: "Compartilhar", icon: UsersRound }] : []),
+        primaryNavigation[primaryNavigation.length - 1]!
       ];
 
   const buildMonthRoute = useCallback(
@@ -107,7 +104,7 @@ export function DashboardSidebarNav({ canManageSharing, compact = false, isPlatf
     router.replace(buildMonthRoute(getCurrentMonthKey()), { scroll: false });
   }, [buildMonthRoute, isPlatformAdmin, router, searchParams]);
 
-  const renderItem = (item: NavItem, size: "primary" | "secondary") => {
+  const renderItem = (item: NavItem) => {
     const Icon = item.icon;
     const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname?.startsWith(`${item.href}/`));
     const href = isPlatformAdmin ? item.href : (`${item.href}?month=${month}` as Route);
@@ -117,8 +114,8 @@ export function DashboardSidebarNav({ canManageSharing, compact = false, isPlatf
         key={item.href}
         className={cn(
           "group flex min-w-0 items-center gap-2 rounded-[1rem] border border-transparent text-[var(--color-foreground)] transition-all duration-200 hover:border-[rgba(19,111,79,0.14)] hover:bg-[color-mix(in_srgb,var(--color-card)_82%,var(--color-muted))]",
-          size === "primary" ? "px-3 py-3 text-sm font-medium" : "px-2.5 py-2 text-xs font-medium",
-          compact && size === "primary" && "px-2.5 py-2.5 text-[0.82rem]",
+          "px-3 py-3 text-sm font-medium",
+          compact && "px-2.5 py-2.5 text-[0.82rem]",
           isActive && "border-[rgba(19,111,79,0.18)] bg-[color-mix(in_srgb,var(--color-card)_82%,var(--color-muted))]"
         )}
         href={href}
@@ -126,12 +123,12 @@ export function DashboardSidebarNav({ canManageSharing, compact = false, isPlatf
         <span
           className={cn(
             "flex shrink-0 items-center justify-center bg-[color-mix(in_srgb,var(--color-card)_84%,var(--color-muted))] text-[var(--color-primary)] transition group-hover:bg-[var(--color-primary)] group-hover:text-[var(--color-primary-foreground)]",
-            size === "primary" ? "size-8 rounded-[0.9rem]" : "size-7 rounded-[0.75rem]",
-            compact && size === "primary" && "size-7 rounded-[0.75rem]",
+            "size-8 rounded-[0.9rem]",
+            compact && "size-7 rounded-[0.75rem]",
             isActive && "bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
           )}
         >
-          <Icon className={size === "primary" ? "size-4" : "size-3.5"} />
+          <Icon className="size-4" />
         </span>
         <span className="min-w-0 truncate">{item.label}</span>
       </Link>
@@ -208,14 +205,8 @@ export function DashboardSidebarNav({ canManageSharing, compact = false, isPlatf
 
       <nav className="space-y-2">
         <div className={cn("grid grid-cols-2 gap-2 sm:grid-cols-3 lg:block lg:space-y-2", compact && "gap-1.5")}>
-          {primaryItems.map((item) => renderItem(item, "primary"))}
+          {primaryItems.map((item) => renderItem(item))}
         </div>
-
-        {secondaryItems.length > 0 ? (
-          <div className={cn("grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:block lg:space-y-1", compact && "gap-1")}>
-            {secondaryItems.map((item) => renderItem(item, "secondary"))}
-          </div>
-        ) : null}
       </nav>
     </>
   );

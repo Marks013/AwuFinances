@@ -1,6 +1,7 @@
-import Link from "next/link";
 import type { Route } from "next";
+import { CreditCard, Landmark, Utensils } from "lucide-react";
 
+import { ModuleSwitcher } from "@/components/navigation/module-switcher";
 import { requireEndUserDashboardPageUser } from "@/lib/auth/session";
 import { AccountsClient } from "@/features/accounts/components/accounts-client";
 import { BenefitFoodClient } from "@/features/benefits/components/benefit-food-client";
@@ -17,17 +18,20 @@ const walletViews = [
   {
     value: "accounts",
     label: "Contas",
-    description: "Saldos, bancos e carteiras do dia a dia."
+    description: "Saldos, bancos e carteiras do dia a dia.",
+    icon: Landmark
   },
   {
     value: "cards",
     label: "Cartões",
-    description: "Limites, faturas e ciclos de pagamento."
+    description: "Limites, faturas e ciclos de pagamento.",
+    icon: CreditCard
   },
   {
     value: "benefits",
     label: "Vale alimentação",
-    description: "Carteira alimentar, recargas e consumo."
+    description: "Carteira alimentar, recargas e consumo.",
+    icon: Utensils
   }
 ] as const;
 
@@ -55,7 +59,10 @@ export default async function AccountsPage({ searchParams }: AccountsPageProps) 
   const params = searchParams ? await searchParams : undefined;
   const activeView = normalizeWalletView(params?.view);
   const month = firstParam(params?.month);
-  const activeViewCopy = walletViews.find((item) => item.value === activeView)?.description;
+  const switcherItems = walletViews.map((item) => ({
+    ...item,
+    href: walletHref(item.value, month)
+  }));
 
   return (
     <div className="space-y-6">
@@ -66,28 +73,7 @@ export default async function AccountsPage({ searchParams }: AccountsPageProps) 
           Uma área única para organizar dinheiro disponível, crédito e vale alimentação sem misturar os fluxos.
         </p>
 
-        <div className="mt-6 grid gap-2 rounded-[1.2rem] border border-[var(--color-border)] bg-[var(--color-muted)]/18 p-2 md:grid-cols-3">
-          {walletViews.map((item) => {
-            const active = activeView === item.value;
-
-            return (
-              <Link
-                aria-current={active ? "page" : undefined}
-                className={
-                  active
-                    ? "rounded-[1rem] border border-[rgba(19,111,79,0.24)] bg-[var(--color-card)] px-4 py-3 text-sm shadow-sm"
-                    : "rounded-[1rem] px-4 py-3 text-sm text-[var(--color-muted-foreground)] transition hover:bg-[var(--color-card)]"
-                }
-                href={walletHref(item.value, month)}
-                key={item.value}
-              >
-                <span className="block font-semibold text-[var(--color-foreground)]">{item.label}</span>
-                <span className="mt-1 block text-pretty text-xs leading-5">{item.description}</span>
-              </Link>
-            );
-          })}
-        </div>
-        <p className="mt-4 text-sm text-[var(--color-muted-foreground)]">{activeViewCopy}</p>
+        <ModuleSwitcher activeValue={activeView} items={switcherItems} label="Alternar area da carteira" />
       </section>
 
       {activeView === "accounts" ? <AccountsClient /> : null}

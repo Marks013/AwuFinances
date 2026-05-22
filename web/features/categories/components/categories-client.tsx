@@ -304,17 +304,17 @@ export function CategoriesClient() {
           </div>
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
             <Button className="w-full sm:w-auto" disabled={restoreDefaultsMutation.isPending} onClick={() => restoreDefaultsMutation.mutate()} type="button" variant="secondary">
-              {restoreDefaultsMutation.isPending ? "Restaurando..." : "Restaurar padrao"}
+              {restoreDefaultsMutation.isPending ? "Restaurando..." : "Restaurar padrão"}
             </Button>
-            <div className="grid w-full grid-cols-2 gap-2">
-              <article className="metric-card w-full p-4">
-                <p className="metric-label">Despesas</p>
-                <p className="metric-value tabular-nums">{expenseCategories}</p>
-              </article>
-              <article className="metric-card w-full p-4">
-                <p className="metric-label">Receitas</p>
-                <p className="metric-value tabular-nums">{incomeCategories}</p>
-              </article>
+            <div className="flex w-full flex-wrap gap-2 sm:justify-end">
+              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/24 px-3 py-2 text-xs font-semibold text-[var(--color-muted-foreground)]">
+                Despesas
+                <strong className="tabular-nums text-sm text-[var(--color-foreground)]">{expenseCategories}</strong>
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/24 px-3 py-2 text-xs font-semibold text-[var(--color-muted-foreground)]">
+                Receitas
+                <strong className="tabular-nums text-sm text-[var(--color-foreground)]">{incomeCategories}</strong>
+              </span>
             </div>
           </div>
         </div>

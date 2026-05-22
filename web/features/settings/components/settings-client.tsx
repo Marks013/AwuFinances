@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { signOut } from "next-auth/react";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -11,10 +10,9 @@ import { BillingSummaryCard } from "@/features/billing/components/billing-summar
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
-import { formatDateTimeDisplay } from "@/lib/date";
+import { SupportClient } from "@/features/support/components/support-client";
+import { WhatsAppClient } from "@/features/whatsapp/components/whatsapp-client";
 import { ensureApiResponse } from "@/lib/observability/http";
-import { formatCurrency } from "@/lib/utils";
 
 type ProfilePayload = {
   id: string;
@@ -82,53 +80,6 @@ type ProfilePayload = {
   };
 };
 
-type AutomationSummary = {
-  dueSubscriptions: number;
-  upcomingGoals: number;
-  upcomingCardStatements: number;
-  warningPreview: Array<{
-    type: "subscription" | "card_statement" | "goal_deadline";
-    label: string;
-    date: string;
-    amount: number;
-  }>;
-  delivery: {
-    email: {
-      provider: "webhook" | "resend" | "brevo";
-      configured: boolean;
-      from: string | null;
-      issue: string | null;
-    };
-    whatsapp: {
-      configured: boolean;
-      issue: string | null;
-    };
-  };
-};
-
-type AutomationRunResult = {
-  processedSubscriptions: number;
-  reminders: number;
-  subscriptionResults: Array<{ id: string; name: string; transactionId: string; duplicated: boolean }>;
-  goalReminders: Array<{ id: string; name: string; reason: string }>;
-  notificationDeliveries: Array<{ id: string; channel: string; status: string; target: string }>;
-};
-
-type NotificationListPayload = {
-  items: Array<{
-    id: string;
-    channel: string;
-    status: string;
-    target: string;
-    subject: string;
-    message: string;
-    errorMessage?: string | null;
-    attemptedAt?: string | null;
-    deliveredAt?: string | null;
-    goal?: { id: string; name: string } | null;
-  }>;
-};
-
 type SettingsFormValues = {
   name: string;
   currency: string;
@@ -140,44 +91,10 @@ type SettingsFormValues = {
   autoTithe: boolean;
 };
 
-function formatNotificationStatus(status: string) {
-  switch (status) {
-    case "sent":
-      return "Entregue";
-    case "failed":
-      return "Falhou";
-    case "pending":
-      return "Pendente";
-    case "skipped":
-      return "Ignorado";
-    default:
-      return status;
-  }
-}
-
-function formatChannel(channel: string) {
-  switch (channel) {
-    case "email":
-      return "E-mail";
-    case "whatsapp":
-      return "WhatsApp";
-    default:
-      return channel;
-  }
-}
-
-function formatWarningType(type: AutomationSummary["warningPreview"][number]["type"]) {
-  switch (type) {
-    case "subscription":
-      return "Recorrência";
-    case "card_statement":
-      return "Fatura do cartão";
-    case "goal_deadline":
-      return "Prazo de meta";
-    default:
-      return type;
-  }
-}
+type SettingsClientProps = {
+  initialEmail: string;
+  initialName: string;
+};
 
 async function getProfile() {
   const response = await fetch("/api/profile", { cache: "no-store" });
@@ -185,45 +102,14 @@ async function getProfile() {
   return (await response.json()) as ProfilePayload;
 }
 
-async function getAutomationSummary() {
-  const response = await fetch("/api/automation", { cache: "no-store" });
-  await ensureApiResponse(response, { fallbackMessage: "Falha ao carregar automacoes", method: "GET", path: "/api/automation" });
-  if (!response.ok) throw new Error("Falha ao carregar automações");
-  return (await response.json()) as AutomationSummary;
-}
-
-async function getNotifications() {
-  const response = await fetch("/api/notifications", { cache: "no-store" });
-  await ensureApiResponse(response, { fallbackMessage: "Falha ao carregar notificacoes", method: "GET", path: "/api/notifications" });
-  if (!response.ok) throw new Error("Falha ao carregar notificações");
-  return (await response.json()) as NotificationListPayload;
-}
-
-export function SettingsClient() {
+export function SettingsClient({ initialEmail, initialName }: SettingsClientProps) {
   const queryClient = useQueryClient();
-  const [automationResult, setAutomationResult] = useState<AutomationRunResult | null>(null);
   const profileQuery = useQuery({ queryKey: ["profile"], queryFn: getProfile });
-  const automationEnabled = Boolean(profileQuery.data?.license.features.automation);
-  const automationQuery = useQuery({
-    queryKey: ["automation-summary"],
-    queryFn: getAutomationSummary,
-    enabled: automationEnabled
-  });
-  const notificationsQuery = useQuery({
-    queryKey: ["notifications"],
-    queryFn: getNotifications,
-    enabled: automationEnabled
-  });
-  const notifications = notificationsQuery.data?.items ?? [];
-  const deliveredNotifications = notifications.filter((item) => item.status === "sent").length;
-  const failedNotifications = notifications.filter((item) => item.status === "failed").length;
   const canManageSharing = Boolean(profileQuery.data?.permissions.canAccessSharingPage);
   const settingsPermissions = profileQuery.data?.permissions;
   const hasSharedAccountRestrictions = Boolean(
     settingsPermissions &&
-      (!settingsPermissions.canEditCurrency ||
-        !settingsPermissions.canEditDateFormat ||
-        !settingsPermissions.canEditBudgetAlerts ||
+      (!settingsPermissions.canEditBudgetAlerts ||
         !settingsPermissions.canEditDueReminders ||
         !settingsPermissions.canEditAutoTithe)
   );
@@ -272,43 +158,14 @@ export function SettingsClient() {
       });
       await ensureApiResponse(response, { fallbackMessage: "Falha ao salvar configuracoes", method: "PATCH", path: "/api/profile" });
 
-      if (!response.ok) throw new Error("Falha ao salvar configurações");
+      if (!response.ok) throw new Error("Falha ao salvar configuracoes");
     },
     onSuccess: async () => {
-      toast.success("Configurações salvas");
+      toast.success("Configuracoes salvas");
       await queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
     onError: () => {
-      toast.error("Não foi possível salvar configurações");
-    }
-  });
-
-  const automationMutation = useMutation({
-    mutationFn: async () => {
-      const response = await fetch("/api/automation", {
-        method: "POST"
-      });
-      await ensureApiResponse(response, { fallbackMessage: "Falha ao executar automacoes", method: "POST", path: "/api/automation" });
-
-      if (!response.ok) throw new Error("Falha ao executar automações");
-      return (await response.json()) as AutomationRunResult;
-    },
-    onSuccess: async (payload) => {
-      setAutomationResult(payload);
-      toast.success("Automações executadas");
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["automation-summary"] }),
-        queryClient.invalidateQueries({ queryKey: ["subscriptions"] }),
-        queryClient.invalidateQueries({ queryKey: ["transactions"] }),
-        queryClient.invalidateQueries({ queryKey: ["reports-summary"] }),
-        queryClient.invalidateQueries({ queryKey: ["notifications"] }),
-        queryClient.invalidateQueries({ queryKey: ["accounts"] }),
-        queryClient.invalidateQueries({ queryKey: ["cards"] }),
-        queryClient.invalidateQueries({ queryKey: ["goals"] })
-      ]);
-    },
-    onError: () => {
-      toast.error("Não foi possível executar automações");
+      toast.error("Nao foi possivel salvar configuracoes");
     }
   });
 
@@ -322,11 +179,11 @@ export function SettingsClient() {
       const payload = (await response.json().catch(() => ({}))) as { message?: string };
 
       if (!response.ok) {
-        throw new Error(payload.message ?? "Não foi possível excluir a conta");
+        throw new Error(payload.message ?? "Nao foi possivel excluir a conta");
       }
     },
     onSuccess: async () => {
-      toast.success("Conta excluída definitivamente");
+      toast.success("Conta excluida definitivamente");
       await signOut({ redirect: false });
       window.location.href = "/";
     },
@@ -344,7 +201,7 @@ export function SettingsClient() {
               <div className="eyebrow">Compartilhamento</div>
               <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">Compartilhamento familiar</h2>
               <p className="mt-2 max-w-3xl text-sm leading-7 text-[var(--color-muted-foreground)]">
-                Convide cônjuge, familiar ou alguém de confiança para usar a mesma carteira financeira da conta{" "}
+                Convide conjuge, familiar ou alguem de confianca para usar a mesma carteira financeira da conta{" "}
                 {profileQuery.data?.tenant.name ?? "principal"}.
               </p>
             </div>
@@ -357,15 +214,15 @@ export function SettingsClient() {
 
       <section className="surface content-section">
         <div className="page-intro">
-          <div className="eyebrow">Configurações</div>
-          <h1 className="text-3xl font-semibold tracking-[-0.03em]">Perfil, preferências e rotina</h1>
+          <div className="eyebrow">Configuracoes</div>
+          <h1 className="text-3xl font-semibold tracking-[-0.03em]">Conta, WhatsApp e suporte</h1>
           <p className="max-w-2xl text-sm leading-7 text-[var(--color-muted-foreground)]">
-            Esta área centraliza preferências pessoais, lembretes recorrentes e os sinais operacionais do seu dia a dia.
+            Ajustes pessoais, numero do assistente e contato com suporte ficam juntos aqui para reduzir telas soltas.
           </p>
         </div>
         {profileQuery.data?.isPlatformAdmin ? (
           <div className="warning-panel mt-6 text-sm">
-            Esta conta é o superadmin da plataforma. Recursos Premium e limites do plano ficam liberados aqui para
+            Esta conta e o superadmin da plataforma. Recursos Premium e limites do plano ficam liberados aqui para
             suporte e auditoria, mesmo que a conta vinculada esteja em um plano restritivo.
           </div>
         ) : null}
@@ -373,9 +230,9 @@ export function SettingsClient() {
 
       {profileQuery.data ? <BillingSummaryCard profile={profileQuery.data} /> : null}
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
+      <div className="grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
         <section className="surface content-section">
-          <h2 className="text-2xl font-semibold tracking-[-0.03em]">Perfil e preferências</h2>
+          <h2 className="text-2xl font-semibold tracking-[-0.03em]">Perfil e preferencias</h2>
           <form className="mt-6 space-y-4" onSubmit={form.handleSubmit((values) => profileMutation.mutate(values))}>
             <div className="space-y-2">
               <Label htmlFor="settings-name">Nome</Label>
@@ -385,231 +242,49 @@ export function SettingsClient() {
               <Label htmlFor="settings-email">E-mail</Label>
               <Input disabled id="settings-email" value={profileQuery.data?.email ?? ""} />
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="settings-currency">Moeda</Label>
-                <Select
-                  disabled={settingsPermissions ? !settingsPermissions.canEditCurrency : false}
-                  id="settings-currency"
-                  {...form.register("currency")}
-                >
-                  <option value="BRL">BRL</option>
-                  <option value="USD">USD</option>
-                  <option value="EUR">EUR</option>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="settings-date-format">Formato de data</Label>
-                <Select
-                  disabled={settingsPermissions ? !settingsPermissions.canEditDateFormat : false}
-                  id="settings-date-format"
-                  {...form.register("dateFormat")}
-                >
-                  <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                  <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                  <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                </Select>
-              </div>
-            </div>
             {hasSharedAccountRestrictions ? (
               <div className="muted-panel text-sm text-[var(--color-muted-foreground)]">
-                Como <strong>Familiar</strong>, você mantém suas preferências pessoais e seu WhatsApp, mas moeda, formato
-                de data, alertas, lembretes e dízimo ficam sob controle do <strong>Admin de Conta</strong>.
+                Como <strong>Familiar</strong>, alertas, lembretes e dizimo ficam sob controle do <strong>Admin de Conta</strong>.
               </div>
             ) : null}
             <div className="grid gap-3 md:grid-cols-2">
-              <label className="muted-panel flex items-center gap-3 text-sm"><input className="app-checkbox" disabled={settingsPermissions ? !settingsPermissions.canEditEmailNotifications : false} type="checkbox" {...form.register("emailNotifications")} /> Notificações por e-mail</label>
-              <label className="muted-panel flex items-center gap-3 text-sm"><input className="app-checkbox" disabled={settingsPermissions ? !settingsPermissions.canEditMonthlyReports : false} type="checkbox" {...form.register("monthlyReports")} /> Relatórios mensais</label>
-              <label className="muted-panel flex items-center gap-3 text-sm"><input className="app-checkbox" disabled={settingsPermissions ? !settingsPermissions.canEditBudgetAlerts : false} type="checkbox" {...form.register("budgetAlerts")} /> Alertas de orçamento</label>
-              <label className="muted-panel flex items-center gap-3 text-sm"><input className="app-checkbox" disabled={settingsPermissions ? !settingsPermissions.canEditDueReminders : false} type="checkbox" {...form.register("dueReminders")} /> Lembretes de vencimento</label>
-              <label className="muted-panel flex items-center gap-3 text-sm"><input className="app-checkbox" disabled={settingsPermissions ? !settingsPermissions.canEditAutoTithe : false} type="checkbox" {...form.register("autoTithe")} /> Marcar dízimo por padrão em novas receitas</label>
+              <label className="muted-panel flex items-center gap-3 text-sm">
+                <input className="app-checkbox" disabled={settingsPermissions ? !settingsPermissions.canEditEmailNotifications : false} type="checkbox" {...form.register("emailNotifications")} /> Notificacoes por e-mail
+              </label>
+              <label className="muted-panel flex items-center gap-3 text-sm">
+                <input className="app-checkbox" disabled={settingsPermissions ? !settingsPermissions.canEditMonthlyReports : false} type="checkbox" {...form.register("monthlyReports")} /> Relatorios mensais
+              </label>
+              <label className="muted-panel flex items-center gap-3 text-sm">
+                <input className="app-checkbox" disabled={settingsPermissions ? !settingsPermissions.canEditBudgetAlerts : false} type="checkbox" {...form.register("budgetAlerts")} /> Alertas de orcamento
+              </label>
+              <label className="muted-panel flex items-center gap-3 text-sm">
+                <input className="app-checkbox" disabled={settingsPermissions ? !settingsPermissions.canEditDueReminders : false} type="checkbox" {...form.register("dueReminders")} /> Lembretes de vencimento
+              </label>
+              <label className="muted-panel flex items-center gap-3 text-sm md:col-span-2">
+                <input className="app-checkbox" disabled={settingsPermissions ? !settingsPermissions.canEditAutoTithe : false} type="checkbox" {...form.register("autoTithe")} /> Marcar dizimo por padrao em novas receitas
+              </label>
             </div>
             <Button className="w-full" disabled={profileMutation.isPending} type="submit">
-              {profileMutation.isPending ? "Salvando..." : "Salvar configurações"}
+              {profileMutation.isPending ? "Salvando..." : "Salvar configuracoes"}
             </Button>
           </form>
         </section>
 
-        <section className="surface content-section">
-          <h2 className="text-2xl font-semibold tracking-[-0.03em]">Automações recorrentes</h2>
-          {automationEnabled ? (
-            <>
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <article className="metric-card">
-                  <p className="text-sm text-[var(--color-muted-foreground)]">Assinaturas vencidas</p>
-                  <p className="mt-2 text-2xl font-semibold">{automationQuery.data?.dueSubscriptions ?? 0}</p>
-                </article>
-                <article className="metric-card">
-                  <p className="text-sm text-[var(--color-muted-foreground)]">Metas com prazo próximo</p>
-                  <p className="mt-2 text-2xl font-semibold">{automationQuery.data?.upcomingGoals ?? 0}</p>
-                </article>
-                <article className="metric-card">
-                  <p className="text-sm text-[var(--color-muted-foreground)]">Faturas perto do vencimento</p>
-                  <p className="mt-2 text-2xl font-semibold">{automationQuery.data?.upcomingCardStatements ?? 0}</p>
-                </article>
-                <article className="metric-card">
-                  <p className="text-sm text-[var(--color-muted-foreground)]">Avisos na janela curta</p>
-                  <p className="mt-2 text-2xl font-semibold">{automationQuery.data?.warningPreview.length ?? 0}</p>
-                </article>
-              </div>
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <article className="data-card p-4">
-                  <p className="text-sm font-semibold">Entrega por e-mail</p>
-                  <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">
-                    {automationQuery.data?.delivery.email.configured
-                      ? `Pronta via ${automationQuery.data.delivery.email.provider}.`
-                      : "Ainda não pronta para envio."}
-                  </p>
-                  <p className="mt-2 break-words text-xs text-[var(--color-muted-foreground)]">
-                    {automationQuery.data?.delivery.email.configured
-                      ? profileQuery.data?.integrations.emailFrom
-                        ? `Remetente: ${profileQuery.data.integrations.emailFrom}`
-                        : "Sem remetente exposto na interface."
-                      : automationQuery.data?.delivery.email.issue ?? profileQuery.data?.integrations.emailIssue ?? "Revise as variáveis do provedor."}
-                  </p>
-                </article>
-                <article className="data-card p-4">
-                  <p className="text-sm font-semibold">Agente WhatsApp inbound</p>
-                  <p className="mt-2 text-sm text-[var(--color-muted-foreground)]">
-                    {automationQuery.data?.delivery.whatsapp.configured ? "Pronto para responder." : "Ainda nao pronto para responder."}
-                  </p>
-                  <p className="mt-2 break-words text-xs text-[var(--color-muted-foreground)]">
-                    {automationQuery.data?.delivery.whatsapp.configured
-                      ? "Lembretes e automacoes nao saem por WhatsApp; somente respostas a mensagens recebidas."
-                      : automationQuery.data?.delivery.whatsapp.issue ?? profileQuery.data?.integrations.whatsappIssue ?? "Revise a configuração da Evolution API."}
-                  </p>
-                </article>
-              </div>
-              <div className="muted-panel mt-6 text-sm text-[var(--color-muted-foreground)]">
-                Os avisos só disparam quando a rotina automática roda por cron ou quando você executa a ação manual abaixo.
-              </div>
-              <Button className="mt-6 w-full" disabled={automationMutation.isPending} onClick={() => automationMutation.mutate()} type="button">
-                {automationMutation.isPending ? "Executando..." : "Executar automações agora"}
-              </Button>
-
-              {automationQuery.data?.warningPreview.length ? (
-                <div className="mt-6 space-y-3">
-                  {automationQuery.data.warningPreview.map((item) => (
-                    <article key={`${item.type}-${item.label}-${item.date}`} className="data-card p-4">
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div className="min-w-0 flex-1">
-                          <p className="break-words font-semibold">{item.label}</p>
-                          <p className="break-words text-sm text-[var(--color-muted-foreground)]">
-                            {formatWarningType(item.type)} • {formatDateTimeDisplay(item.date)}
-                          </p>
-                        </div>
-                        <p className="amount-nowrap w-full text-left font-semibold sm:w-auto sm:text-right">{formatCurrency(item.amount)}</p>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              ) : null}
-
-              {automationResult ? (
-                <div className="muted-panel mt-6 text-sm">
-                  <p className="break-words"><strong>Transações geradas:</strong> {automationResult.processedSubscriptions}</p>
-                  <p className="break-words"><strong>Lembretes emitidos:</strong> {automationResult.reminders}</p>
-                  {automationResult.subscriptionResults.length > 0 ? (
-                    <p className="mt-3 break-words text-[var(--color-muted-foreground)]">
-                      Assinaturas processadas: {automationResult.subscriptionResults.map((item) => item.name).join(", ")}
-                    </p>
-                  ) : null}
-                  {automationResult.goalReminders.length > 0 ? (
-                    <p className="mt-2 break-words text-[var(--color-muted-foreground)]">
-                      Metas lembradas: {automationResult.goalReminders.map((item) => item.name).join(", ")}
-                    </p>
-                  ) : null}
-                  {automationResult.notificationDeliveries.length > 0 ? (
-                    <p className="mt-2 break-words text-[var(--color-muted-foreground)]">
-                      Entregas:{" "}
-                      {automationResult.notificationDeliveries
-                        .map((item) => `${item.channel}:${item.status}`)
-                        .join(", ")}
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
-            </>
-          ) : (
-            <div className="warning-panel mt-6 text-sm">
-              O plano {profileQuery.data?.license.planLabel ?? "atual"} não inclui automações recorrentes. Faça upgrade
-              para liberar geração automática de lançamentos e lembretes.
-            </div>
-          )}
-        </section>
+        <WhatsAppClient embedded />
       </div>
 
-      <section className="surface content-section">
-        <div className="eyebrow">Notificações</div>
-        <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">Entregas recentes</h2>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-muted-foreground)]">
-          Os lembretes gerados pelas automações ficam registrados aqui com status de entrega por canal.
-        </p>
-        {!profileQuery.data?.integrations.emailConfigured && profileQuery.data?.preferences.emailNotifications ? (
-          <div className="warning-panel mt-6 text-sm">
-            O envio por e-mail está habilitado nas suas preferências, mas o ambiente ainda não está pronto para entregar mensagens.
-            {profileQuery.data.integrations.emailIssue ? ` ${profileQuery.data.integrations.emailIssue}` : ""}
-          </div>
-        ) : null}
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          <article className="metric-card">
-            <p className="metric-label">Registradas</p>
-            <p className="metric-value">{notifications.length}</p>
-          </article>
-          <article className="metric-card">
-            <p className="metric-label">Entregues</p>
-            <p className="metric-value">{deliveredNotifications}</p>
-          </article>
-          <article className="metric-card">
-            <p className="metric-label">Falhas</p>
-            <p className="metric-value">{failedNotifications}</p>
-          </article>
-        </div>
-        <div className="mt-6 space-y-3">
-          {notifications.map((item) => (
-            <article key={item.id} className="data-card p-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <p className="break-words font-semibold">{item.subject}</p>
-                  <p className="mt-1 break-words text-sm text-[var(--color-muted-foreground)]">
-                    {formatChannel(item.channel)} • {formatNotificationStatus(item.status)} • {item.target}
-                  </p>
-                  {item.goal ? (
-                    <p className="mt-1 break-words text-sm text-[var(--color-muted-foreground)]">Meta relacionada: {item.goal.name}</p>
-                  ) : null}
-                </div>
-                <p className="w-full break-words text-sm text-[var(--color-muted-foreground)] sm:w-auto sm:text-right">
-                  {item.deliveredAt
-                    ? formatDateTimeDisplay(item.deliveredAt)
-                    : item.attemptedAt
-                      ? formatDateTimeDisplay(item.attemptedAt)
-                      : "Pendente"}
-                </p>
-              </div>
-              <p className="mt-3 break-words text-sm text-[var(--color-muted-foreground)]">{item.message}</p>
-              {item.errorMessage ? (
-                <p className="mt-2 break-words text-sm text-[var(--color-muted-foreground)]">Erro: {item.errorMessage}</p>
-              ) : null}
-            </article>
-          ))}
-          {notifications.length === 0 ? (
-            <p className="text-sm text-[var(--color-muted-foreground)]">
-              Nenhuma notificação registrada ainda. Execute a rotina automática para gerar novos avisos.
-            </p>
-          ) : null}
-        </div>
-      </section>
+      <SupportClient embedded initialEmail={initialEmail} initialName={initialName} />
 
       <section className="surface content-section">
         <div className="eyebrow">Zona de risco</div>
         <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">Excluir conta definitivamente</h2>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-muted-foreground)]">
-          Esta ação apaga o seu login e todos os dados vinculados à sua conta, incluindo contas, cartões,
-          transações, metas, assinaturas e histórico próprio.
+          Esta acao apaga o seu login e todos os dados vinculados a sua conta, incluindo contas, cartoes,
+          transacoes, metas, assinaturas e historico proprio.
         </p>
         {profileQuery.data?.isPlatformAdmin ? (
           <div className="warning-panel mt-6 text-sm">
-            A conta superadmin da plataforma não pode ser excluída por este fluxo.
+            A conta superadmin da plataforma nao pode ser excluida por este fluxo.
           </div>
         ) : (
           <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -618,14 +293,14 @@ export function SettingsClient() {
               disabled={deleteAccountMutation.isPending}
               onClick={() => {
                 const email = profileQuery.data?.email ?? "";
-                const confirmation = window.prompt(`Digite ${email} para confirmar a exclusão definitiva da conta.`);
+                const confirmation = window.prompt(`Digite ${email} para confirmar a exclusao definitiva da conta.`);
 
                 if (!confirmation) {
                   return;
                 }
 
                 if (confirmation.trim().toLowerCase() !== email.trim().toLowerCase()) {
-                  toast.error("O e-mail informado não confere");
+                  toast.error("O e-mail informado nao confere");
                   return;
                 }
 
@@ -639,7 +314,6 @@ export function SettingsClient() {
           </div>
         )}
       </section>
-
     </div>
   );
 }

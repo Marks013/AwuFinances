@@ -705,7 +705,7 @@ async function run() {
   results.push("Tela de relatorios carregou com conteudo esperado");
 
   await expectPage(dataJar, "/dashboard/settings", {
-    markers: ['id="settings-name"', 'id="settings-email"', 'id="settings-whatsapp"', "Automações recorrentes", "Entregas recentes"],
+    markers: ['id="settings-name"', 'id="settings-email"', 'id="whatsapp-number"', "Fale com o suporte", "Excluir conta definitivamente"],
     minimumMatches: 4
   });
   results.push("Tela de configuracoes carregou com conteudo esperado");

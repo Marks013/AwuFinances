@@ -22,6 +22,7 @@ import { formatDateTimeDisplay } from "@/lib/date";
 import { ensureApiResponse } from "@/lib/observability/http";
 
 type SupportClientProps = {
+  embedded?: boolean;
   initialEmail: string;
   initialName: string;
 };
@@ -172,7 +173,7 @@ async function reopenSupportTicket(ticketId: string, reason: string) {
   return payload;
 }
 
-export function SupportClient({ initialEmail, initialName }: SupportClientProps) {
+export function SupportClient({ embedded = false, initialEmail, initialName }: SupportClientProps) {
   const queryClient = useQueryClient();
   const [ratingDrafts, setRatingDrafts] = useState<Record<string, { rating: number; problemResolved: boolean; reason: string; improvement: string }>>({});
   const [reopenDrafts, setReopenDrafts] = useState<Record<string, string>>({});
@@ -249,12 +250,16 @@ export function SupportClient({ initialEmail, initialName }: SupportClientProps)
     "Respondemos em até 24 horas em dias úteis. Mensagens abertas em domingos ou feriados entram no próximo dia útil.";
 
   return (
-    <div className="grid gap-6 2xl:grid-cols-[0.95fr_1.05fr]">
+    <div className={embedded ? "space-y-6" : "grid gap-6 2xl:grid-cols-[0.95fr_1.05fr]"}>
       <section className="surface content-section">
         <div className="flex items-start justify-between gap-6">
           <div className="min-w-0 flex-1">
             <div className="eyebrow">Suporte</div>
-            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">Fale com o suporte</h1>
+            {embedded ? (
+              <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">Fale com o suporte</h2>
+            ) : (
+              <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">Fale com o suporte</h1>
+            )}
             <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-muted-foreground)]">
               Envie sua solicitação com as informações principais para nossa equipe acompanhar e responder com clareza.
             </p>
@@ -340,7 +345,7 @@ export function SupportClient({ initialEmail, initialName }: SupportClientProps)
         </form>
       </section>
 
-      <section className="surface content-section">
+      <section className={embedded ? "hidden" : "surface content-section"}>
         <div className="grid gap-4">
           <article className="surface-strong rounded-[30px] p-6 text-white">
             <p className="metric-label text-white/70">Canal oficial</p>

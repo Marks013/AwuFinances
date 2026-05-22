@@ -389,7 +389,7 @@ export function SubscriptionsClient() {
   };
 
   return (
-    <div className="grid gap-6 2xl:grid-cols-[0.85fr_1.15fr]">
+    <div className="grid items-start gap-6 2xl:grid-cols-[0.85fr_1.15fr]">
       <section className="surface content-section" ref={formSectionRef}>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
@@ -415,24 +415,7 @@ export function SubscriptionsClient() {
         </p>
         {showEditor ? (
           <>
-            <div className="mt-6 space-y-3">
-              <Label>Modelos rápidos</Label>
-              <div className="divide-y divide-[var(--color-border)] overflow-hidden rounded-[1.15rem] border border-[var(--color-border)] bg-[var(--color-card)]">
-                {subscriptionServicePresets.map((preset) => (
-                  <div key={preset.value} className="p-2">
-                    <SubscriptionServiceCard
-                      active={selectedName === preset.label}
-                      onSelect={() => applyServicePreset(preset)}
-                      preset={preset}
-                    />
-                  </div>
-                ))}
-              </div>
-              <p className="text-sm text-[var(--color-muted-foreground)]">
-                Use um modelo apenas para preencher mais rápido. Ajuste nome, conta, cartão e categoria conforme a sua rotina.
-              </p>
-            </div>
-            <form className="mt-8 space-y-5" onSubmit={form.handleSubmit((values) => saveMutation.mutate(values))}>
+            <form className="mt-6 space-y-5" onSubmit={form.handleSubmit((values) => saveMutation.mutate(values))}>
           <div className="space-y-2">
             <Label htmlFor="sub-name">Nome</Label>
             <Input id="sub-name" {...form.register("name")} />
@@ -514,12 +497,32 @@ export function SubscriptionsClient() {
           <Button className="w-full" disabled={saveMutation.isPending} type="submit">
             {saveMutation.isPending ? "Salvando..." : isEditing ? "Salvar assinatura" : "Criar assinatura"}
           </Button>
-          {isEditing ? (
-            <Button className="w-full" onClick={cancelEditing} type="button" variant="ghost">
-              Cancelar edição
-            </Button>
-          ) : null}
+            {isEditing ? (
+              <Button className="w-full" onClick={cancelEditing} type="button" variant="ghost">
+                Cancelar edição
+              </Button>
+            ) : null}
             </form>
+            <div className="mt-6 space-y-3 rounded-[1.2rem] border border-[var(--color-border)] bg-[var(--color-muted)]/18 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <Label>Modelos rápidos</Label>
+                <span className="text-xs font-semibold text-[var(--color-muted-foreground)]">opcional</span>
+              </div>
+              <div className="max-h-[18rem] divide-y divide-[var(--color-border)] overflow-y-auto rounded-[1.15rem] border border-[var(--color-border)] bg-[var(--color-card)]">
+                {subscriptionServicePresets.map((preset) => (
+                  <div key={preset.value} className="p-2">
+                    <SubscriptionServiceCard
+                      active={selectedName === preset.label}
+                      onSelect={() => applyServicePreset(preset)}
+                      preset={preset}
+                    />
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm text-[var(--color-muted-foreground)]">
+                Use um modelo apenas para preencher mais rápido. O formulário acima continua sendo o caminho principal.
+              </p>
+            </div>
           </>
         ) : (
           <div className="muted-panel mt-8 flex flex-col gap-4 px-4 py-5 text-sm text-[var(--color-muted-foreground)]">

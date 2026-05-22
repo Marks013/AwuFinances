@@ -34,10 +34,10 @@ type NavItem = {
 
 const primaryNavigation = [
   { href: "/dashboard" as Route, label: "Painel", icon: LayoutDashboard },
-  { href: "/dashboard/transactions" as Route, label: "Transacoes", icon: ReceiptText },
+  { href: "/dashboard/transactions" as Route, label: "Transações", icon: ReceiptText },
   { href: "/dashboard/accounts" as Route, label: "Carteira", icon: Landmark },
-  { href: "/dashboard/subscriptions" as Route, label: "Recorrencias", icon: RefreshCcw },
-  { href: "/dashboard/reports" as Route, label: "Relatorios", icon: ChartColumnBig },
+  { href: "/dashboard/subscriptions" as Route, label: "Recorrências", icon: RefreshCcw },
+  { href: "/dashboard/reports" as Route, label: "Relatórios", icon: ChartColumnBig },
   { href: "/dashboard/settings" as Route, label: "Ajustes", icon: Settings }
 ] satisfies NavItem[];
 

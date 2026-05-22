@@ -693,10 +693,10 @@ async function run() {
   results.push("Tela de assinaturas carregou com conteudo esperado");
 
   await expectPage(dataJar, "/dashboard/accounts", {
-    markers: ["Contas, cartoes e vale", 'id="card-name"', 'id="statement-card"', "Vale alimentacao"],
+    markers: ["Contas, cartões e vale", 'id="account-name"', "Cartões", "Vale alimentação"],
     minimumMatches: 3
   });
-  results.push("Tela de carteira carregou contas, cartoes e vale");
+  results.push("Tela de carteira carregou contas, cartões e vale");
 
   await expectPage(dataJar, "/dashboard/reports", {
     markers: ['id="reports-period-mode"', 'id="reports-filter-type"', "Despesas por categoria", "Mapa de categorias", "Movimentações recentes"],

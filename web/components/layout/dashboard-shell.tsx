@@ -50,11 +50,11 @@ function getSectionLabel(pathname: string | null | undefined, isPlatformAdmin: b
   if (!pathname || pathname === "/dashboard") return "Painel";
   if (pathname.startsWith("/dashboard/transactions")) return "Transações";
   if (pathname.startsWith("/dashboard/categories")) return "Categorias";
-  if (pathname.startsWith("/dashboard/benefits")) return "Vale alimentação";
+  if (pathname.startsWith("/dashboard/benefits")) return "Carteira";
   if (pathname.startsWith("/dashboard/accounts")) return "Carteira";
-  if (pathname.startsWith("/dashboard/cards")) return "Cartões";
-  if (pathname.startsWith("/dashboard/subscriptions")) return "Assinaturas";
-  if (pathname.startsWith("/dashboard/installments")) return "Parcelas";
+  if (pathname.startsWith("/dashboard/cards")) return "Carteira";
+  if (pathname.startsWith("/dashboard/subscriptions")) return "Recorrências";
+  if (pathname.startsWith("/dashboard/installments")) return "Recorrências";
   if (pathname.startsWith("/dashboard/goals")) return "Metas";
   if (pathname.startsWith("/dashboard/reports")) return "Relatórios";
   if (pathname.startsWith("/dashboard/whatsapp")) return "WhatsApp";

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function InstallmentsPage() {
-  redirect("/dashboard/subscriptions");
+  redirect("/dashboard/subscriptions?view=installments");
 }

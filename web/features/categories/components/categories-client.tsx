@@ -207,8 +207,8 @@ export function CategoriesClient() {
   }, [editingId]);
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
-      <section className="surface content-section" ref={formSectionRef}>
+    <div className="grid items-start gap-6 xl:grid-cols-[minmax(320px,0.72fr)_minmax(0,1.28fr)]">
+      <section className="surface content-section self-start" ref={formSectionRef}>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <div className="eyebrow">Categorias</div>
@@ -319,7 +319,7 @@ export function CategoriesClient() {
           </div>
         </div>
 
-        <div className="mt-5 divide-y divide-[var(--color-border)] overflow-hidden rounded-[1.25rem] border border-[var(--color-border)] bg-[var(--color-card)]">
+        <div className="mt-5 max-h-[min(72dvh,760px)] divide-y divide-[var(--color-border)] overflow-y-auto rounded-[1.25rem] border border-[var(--color-border)] bg-[var(--color-card)]">
           {categories.map((category) => (
             <details key={category.id} className="group">
               <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">

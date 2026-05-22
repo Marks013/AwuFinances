@@ -20,7 +20,7 @@ type ModuleSwitcherProps = {
 
 export function ModuleSwitcher({ activeValue, items, label }: ModuleSwitcherProps) {
   return (
-    <nav aria-label={label} className="mt-6">
+    <nav aria-label={label} className="mt-6" data-tutorial-id="module-switcher">
       <div className="grid gap-3 rounded-[1.35rem] border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-muted)_34%,transparent)] p-2 sm:grid-cols-2 xl:grid-cols-[repeat(var(--module-switcher-columns),minmax(0,1fr))]" style={{ "--module-switcher-columns": items.length } as CSSProperties}>
         {items.map((item) => {
           const Icon = item.icon;
@@ -35,6 +35,7 @@ export function ModuleSwitcher({ activeValue, items, label }: ModuleSwitcherProp
                   ? "border-[rgba(19,111,79,0.42)] bg-[var(--color-primary)] text-[var(--color-primary-foreground)] shadow-sm"
                   : "border-transparent bg-[var(--color-card)] text-[var(--color-foreground)] hover:border-[rgba(19,111,79,0.22)] hover:bg-[color-mix(in_srgb,var(--color-card)_82%,var(--color-muted))]"
               )}
+              data-tutorial-id={`module-switcher-${item.value}`}
               href={item.href}
               key={item.value}
             >

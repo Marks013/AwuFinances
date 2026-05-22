@@ -6,6 +6,7 @@ import { BrandMark } from "@/components/layout/brand-mark";
 import { DashboardSidebarNav } from "@/components/layout/dashboard-sidebar-nav";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { DashboardTutorialGuide } from "@/features/tutorials/components/dashboard-tutorial-guide";
 import { formatDateTimeDisplay } from "@/lib/date";
 import { prisma } from "@/lib/prisma/client";
 import { getSharingAuthority } from "@/lib/sharing/access";
@@ -270,6 +271,7 @@ export async function DashboardShell({ children, currentPathname }: DashboardShe
           </section>
         </div>
       ) : null}
+      <DashboardTutorialGuide />
     </div>
   );
 }

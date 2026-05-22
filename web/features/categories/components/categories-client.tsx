@@ -294,7 +294,7 @@ export function CategoriesClient() {
         )}
       </section>
 
-      <section className="surface content-section">
+      <section className="surface content-section" data-tutorial-id="categories-list">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <h2 className="text-balance text-2xl font-semibold leading-tight">Categorias ativas</h2>

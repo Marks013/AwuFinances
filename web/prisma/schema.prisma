@@ -205,6 +205,7 @@ model Tenant {
   billingPayments BillingPayment[]
   accessCouponRedemptions AccessCouponRedemption[]
   cardStatementCycles CardStatementCycle[]
+  tutorialProgress UserTutorialProgress[]
 
   @@index([planId])
 }
@@ -266,6 +267,7 @@ model User {
   popupCampaignViews PopupCampaignView[]
   supportTickets   SupportTicket[]
   supportReplies   SupportTicketReply[] @relation("SupportReplyAdmin")
+  tutorialProgress UserTutorialProgress[]
 
   @@index([tenantId])
   @@index([resetToken])
@@ -348,6 +350,26 @@ model UserPreference {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
   user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserTutorialProgress {
+  id                String    @id @default(cuid())
+  tenantId          String
+  userId            String
+  tourKey           String
+  status            String    @default("active")
+  currentStepKey    String?
+  completedStepKeys String[]  @default([])
+  version           Int       @default(1)
+  skippedAt         DateTime?
+  completedAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  tenant            Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tourKey])
+  @@index([tenantId, tourKey, status])
 }
 
 model Category {

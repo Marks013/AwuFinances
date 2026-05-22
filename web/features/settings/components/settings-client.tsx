@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { signOut } from "next-auth/react";
 import { useForm } from "react-hook-form";
@@ -105,7 +104,6 @@ async function getProfile() {
 export function SettingsClient({ initialEmail, initialName }: SettingsClientProps) {
   const queryClient = useQueryClient();
   const profileQuery = useQuery({ queryKey: ["profile"], queryFn: getProfile });
-  const canManageSharing = Boolean(profileQuery.data?.permissions.canAccessSharingPage);
   const settingsPermissions = profileQuery.data?.permissions;
   const hasSharedAccountRestrictions = Boolean(
     settingsPermissions &&
@@ -194,24 +192,6 @@ export function SettingsClient({ initialEmail, initialName }: SettingsClientProp
 
   return (
     <div className="space-y-6">
-      {canManageSharing ? (
-        <section className="surface content-section">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="min-w-0 flex-1">
-              <div className="eyebrow">Compartilhamento</div>
-              <h2 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">Compartilhamento familiar</h2>
-              <p className="mt-2 max-w-3xl text-sm leading-7 text-[var(--color-muted-foreground)]">
-                Convide conjuge, familiar ou alguem de confianca para usar a mesma carteira financeira da conta{" "}
-                {profileQuery.data?.tenant.name ?? "principal"}.
-              </p>
-            </div>
-            <Button asChild className="w-full sm:w-auto">
-              <Link href="/dashboard/sharing">Abrir convites</Link>
-            </Button>
-          </div>
-        </section>
-      ) : null}
-
       <section className="surface content-section">
         <div className="page-intro">
           <div className="eyebrow">Configuracoes</div>

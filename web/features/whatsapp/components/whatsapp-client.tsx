@@ -120,7 +120,7 @@ export function WhatsAppClient({ embedded = false }: WhatsAppClientProps) {
   });
 
   return (
-    <section className="surface content-section">
+    <section className="surface content-section" data-tutorial-id="settings-whatsapp">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="eyebrow">WhatsApp</div>

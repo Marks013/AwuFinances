@@ -69,13 +69,15 @@ export default async function PlansPage() {
   const premiumAnnualPrice = formatMoney(billingSettings.annualAmount, billingSettings.currencyId);
 
   return (
-    <main id="main-content" className="page-shell py-6 md:py-10">
-      <section className="surface-strong overflow-hidden rounded-[34px] px-6 py-8 md:px-10 md:py-12">
-        <div className="section-stack">
+    <main id="main-content" className="page-shell py-4 md:py-8">
+      <section className="surface-strong overflow-hidden rounded-[26px] px-5 py-6 md:px-8 md:py-8">
+        <div className="max-w-4xl space-y-5">
           <BrandMark inverted />
           <div className="eyebrow border-white/18 bg-white/10 text-white">Planos</div>
-          <h1 className="display-title max-w-4xl text-white">Escolha como quer usar o Awu Finances.</h1>
-          <p className="max-w-2xl text-base leading-8 text-white/82 md:text-lg">
+          <h1 className="text-balance text-4xl font-semibold leading-tight text-white md:text-5xl">
+            Escolha como quer usar o Awu Finances.
+          </h1>
+          <p className="max-w-2xl text-pretty text-sm leading-7 text-white/82 md:text-base">
             Comece gratis, teste quando houver avaliacao liberada ou assine o Premium para usar WhatsApp, automacoes e
             limites ampliados.
           </p>
@@ -98,16 +100,16 @@ export default async function PlansPage() {
         </div>
       </section>
 
-      <section className="mt-6 grid gap-4 xl:grid-cols-3">
+      <section className="mt-4 grid gap-3 xl:grid-cols-3">
         {planCards.map((plan) => {
           const isPremium = plan.name === "Premium Completo";
 
           return (
-            <article key={plan.name} className={isPremium ? "surface-strong rounded-[30px] p-6 text-white" : "surface rounded-[30px] p-6"}>
-              <p className={isPremium ? "text-sm font-semibold uppercase tracking-[0.16em] text-white/72" : "eyebrow"}>{plan.label}</p>
-              <h2 className="mt-4 text-2xl font-semibold tracking-[-0.04em]">{plan.name}</h2>
-              <div className="mt-6">
-                <p className="text-[clamp(2rem,4vw,3rem)] font-semibold tracking-[-0.07em]">
+            <article key={plan.name} className={isPremium ? "surface-strong rounded-[24px] p-5 text-white" : "surface rounded-[24px] p-5"}>
+              <p className={isPremium ? "text-sm font-semibold uppercase text-white/72" : "eyebrow"}>{plan.label}</p>
+              <h2 className="mt-3 text-balance text-xl font-semibold leading-tight">{plan.name}</h2>
+              <div className="mt-4">
+                <p className="text-3xl font-semibold leading-tight tabular-nums">
                   {isPremium ? premiumMonthlyPrice : plan.price}
                 </p>
                 <p className={isPremium ? "text-sm text-white/72" : "text-sm text-[var(--color-muted-foreground)]"}>
@@ -115,12 +117,12 @@ export default async function PlansPage() {
                 </p>
               </div>
 
-              <div className="mt-6 space-y-3">
+              <div className="mt-5 space-y-2.5">
                 {plan.features.map((feature) => {
                   const Icon = feature.enabled ? Check : X;
 
                   return (
-                    <div key={feature.label} className="flex items-start gap-3 text-sm leading-6">
+                    <div key={feature.label} className="flex items-start gap-2.5 text-sm leading-6">
                       <span className={feature.enabled ? "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-[var(--color-primary-foreground)]" : "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-muted)_70%,transparent)] text-[var(--color-muted-foreground)]"}>
                         <Icon className="size-3.5" />
                       </span>
@@ -130,7 +132,7 @@ export default async function PlansPage() {
                 })}
               </div>
 
-              <Button asChild className="mt-7 w-full" variant={isPremium ? "default" : "secondary"}>
+              <Button asChild className="mt-5 w-full" variant={isPremium ? "default" : "secondary"}>
                 {isPremium ? (
                   <PlanCheckoutLink>
                     {plan.cta}
@@ -155,18 +157,18 @@ export default async function PlansPage() {
         })}
       </section>
 
-      <section className="mt-6 grid gap-4 md:grid-cols-2">
-        <article className="muted-panel">
+      <section className="mt-4 grid gap-3 md:grid-cols-2">
+        <article className="muted-panel p-5">
           <MessageCircleMore className="size-5 text-[var(--color-primary)]" />
-          <h2 className="mt-4 text-lg font-semibold tracking-[-0.03em]">WhatsApp no Premium</h2>
-          <p className="mt-2 text-sm leading-7 text-[var(--color-muted-foreground)]">
+          <h2 className="mt-3 text-lg font-semibold leading-tight">WhatsApp no Premium</h2>
+          <p className="mt-2 text-pretty text-sm leading-6 text-[var(--color-muted-foreground)]">
             O assistente registra gastos e responde consultas somente quando o usuario inicia a conversa.
           </p>
         </article>
-        <article className="muted-panel">
+        <article className="muted-panel p-5">
           <ShieldCheck className="size-5 text-[var(--color-primary)]" />
-          <h2 className="mt-4 text-lg font-semibold tracking-[-0.03em]">Checkout seguro</h2>
-          <p className="mt-2 text-sm leading-7 text-[var(--color-muted-foreground)]">
+          <h2 className="mt-3 text-lg font-semibold leading-tight">Checkout seguro</h2>
+          <p className="mt-2 text-pretty text-sm leading-6 text-[var(--color-muted-foreground)]">
             O Mercado Pago confirma o pagamento e o sistema libera a licenca automaticamente.
           </p>
         </article>

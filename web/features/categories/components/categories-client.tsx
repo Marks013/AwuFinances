@@ -36,9 +36,7 @@ async function getCategories() {
 async function createCategory(values: CategoryFormValues) {
   const response = await fetch("/api/categories", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(values)
   });
 
@@ -49,9 +47,7 @@ async function createCategory(values: CategoryFormValues) {
 async function updateCategory(id: string, values: CategoryFormValues) {
   const response = await fetch(`/api/categories/${id}`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(values)
   });
 
@@ -60,17 +56,12 @@ async function updateCategory(id: string, values: CategoryFormValues) {
 }
 
 async function deleteCategory(id: string) {
-  const response = await fetch(`/api/categories/${id}`, {
-    method: "DELETE"
-  });
-
+  const response = await fetch(`/api/categories/${id}`, { method: "DELETE" });
   await ensureApiResponse(response, { fallbackMessage: "Falha ao excluir categoria", method: "DELETE", path: `/api/categories/${id}` });
 }
 
 async function restoreDefaultCategories() {
-  const response = await fetch("/api/categories/defaults", {
-    method: "POST"
-  });
+  const response = await fetch("/api/categories/defaults", { method: "POST" });
   await ensureApiResponse(response, {
     fallbackMessage: "Falha ao restaurar categorias padrao",
     method: "POST",
@@ -79,16 +70,20 @@ async function restoreDefaultCategories() {
 
   if (!response.ok) {
     const payload = (await response.json()) as { message?: string };
-    throw new Error(payload.message ?? "Falha ao restaurar categorias padrão");
+    throw new Error(payload.message ?? "Falha ao restaurar categorias padrao");
   }
 
   return (await response.json()) as { restored: number; total: number };
 }
 
+function formatMoney(value: number) {
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+}
+
 export function CategoriesClient() {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [isEditorOpen, setIsEditorOpen] = useState(true);
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
   const formSectionRef = useRef<HTMLElement | null>(null);
   const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: getCategories });
   const categories = categoriesQuery.data?.items ?? [];
@@ -107,20 +102,12 @@ export function CategoriesClient() {
   });
 
   const saveMutation = useMutation({
-    mutationFn: async (values: CategoryFormValues) => {
-      if (editingId) {
-        return updateCategory(editingId, values);
-      }
-
-      return createCategory(values);
-    },
+    mutationFn: async (values: CategoryFormValues) => (editingId ? updateCategory(editingId, values) : createCategory(values)),
     onSuccess: async () => {
       const wasEditing = Boolean(editingId);
       toast.success(editingId ? "Categoria atualizada" : "Categoria criada");
       setEditingId(null);
-      if (wasEditing) {
-        setIsEditorOpen(false);
-      }
+      if (wasEditing) setIsEditorOpen(false);
       form.reset();
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["categories"] }),
@@ -129,7 +116,7 @@ export function CategoriesClient() {
       ]);
     },
     onError: (error) => {
-      toast.error(editingId ? "Não foi possível atualizar a categoria" : "Não foi possível criar a categoria", {
+      toast.error(editingId ? "Nao foi possivel atualizar a categoria" : "Nao foi possivel criar a categoria", {
         description: error.message
       });
     }
@@ -138,7 +125,7 @@ export function CategoriesClient() {
   const deleteMutation = useMutation({
     mutationFn: deleteCategory,
     onSuccess: async () => {
-      toast.success("Categoria excluída");
+      toast.success("Categoria excluida");
       if (editingId) {
         setEditingId(null);
         setIsEditorOpen(false);
@@ -151,20 +138,18 @@ export function CategoriesClient() {
       ]);
     },
     onError: (error) => {
-      toast.error("Não foi possível excluir a categoria", {
-        description: error.message
-      });
+      toast.error("Nao foi possivel excluir a categoria", { description: error.message });
     }
   });
 
   const restoreDefaultsMutation = useMutation({
     mutationFn: restoreDefaultCategories,
     onSuccess: async (payload) => {
-      toast.success("Categorias padrão restauradas", {
+      toast.success("Categorias padrao restauradas", {
         description:
           payload.restored > 0
             ? `${payload.restored} categoria(s) adicionada(s) sem duplicar as existentes.`
-            : "Nenhuma categoria nova foi adicionada porque a base já estava completa."
+            : "Nenhuma categoria nova foi adicionada porque a base ja estava completa."
       });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["categories"] }),
@@ -173,9 +158,7 @@ export function CategoriesClient() {
       ]);
     },
     onError: (error) => {
-      toast.error("Não foi possível restaurar as categorias padrão", {
-        description: error.message
-      });
+      toast.error("Nao foi possivel restaurar as categorias padrao", { description: error.message });
     }
   });
 
@@ -208,7 +191,10 @@ export function CategoriesClient() {
   const showEditor = isEditorOpen || isEditing || categories.length === 0;
   const selectedColor = useWatch({ control: form.control, name: "color" }) ?? categoryColorPresets[0].value;
   const selectedType = useWatch({ control: form.control, name: "type" }) ?? "expense";
-  const scrollEditorIntoView = () => {
+
+  useEffect(() => {
+    if (!editingId) return;
+
     const timeout = window.setTimeout(() => {
       const target = document.getElementById("category-name");
       const scrollTarget = target ?? formSectionRef.current;
@@ -218,40 +204,30 @@ export function CategoriesClient() {
     }, 80);
 
     return () => window.clearTimeout(timeout);
-  };
-
-  useEffect(() => {
-    if (!editingId) {
-      return;
-    }
-
-    return scrollEditorIntoView();
   }, [editingId]);
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
+    <div className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
       <section className="surface content-section" ref={formSectionRef}>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <div className="eyebrow">Categorias</div>
-            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">
+            <h1 className="mt-3 text-balance text-2xl font-semibold leading-tight md:text-3xl">
               {isEditing ? "Editar categoria" : "Nova categoria"}
             </h1>
           </div>
-          <div className="flex items-start gap-3">
-            {!showEditor ? (
-              <Button onClick={openCreateForm} type="button" variant="secondary">
-                Nova categoria
-              </Button>
-            ) : null}
-          </div>
+          {!showEditor ? (
+            <Button onClick={openCreateForm} type="button" variant="secondary">
+              Nova categoria
+            </Button>
+          ) : null}
         </div>
-        <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--color-muted-foreground)]">
-          Cadastre categorias claras para organizar lançamentos e melhorar os relatórios.
+        <p className="mt-3 max-w-2xl text-pretty text-sm leading-6 text-[var(--color-muted-foreground)]">
+          Cadastre categorias claras para organizar lancamentos e melhorar os relatorios.
         </p>
 
         {showEditor ? (
-          <form className="mt-8 space-y-5" onSubmit={form.handleSubmit((values) => saveMutation.mutate(values))}>
+          <form className="mt-6 space-y-4" onSubmit={form.handleSubmit((values) => saveMutation.mutate(values))}>
             <div className="space-y-2">
               <Label htmlFor="category-name">Nome</Label>
               <Input id="category-name" {...form.register("name")} />
@@ -265,8 +241,8 @@ export function CategoriesClient() {
                 </Select>
               </div>
               <div className="space-y-3">
-                <Label>Cor da categoria</Label>
-                <div className="flex flex-wrap gap-3">
+                <Label>Cor</Label>
+                <div className="flex flex-wrap gap-2">
                   {categoryColorPresets.map((preset) => (
                     <button
                       aria-label={`Selecionar cor ${preset.label}`}
@@ -275,14 +251,7 @@ export function CategoriesClient() {
                       onClick={() => form.setValue("color", preset.value, { shouldDirty: true })}
                       type="button"
                     >
-                      <PresetChip
-                        active={selectedColor === preset.value}
-                        background={preset.background}
-                        color={preset.color}
-                        label={preset.label}
-                        shortLabel={preset.shortLabel}
-                        swatchOnly
-                      />
+                      <PresetChip active={selectedColor === preset.value} background={preset.background} color={preset.color} label={preset.label} shortLabel={preset.shortLabel} swatchOnly />
                     </button>
                   ))}
                 </div>
@@ -290,52 +259,34 @@ export function CategoriesClient() {
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="category-icon">Ícone</Label>
+                <Label htmlFor="category-icon">Icone</Label>
                 <Input id="category-icon" {...form.register("icon")} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category-monthly-limit">Limite mensal</Label>
-                <CurrencyInput
-                  control={form.control}
-                  id="category-monthly-limit"
-                  name="monthlyLimit"
-                  nullable
-                  placeholder="Opcional"
-                />
+                <CurrencyInput control={form.control} id="category-monthly-limit" name="monthlyLimit" nullable placeholder="Opcional" />
               </div>
             </div>
-            <div className="grid gap-4 md:grid-cols-1">
-              <div className="space-y-2">
-                <Label htmlFor="category-keywords">Palavras-chave</Label>
-                <Input id="category-keywords" placeholder="mercado, casa, salário" {...form.register("keywords")} />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="category-keywords">Palavras-chave</Label>
+              <Input id="category-keywords" placeholder="mercado, casa, salario" {...form.register("keywords")} />
             </div>
-            <div className="muted-panel flex flex-wrap items-center gap-3">
-              <PresetChip
-                active
-                background={findPreset(categoryColorPresets, selectedColor)?.background ?? "rgba(107,114,128,0.14)"}
-                color={findPreset(categoryColorPresets, selectedColor)?.color ?? selectedColor}
-                label={selectedType === "income" ? "Categoria de receita" : "Categoria de despesa"}
-                shortLabel=""
-                swatchOnly
-              />
-              <p className="text-sm text-[var(--color-muted-foreground)]">
-                A cor será usada na interface e nos gráficos.
-              </p>
+            <div className="muted-panel flex flex-wrap items-center gap-3 p-4">
+              <PresetChip active background={findPreset(categoryColorPresets, selectedColor)?.background ?? "rgba(107,114,128,0.14)"} color={findPreset(categoryColorPresets, selectedColor)?.color ?? selectedColor} label={selectedType === "income" ? "Categoria de receita" : "Categoria de despesa"} shortLabel="" swatchOnly />
+              <p className="text-sm text-[var(--color-muted-foreground)]">A cor aparece na interface e nos graficos.</p>
             </div>
-            <p className="text-sm text-[var(--color-muted-foreground)]">Use palavras-chave para ajudar a classificação automática.</p>
             <Button className="w-full" disabled={saveMutation.isPending} type="submit">
               {saveMutation.isPending ? "Salvando..." : isEditing ? "Salvar categoria" : "Criar categoria"}
             </Button>
             {isEditing ? (
               <Button className="w-full" onClick={cancelEditing} type="button" variant="ghost">
-                Cancelar edição
+                Cancelar edicao
               </Button>
             ) : null}
           </form>
         ) : (
-          <div className="muted-panel mt-8 flex flex-col gap-4 px-4 py-5 text-sm text-[var(--color-muted-foreground)]">
-            <p>O editor foi fechado após a última edição concluída.</p>
+          <div className="muted-panel mt-6 flex flex-col gap-4 p-4 text-sm text-[var(--color-muted-foreground)]">
+            <p>Editor fechado. Abra apenas quando precisar criar ou editar.</p>
             <Button className="w-full sm:w-auto" onClick={openCreateForm} type="button" variant="secondary">
               Nova categoria
             </Button>
@@ -346,90 +297,73 @@ export function CategoriesClient() {
       <section className="surface content-section">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <h2 className="text-2xl font-semibold tracking-[-0.03em]">Categorias ativas</h2>
-            <p className="mt-2 text-sm leading-7 text-[var(--color-muted-foreground)]">
-              Revise, edite ou restaure a base padrão sem duplicar itens existentes.
+            <h2 className="text-balance text-2xl font-semibold leading-tight">Categorias ativas</h2>
+            <p className="mt-2 text-pretty text-sm leading-6 text-[var(--color-muted-foreground)]">
+              Lista compacta com detalhes expansíveis para evitar cards repetidos.
             </p>
           </div>
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
-            <Button
-              className="w-full sm:w-auto"
-              disabled={restoreDefaultsMutation.isPending}
-              onClick={() => restoreDefaultsMutation.mutate()}
-              type="button"
-              variant="secondary"
-            >
-              {restoreDefaultsMutation.isPending ? "Restaurando..." : "Restaurar categorias padrão"}
+            <Button className="w-full sm:w-auto" disabled={restoreDefaultsMutation.isPending} onClick={() => restoreDefaultsMutation.mutate()} type="button" variant="secondary">
+              {restoreDefaultsMutation.isPending ? "Restaurando..." : "Restaurar padrao"}
             </Button>
-            <div className="grid w-full gap-3 sm:grid-cols-2">
-              <article className="metric-card w-full">
+            <div className="grid w-full grid-cols-2 gap-2">
+              <article className="metric-card w-full p-4">
                 <p className="metric-label">Despesas</p>
-                <p className="metric-value">{expenseCategories}</p>
+                <p className="metric-value tabular-nums">{expenseCategories}</p>
               </article>
-              <article className="metric-card w-full">
+              <article className="metric-card w-full p-4">
                 <p className="metric-label">Receitas</p>
-                <p className="metric-value">{incomeCategories}</p>
+                <p className="metric-value tabular-nums">{incomeCategories}</p>
               </article>
             </div>
           </div>
         </div>
-        <div className="mt-6 grid gap-3 md:grid-cols-2">
+
+        <div className="mt-5 divide-y divide-[var(--color-border)] overflow-hidden rounded-[1.25rem] border border-[var(--color-border)] bg-[var(--color-card)]">
           {categories.map((category) => (
-            <article key={category.id} className="data-card p-4">
-              <div className="flex items-start gap-3">
-                <span className="mt-0.5 inline-flex rounded-full">
-                  <PresetChip
-                    compact
-                    active
-                    background={findPreset(categoryColorPresets, category.color)?.background ?? "rgba(107,114,128,0.14)"}
-                    color={findPreset(categoryColorPresets, category.color)?.color ?? category.color}
-                    label={category.name}
-                    shortLabel=""
-                    swatchOnly
-                  />
+            <details key={category.id} className="group">
+              <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
+                <span className="inline-flex shrink-0 rounded-full">
+                  <PresetChip compact active background={findPreset(categoryColorPresets, category.color)?.background ?? "rgba(107,114,128,0.14)"} color={findPreset(categoryColorPresets, category.color)?.color ?? category.color} label={category.name} shortLabel="" swatchOnly />
                 </span>
-                <div className="min-w-0">
-                  <p className="break-words text-base font-semibold text-[var(--color-foreground)]">{category.name}</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <span className="rounded-full border border-[var(--color-border)] px-2.5 py-1 text-xs text-[var(--color-muted-foreground)]">
-                      {category.type === "income" ? "Receita" : "Despesa"}
-                    </span>
-                    <span className="rounded-full border border-[var(--color-border)] px-2.5 py-1 text-xs text-[var(--color-muted-foreground)]">
-                      {category.isDefault ? "Padrão" : "Personalizada"}
-                    </span>
-                  </div>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold text-[var(--color-foreground)]">{category.name}</span>
+                  <span className="mt-1 flex flex-wrap gap-2 text-xs text-[var(--color-muted-foreground)]">
+                    <span>{category.type === "income" ? "Receita" : "Despesa"}</span>
+                    <span aria-hidden="true">•</span>
+                    <span>{category.isDefault ? "Padrao" : "Personalizada"}</span>
+                    {category.monthlyLimit ? (
+                      <>
+                        <span aria-hidden="true">•</span>
+                        <span className="tabular-nums">{formatMoney(category.monthlyLimit)}</span>
+                      </>
+                    ) : null}
+                  </span>
+                </span>
+                <span className="text-xs font-semibold text-[var(--color-muted-foreground)]">detalhes</span>
+              </summary>
+              <div className="space-y-3 px-4 pb-4 pl-14">
+                {category.keywords.length > 0 ? (
+                  <p className="break-words text-sm leading-6 text-[var(--color-muted-foreground)]">
+                    Palavras-chave: {category.keywords.join(", ")}
+                  </p>
+                ) : (
+                  <p className="text-sm leading-6 text-[var(--color-muted-foreground)]">Sem palavras-chave cadastradas.</p>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  <Button onClick={() => startEditing(category)} type="button" variant="secondary">
+                    Editar
+                  </Button>
+                  <Button disabled={deleteMutation.isPending} onClick={() => deleteMutation.mutate(category.id)} type="button" variant="ghost">
+                    Excluir
+                  </Button>
                 </div>
               </div>
-              {category.keywords.length > 0 ? (
-                <p className="mt-3 break-words text-sm text-[var(--color-muted-foreground)]">
-                  {category.keywords.slice(0, 5).join(", ")}
-                  {category.keywords.length > 5 ? "..." : ""}
-                </p>
-              ) : null}
-              {category.monthlyLimit ? (
-                <p className="mt-2 break-words text-sm text-[var(--color-muted-foreground)]">
-                  Limite mensal: {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(category.monthlyLimit)}
-                </p>
-              ) : null}
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Button onClick={() => startEditing(category)} type="button" variant="secondary">
-                  Editar
-                </Button>
-                <Button
-                  disabled={deleteMutation.isPending}
-                  onClick={() => deleteMutation.mutate(category.id)}
-                  type="button"
-                  variant="ghost"
-                >
-                  Excluir
-                </Button>
-              </div>
-            </article>
+            </details>
           ))}
           {!categoriesQuery.isLoading && categories.length === 0 ? (
-            <div className="muted-panel border border-dashed px-4 py-6 text-sm text-[var(--color-muted-foreground)] md:col-span-2">
-              Nenhuma categoria foi cadastrada ainda. Crie categorias para melhorar o agrupamento dos lançamentos e a
-              leitura dos relatórios.
+            <div className="px-4 py-6 text-sm text-[var(--color-muted-foreground)]">
+              Nenhuma categoria cadastrada ainda.
             </div>
           ) : null}
         </div>

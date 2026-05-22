@@ -3,6 +3,7 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import type { ComponentType } from "react";
 import { useCallback, useEffect, useState, useTransition } from "react";
 import {
   ChartColumnBig,
@@ -28,27 +29,33 @@ import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { addMonthsToMonthKey, formatMonthKeyLabel, getCurrentMonthKey, isValidMonthKey, normalizeMonthKey } from "@/lib/month";
 import { cn } from "@/lib/utils";
 
+type NavItem = {
+  href: Route;
+  label: string;
+  icon: ComponentType<{ className?: string }>;
+};
+
 const primaryNavigation = [
   { href: "/dashboard" as Route, label: "Painel", icon: LayoutDashboard },
   { href: "/dashboard/transactions" as Route, label: "Transacoes", icon: ReceiptText },
-  { href: "/dashboard/accounts" as Route, label: "Carteira", icon: Landmark },
   { href: "/dashboard/reports" as Route, label: "Relatorios", icon: ChartColumnBig },
-  { href: "/dashboard/subscriptions" as Route, label: "Recorrencias", icon: RefreshCcw },
   { href: "/dashboard/settings" as Route, label: "Ajustes", icon: Settings }
-];
+] satisfies NavItem[];
 
-const secondaryNavigation = [
+const walletNavigation = [
+  { href: "/dashboard/accounts" as Route, label: "Contas", icon: Landmark },
   { href: "/dashboard/cards" as Route, label: "Cartoes", icon: CreditCard },
   { href: "/dashboard/benefits" as Route, label: "Vale", icon: Wallet },
-  { href: "/dashboard/categories" as Route, label: "Categorias", icon: FolderTree },
+  { href: "/dashboard/subscriptions" as Route, label: "Recorrencias", icon: RefreshCcw },
   { href: "/dashboard/installments" as Route, label: "Parcelas", icon: Split },
-  { href: "/dashboard/goals" as Route, label: "Metas", icon: Target }
-];
+  { href: "/dashboard/goals" as Route, label: "Metas", icon: Target },
+  { href: "/dashboard/categories" as Route, label: "Categorias", icon: FolderTree }
+] satisfies NavItem[];
 
 const platformAdminNavigation = [
   { href: "/dashboard/admin" as Route, label: "Admin", icon: ShieldCheck },
   { href: "/dashboard/admin/support" as Route, label: "Suporte", icon: LifeBuoy }
-];
+] satisfies NavItem[];
 
 type DashboardSidebarNavProps = {
   canManageSharing: boolean;
@@ -66,10 +73,10 @@ export function DashboardSidebarNav({ canManageSharing, compact = false, isPlatf
   const draftMonth = draftMonthState.sourceMonth === month ? draftMonthState.value : month;
   const [isPending, startTransition] = useTransition();
   const primaryItems = isPlatformAdmin ? platformAdminNavigation : primaryNavigation;
-  const secondaryItems = isPlatformAdmin
+  const walletItems = isPlatformAdmin
     ? []
     : [
-        ...secondaryNavigation,
+        ...walletNavigation,
         ...(canManageSharing ? [{ href: "/dashboard/sharing" as Route, label: "Compartilhar", icon: UsersRound }] : [])
       ];
 
@@ -106,7 +113,7 @@ export function DashboardSidebarNav({ canManageSharing, compact = false, isPlatf
     router.replace(buildMonthRoute(getCurrentMonthKey()), { scroll: false });
   }, [buildMonthRoute, isPlatformAdmin, router, searchParams]);
 
-  const renderItem = (item: (typeof primaryNavigation)[number], size: "primary" | "secondary") => {
+  const renderItem = (item: NavItem, size: "primary" | "secondary") => {
     const Icon = item.icon;
     const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname?.startsWith(`${item.href}/`));
     const href = isPlatformAdmin ? item.href : (`${item.href}?month=${month}` as Route);
@@ -146,7 +153,7 @@ export function DashboardSidebarNav({ canManageSharing, compact = false, isPlatf
             compact && "mb-3 rounded-[18px] p-3"
           )}
         >
-          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-[var(--color-muted-foreground)]">
+          <p className="text-[0.68rem] font-semibold uppercase text-[var(--color-muted-foreground)]">
             Mes de analise
           </p>
           <p aria-live="polite" className="mt-1 text-sm font-semibold leading-5 text-[var(--color-foreground)]">
@@ -197,7 +204,7 @@ export function DashboardSidebarNav({ canManageSharing, compact = false, isPlatf
       )}
 
       <div className={cn("mb-3 flex items-center justify-between gap-3 px-1", compact && "mb-2")}>
-        <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-muted-foreground)]">
+        <p className="text-[0.72rem] font-semibold uppercase text-[var(--color-muted-foreground)]">
           Navegacao
         </p>
         <p className="text-xs text-[var(--color-muted-foreground)]">
@@ -210,10 +217,24 @@ export function DashboardSidebarNav({ canManageSharing, compact = false, isPlatf
           {primaryItems.map((item) => renderItem(item, "primary"))}
         </div>
 
-        {secondaryItems.length > 0 ? (
-          <div className={cn("grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:block lg:space-y-1", compact && "gap-1")}>
-            {secondaryItems.map((item) => renderItem(item, "secondary"))}
-          </div>
+        {walletItems.length > 0 ? (
+          <details
+            className="rounded-[1rem] border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-muted)_24%,transparent)] p-1"
+            open={
+              walletItems.some((item) => pathname === item.href || pathname?.startsWith(`${item.href}/`)) || undefined
+            }
+          >
+            <summary className="flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-[0.85rem] px-2.5 py-2 text-sm font-semibold text-[var(--color-foreground)] [&::-webkit-details-marker]:hidden">
+              <span className="flex size-7 shrink-0 items-center justify-center rounded-[0.75rem] bg-[color-mix(in_srgb,var(--color-card)_84%,var(--color-muted))] text-[var(--color-primary)]">
+                <Landmark className="size-3.5" />
+              </span>
+              <span className="min-w-0 flex-1 truncate">Carteira</span>
+              <span className="text-xs text-[var(--color-muted-foreground)]">abrir</span>
+            </summary>
+            <div className={cn("mt-1 grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:block lg:space-y-1", compact && "gap-1")}>
+              {walletItems.map((item) => renderItem(item, "secondary"))}
+            </div>
+          </details>
         ) : null}
       </nav>
     </>

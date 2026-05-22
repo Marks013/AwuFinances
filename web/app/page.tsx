@@ -25,14 +25,16 @@ const features = [
 
 export default function HomePage() {
   return (
-    <main id="main-content" className="page-shell py-6 md:py-10">
-      <section className="surface-strong overflow-hidden rounded-[34px] px-6 py-8 md:px-10 md:py-12">
-        <div className="grid gap-8 lg:grid-cols-[1fr_0.72fr] lg:items-end">
-          <div className="section-stack">
+    <main id="main-content" className="page-shell py-4 md:py-8">
+      <section className="surface-strong overflow-hidden rounded-[26px] px-5 py-6 md:px-8 md:py-8">
+        <div className="grid gap-6 lg:grid-cols-[1fr_22rem] lg:items-end">
+          <div className="max-w-3xl space-y-5">
             <BrandMark inverted />
             <div className="eyebrow border-white/18 bg-white/10 text-white">Awu Finances</div>
-            <h1 className="display-title max-w-4xl text-white">Controle financeiro claro para operar todo dia.</h1>
-            <p className="max-w-2xl text-base leading-8 text-white/82 md:text-lg">
+            <h1 className="text-balance text-4xl font-semibold leading-tight text-white md:text-5xl">
+              Controle financeiro claro para operar todo dia.
+            </h1>
+            <p className="max-w-2xl text-pretty text-sm leading-7 text-white/82 md:text-base">
               Organize contas, cartoes, metas, faturas e recorrencias em uma experiencia direta, visualmente limpa e
               pronta para uso no desktop ou celular.
             </p>
@@ -52,38 +54,38 @@ export default function HomePage() {
             </div>
           </div>
 
-          <article className="rounded-[28px] border border-white/12 bg-white/10 p-5 text-white">
+          <article className="rounded-[22px] border border-white/12 bg-white/10 p-5 text-white">
             <p className="metric-label text-white/72">Premium Completo</p>
-            <p className="mt-4 text-3xl font-semibold tracking-[-0.05em]">WhatsApp, automacoes e limites ampliados.</p>
-            <p className="mt-4 text-sm leading-7 text-white/78">
+            <p className="mt-3 text-balance text-2xl font-semibold leading-tight">WhatsApp, automacoes e limites ampliados.</p>
+            <p className="mt-3 text-pretty text-sm leading-6 text-white/78">
               Checkout Mercado Pago com liberacao automatica apos confirmacao do pagamento.
             </p>
           </article>
         </div>
       </section>
 
-      <section className="mt-6 grid gap-4 md:grid-cols-3">
+      <section className="mt-4 grid gap-3 md:grid-cols-3">
         {features.map((feature) => {
           const Icon = feature.icon;
 
           return (
-            <article key={feature.title} className="surface content-section">
-              <div className="flex size-11 items-center justify-center rounded-[1rem] bg-[var(--color-accent)] text-[var(--color-accent-foreground)]">
+            <article key={feature.title} className="surface rounded-[22px] p-5">
+              <div className="flex size-10 items-center justify-center rounded-[0.9rem] bg-[var(--color-accent)] text-[var(--color-accent-foreground)]">
                 <Icon className="size-5" />
               </div>
-              <h2 className="mt-5 text-xl font-semibold tracking-[-0.04em] text-[var(--color-foreground)]">{feature.title}</h2>
-              <p className="mt-3 text-sm leading-7 text-[var(--color-muted-foreground)]">{feature.copy}</p>
+              <h2 className="mt-4 text-lg font-semibold leading-tight text-[var(--color-foreground)]">{feature.title}</h2>
+              <p className="mt-2 text-pretty text-sm leading-6 text-[var(--color-muted-foreground)]">{feature.copy}</p>
             </article>
           );
         })}
       </section>
 
-      <section className="surface mt-6 rounded-[30px] p-6 md:p-8">
+      <section className="surface mt-4 rounded-[24px] p-5 md:p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="max-w-2xl">
             <div className="eyebrow">Seguranca e privacidade</div>
-            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">Dados isolados por carteira e acesso protegido.</h2>
-            <p className="mt-3 text-sm leading-7 text-[var(--color-muted-foreground)]">
+            <h2 className="mt-3 text-balance text-xl font-semibold leading-tight">Dados isolados por carteira e acesso protegido.</h2>
+            <p className="mt-2 text-pretty text-sm leading-6 text-[var(--color-muted-foreground)]">
               O produto opera por assinatura, com contas separadas, controles de acesso e historico para rotinas sensiveis.
             </p>
           </div>

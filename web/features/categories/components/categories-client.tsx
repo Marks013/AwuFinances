@@ -209,7 +209,7 @@ export function CategoriesClient() {
   return (
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(320px,0.72fr)_minmax(0,1.28fr)]">
       <section className="surface content-section self-start" ref={formSectionRef}>
-        <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex flex-wrap items-start justify-between gap-4" data-tutorial-id="categories-list-heading">
           <div className="min-w-0 flex-1">
             <div className="eyebrow">Categorias</div>
             <h1 className="mt-3 text-balance text-2xl font-semibold leading-tight md:text-3xl">

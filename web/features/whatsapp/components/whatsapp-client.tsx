@@ -121,7 +121,7 @@ export function WhatsAppClient({ embedded = false }: WhatsAppClientProps) {
 
   return (
     <section className="surface content-section" data-tutorial-id="settings-whatsapp">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4" data-tutorial-id="settings-whatsapp-heading">
         <div className="min-w-0 flex-1">
           <div className="eyebrow">WhatsApp</div>
           <h2 className={embedded ? "mt-3 text-2xl font-semibold tracking-[-0.03em]" : "mt-3 text-3xl font-semibold tracking-[-0.03em]"}>

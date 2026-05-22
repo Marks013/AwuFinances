@@ -611,7 +611,7 @@ export function TransactionsClient() {
   return (
     <div className="grid gap-6 2xl:grid-cols-[0.9fr_1.1fr]">
       <section className="surface content-section" data-tutorial-id="transaction-editor" ref={formSectionRef}>
-        <div className="page-intro">
+        <div className="page-intro" data-tutorial-id="transaction-heading">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
               <div className="eyebrow">{isEditing ? "Editar transação" : "Nova transação"}</div>

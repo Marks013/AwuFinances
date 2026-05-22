@@ -135,7 +135,7 @@ function firstRequirementNotice(requirement: TutorialRequirement, context: Tutor
   if (requirement === "whatsapp-feature" && !context.license.features.whatsappAssistant) {
     return {
       title: "WhatsApp nao esta liberado no plano atual",
-      message: `O plano ${context.license.planLabel} nao permite o assistente financeiro por WhatsApp nesta conta.`,
+      message: `O plano ${context.license.planLabel} nao permite o assistente por WhatsApp nesta conta. Para usar esse recurso, e preciso ter um plano com assistente liberado.`,
       actionLabel: "Ver ajustes",
       route: "/dashboard/settings"
     };
@@ -143,8 +143,8 @@ function firstRequirementNotice(requirement: TutorialRequirement, context: Tutor
 
   if (requirement === "whatsapp-number" && !context.profile.whatsappNumberConfigured) {
     return {
-      title: "Informe seu numero antes de usar o assistente",
-      message: "O sistema so deve responder numeros cadastrados para reduzir risco, confusao e mensagens fora da conta.",
+      title: "Informe seu numero antes de usar o WhatsApp",
+      message: "O assistente precisa saber qual numero pertence a sua conta. Assim ele evita responder pessoas desconhecidas ou lancar dados na carteira errada.",
       actionLabel: "Configurar WhatsApp",
       route: "/dashboard/settings"
     };
@@ -153,7 +153,7 @@ function firstRequirementNotice(requirement: TutorialRequirement, context: Tutor
   if (requirement === "sharing-permission" && !context.permissions.canAccessSharingPage) {
     return {
       title: "Compartilhamento fica com o titular",
-      message: "Esta conta nao tem permissao para gerenciar convites familiares. O titular ou admin da conta controla esse modulo.",
+      message: "Esta conta pode consultar a carteira, mas nao gerencia convites familiares. O titular da carteira controla esse modulo.",
       actionLabel: "Abrir ajustes",
       route: "/dashboard/settings"
     };
@@ -276,8 +276,8 @@ export function DashboardTutorialGuide() {
 
     const scrollToTarget = () => {
       const target = document.querySelector(currentStep.targetSelector);
-      target?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "center" });
-      updateTarget();
+      target?.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "nearest", inline: "nearest" });
+      window.setTimeout(updateTarget, 120);
     };
 
     frame = window.setTimeout(scrollToTarget, 180);

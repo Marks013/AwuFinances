@@ -211,7 +211,7 @@ export function AccountsClient() {
   return (
     <div className="grid gap-6 2xl:grid-cols-[0.85fr_1.15fr]">
       <section className="surface content-section" data-tutorial-id="account-editor" ref={formSectionRef}>
-        <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex flex-wrap items-start justify-between gap-4" data-tutorial-id="account-heading">
           <div className="min-w-0 flex-1">
             <div className="eyebrow">Contas</div>
             <h1 className="mt-3 text-3xl font-semibold tracking-[-0.03em]">

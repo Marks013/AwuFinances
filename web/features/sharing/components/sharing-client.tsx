@@ -225,8 +225,8 @@ export function SharingClient() {
 
       <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         {activeMembers[0] ? (
-          <section className="surface content-section" data-tutorial-id="sharing-invite">
-            <h2 className="text-2xl font-semibold tracking-[-0.03em]">Compartilhamento ativo</h2>
+          <section className="surface content-section" data-tutorial-id="sharing-invite-heading">
+            <h2 className="text-2xl font-semibold tracking-[-0.03em]" data-tutorial-id="sharing-invite-heading">Compartilhamento ativo</h2>
             <p className="mt-2 text-sm leading-7 text-[var(--color-muted-foreground)]">
               Esta carteira já está compartilhada com uma pessoa ativa. Para convidar outra, primeiro revogue o acesso
               atual.
@@ -236,7 +236,7 @@ export function SharingClient() {
             </div>
           </section>
         ) : (
-          <section className="surface content-section" data-tutorial-id="sharing-invite">
+          <section className="surface content-section" data-tutorial-id="sharing-invite-heading">
             <h2 className="text-2xl font-semibold tracking-[-0.03em]">Convidar familiar ou cônjuge</h2>
             <p className="mt-2 text-sm leading-7 text-[var(--color-muted-foreground)]">
               O compartilhamento permite apenas 1 convidado por vez. Para trocar a pessoa, primeiro revogue o acesso atual

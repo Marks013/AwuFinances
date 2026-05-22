@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Input } from "@/components/ui/input";
@@ -466,7 +465,6 @@ export function BenefitFoodClient() {
               <h1 className="text-3xl font-semibold tracking-[-0.04em]">Recarga, consumo e recorrência</h1>
             </div>
             <div className="flex items-start gap-3">
-              <AwuMascot className="hidden w-20 xl:block" title="Awu acompanhando benefícios" variant="success" />
               {accounts.length > 0 ? (
                 <div className="min-w-[240px] space-y-2">
                   <Label htmlFor="benefit-account-selector">Carteira ativa</Label>

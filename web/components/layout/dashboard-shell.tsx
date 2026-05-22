@@ -42,6 +42,29 @@ function formatLastAccess(value: Date | null) {
   return formatDateTimeDisplay(access);
 }
 
+function getSectionLabel(pathname: string | null | undefined, isPlatformAdmin: boolean) {
+  if (isPlatformAdmin) {
+    return pathname?.startsWith("/dashboard/admin/support") ? "Suporte administrativo" : "Administração";
+  }
+
+  if (!pathname || pathname === "/dashboard") return "Painel";
+  if (pathname.startsWith("/dashboard/transactions")) return "Transações";
+  if (pathname.startsWith("/dashboard/categories")) return "Categorias";
+  if (pathname.startsWith("/dashboard/benefits")) return "Vale alimentação";
+  if (pathname.startsWith("/dashboard/accounts")) return "Carteira";
+  if (pathname.startsWith("/dashboard/cards")) return "Cartões";
+  if (pathname.startsWith("/dashboard/subscriptions")) return "Assinaturas";
+  if (pathname.startsWith("/dashboard/installments")) return "Parcelas";
+  if (pathname.startsWith("/dashboard/goals")) return "Metas";
+  if (pathname.startsWith("/dashboard/reports")) return "Relatórios";
+  if (pathname.startsWith("/dashboard/whatsapp")) return "WhatsApp";
+  if (pathname.startsWith("/dashboard/support")) return "Suporte";
+  if (pathname.startsWith("/dashboard/settings")) return "Configurações";
+  if (pathname.startsWith("/dashboard/sharing")) return "Compartilhamento";
+
+  return "Awu Finances";
+}
+
 export async function DashboardShell({ children, currentPathname }: DashboardShellProps) {
   const session = await auth();
   const accessAudit = session?.user?.id
@@ -125,7 +148,48 @@ export async function DashboardShell({ children, currentPathname }: DashboardShe
 
   return (
     <div className="page-shell flex min-h-dvh flex-col gap-4 py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))] md:gap-5 md:py-5 lg:grid lg:h-dvh lg:grid-cols-[256px_minmax(0,1fr)] lg:gap-5 lg:overflow-y-hidden xl:grid-cols-[264px_minmax(0,1fr)] xl:gap-6">
-      <aside className="surface subtle-scrollbar flex min-h-0 max-h-[72dvh] flex-col overflow-y-auto rounded-[24px] p-3 sm:p-4 lg:max-h-none lg:rounded-[30px] xl:p-5">
+      <header className="surface rounded-[22px] p-3 lg:hidden">
+        <div className="flex items-center justify-between gap-3">
+          <BrandMark compact />
+          <div className="flex shrink-0 items-center gap-2">
+            <ThemeToggle compact />
+          </div>
+        </div>
+
+        <details className="group mt-3">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-[1rem] border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-muted)_42%,var(--color-card))] px-3 py-2 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+            <span className="min-w-0 truncate">{getSectionLabel(currentPathname, isPlatformAdmin)}</span>
+            <span className="shrink-0 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--color-muted-foreground)]">
+              Menu
+            </span>
+          </summary>
+
+          <div className="mt-3 border-t border-[var(--color-border)] pt-3">
+            <DashboardSidebarNav compact canManageSharing={Boolean(canManageSharing)} isPlatformAdmin={isPlatformAdmin} />
+
+            <div className="mt-3 rounded-[18px] border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-muted)_38%,var(--color-card))] p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-muted-foreground)]">
+                Sessão ativa
+              </p>
+              <p className="mt-1 truncate text-sm font-semibold">{session?.user?.name ?? session?.user?.email ?? "Usuário"}</p>
+              <p className="mt-1 text-xs leading-5 text-[var(--color-muted-foreground)]">{accessDescription}</p>
+              <form
+                aria-label="Encerrar sessão"
+                action={async () => {
+                  "use server";
+                  await signOut({ redirectTo: "/" });
+                }}
+              >
+                <Button className="mt-3 w-full" type="submit" variant="secondary">
+                  Encerrar sessão
+                </Button>
+              </form>
+            </div>
+          </div>
+        </details>
+      </header>
+
+      <aside className="surface subtle-scrollbar hidden min-h-0 max-h-[72dvh] flex-col overflow-y-auto rounded-[24px] p-3 sm:p-4 lg:flex lg:max-h-none lg:rounded-[30px] xl:p-5">
         <div className="mb-6 rounded-[24px] border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-card)_86%,transparent)] p-4">
           <div className="flex flex-col gap-3">
             <BrandMark compact />

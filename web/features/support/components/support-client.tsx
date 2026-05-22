@@ -6,7 +6,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -260,7 +259,6 @@ export function SupportClient({ initialEmail, initialName }: SupportClientProps)
               Envie sua solicitação com as informações principais para nossa equipe acompanhar e responder com clareza.
             </p>
           </div>
-          <AwuMascot className="hidden w-24 xl:block" title="Awu com canal de atendimento" variant="whatsapp" />
         </div>
         <div className="mt-5 rounded-[1.15rem] border border-[var(--color-border)] bg-[var(--color-panel)] px-4 py-3 text-sm leading-6 text-[var(--color-muted-foreground)]">
           {responseWindow}

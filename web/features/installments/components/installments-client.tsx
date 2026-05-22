@@ -6,7 +6,6 @@ import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
@@ -249,7 +248,6 @@ export function InstallmentsClient() {
               Competência ativa: {formatMonthKeyLabel(month)}
             </p>
           </div>
-          <AwuMascot className="hidden w-24 xl:block" title="Awu analisando parcelamentos" variant="report" />
         </div>
         <div className="filter-shell mt-6">
           <p className="filter-kicker">Leitura</p>

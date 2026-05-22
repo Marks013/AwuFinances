@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
-import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Input } from "@/components/ui/input";
@@ -410,7 +409,6 @@ export function SubscriptionsClient() {
             </h1>
           </div>
           <div className="flex items-start gap-3">
-            <AwuMascot className="hidden w-20 xl:block" title="Awu apontando recorrências" variant="alert" />
             {!showEditor ? (
               <Button onClick={openCreateForm} type="button" variant="secondary">
                 Nova recorrência

@@ -6,7 +6,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
-import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
@@ -500,7 +499,6 @@ export function CardsClient() {
             </p>
           </div>
           <div className="flex items-start gap-3">
-            <AwuMascot className="hidden w-20 xl:block" title="Awu lendo cartões" variant="report" />
             {!showEditor ? (
               <Button onClick={openCreateForm} type="button" variant="secondary">
                 Novo cartão

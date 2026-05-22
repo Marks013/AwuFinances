@@ -6,7 +6,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -1197,7 +1196,7 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
   return (
     <div className="admin-shell">
       <section className="surface-strong content-section admin-content-section admin-hero-section">
-        <div className="admin-hero-grid">
+        <div className="admin-hero-grid admin-hero-grid-simple">
           <div className="section-stack">
             <div className="eyebrow">Administração</div>
             <div className="page-intro">
@@ -1208,45 +1207,6 @@ export function AdminClient({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
               <strong>{isPlatformAdmin ? "Modo operação." : "Planos por conta."}</strong> {adminIntroBanner}
             </div>
           </div>
-        {isPlatformAdmin ? (
-          <div className="admin-hero-rail">
-            <article className="metric-card admin-hero-primary-card overflow-hidden">
-              <div className="flex items-center justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="metric-label">Clientes</p>
-                  <p className="metric-value">Central</p>
-                  <p className="metric-footnote">Visão de relacionamento e suporte.</p>
-                </div>
-                <AwuMascot className="w-16 sm:w-20" title="Awu Clientes" variant="admin" />
-              </div>
-            </article>
-            <article className="metric-card">
-              <p className="metric-label">Contas ativas</p>
-              <p className="metric-value">{statsQuery.data?.activeTenants ?? 0}</p>
-              <p className="metric-footnote">Operação estável nas contas ativas.</p>
-            </article>
-            <article className="metric-card">
-              <p className="metric-label">Billing alerta</p>
-              <p className="metric-value">{statsQuery.data?.billingAttentionSubscriptions ?? 0}</p>
-              <p className="metric-footnote">Assinaturas que pedem atenção.</p>
-            </article>
-            <article className="metric-card">
-              <p className="metric-label">Fila billing</p>
-              <p className="metric-value">{statsQuery.data?.billingWebhookQueueDepth ?? 0}</p>
-              <p className="metric-footnote">Eventos pendentes ou em processamento.</p>
-            </article>
-            <article className="metric-card">
-              <p className="metric-label">Falhas billing</p>
-              <p className="metric-value">{statsQuery.data?.billingWebhookFailures ?? 0}</p>
-              <p className="metric-footnote">Eventos que precisam auditoria ou descarte.</p>
-            </article>
-            <article className="metric-card">
-              <p className="metric-label">Usuários ativos</p>
-              <p className="metric-value">{statsQuery.data?.activeUsers ?? 0}</p>
-              <p className="metric-footnote">Pessoas com acesso ativo hoje.</p>
-            </article>
-          </div>
-        ) : null}
         </div>
         {isPlatformAdmin && statsQuery.data?.retention ? (
           <article className="mt-5 rounded-[1.6rem] border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-card)_92%,var(--color-muted))] p-5">

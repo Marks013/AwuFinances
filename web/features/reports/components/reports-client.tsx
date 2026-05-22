@@ -18,7 +18,6 @@ import {
   YAxis
 } from "recharts";
 
-import { AwuMascot } from "@/components/brand/awu-mascot";
 import { Button } from "@/components/ui/button";
 import { DatePickerInput } from "@/components/ui/date-picker-input";
 import { Label } from "@/components/ui/label";
@@ -205,12 +204,6 @@ function tonePanelClass(tone: Tone) {
   return "muted-panel";
 }
 
-function toneLabel(tone: Tone) {
-  if (tone === "warning") return "Pressao";
-  if (tone === "positive") return "Saudavel";
-  return "Atencao";
-}
-
 function categoryShareLabel(value: number) {
   return value >= 0.01 ? pct(value, value >= 0.1 ? 0 : 1) : "<1%";
 }
@@ -380,46 +373,18 @@ export function ReportsClient() {
   return (
     <div className="space-y-6">
       <section className="surface surface-strong hero-grid content-section">
-        <div className="flex flex-col gap-8 xl:flex-row xl:items-start xl:justify-between">
-          <div className="page-intro max-w-3xl">
-            <div className="eyebrow">{isYearScope ? "Relatório anual" : "Relatórios"}</div>
-            <h1 className="page-title">{data?.labels?.periodTitle ?? `Leitura financeira de ${periodLabel}`}</h1>
-            <p className="max-w-3xl text-sm leading-7 text-white/80">
-              {data?.labels?.periodSubtitle ?? "Use o mês ativo para uma leitura mensal ou o ano do mês ativo para um consolidado anual com comparativos."}
-            </p>
-            <div className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/65">
-              <span>{data?.labels?.scopeLabel ?? (isYearScope ? "Consolidado anual" : "Leitura mensal")}</span>
-              <span>•</span>
-              <span>{`Base: ${data?.labels?.baseMonthLabel ?? monthLabel}`}</span>
-              <span>•</span>
-              <span>{`${data?.summary?.transactions ?? 0} lançamentos`}</span>
-            </div>
-          </div>
-          <div className="report-hero-rail grid w-full gap-4 xl:max-w-[38rem] 2xl:grid-cols-2">
-            <article className="flex items-center justify-between gap-4 rounded-[1.5rem] border border-white/10 bg-white/8 p-4 backdrop-blur-sm 2xl:col-span-2">
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60">Awu Report</p>
-                <p className="mt-3 text-lg font-semibold text-white">Leitura visual para enxergar o mês sem esforço.</p>
-              </div>
-              <AwuMascot className="w-24 sm:w-32" title="Awu com gráfico" variant="report" />
-            </article>
-            <article className="rounded-[1.5rem] border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60">Resultado</p>
-              <p className={`hero-amount amount-nowrap mt-3 ${amountClass(data?.summary?.balance ?? 0)}`}>{formatCurrency(data?.summary?.balance ?? 0)}</p>
-              <p className="mt-3 text-sm text-white/70">{data?.annualInsights?.narrative?.summary ?? "Resultado consolidado do período."}</p>
-            </article>
-            <article className="rounded-[1.5rem] border border-white/10 bg-white/8 p-4 backdrop-blur-sm">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60">Leitura executiva</p>
-                  <p className="mt-3 text-lg font-semibold leading-7 text-pretty text-white">{data?.annualInsights?.narrative?.headline ?? "Aguardando leitura consolidada"}</p>
-                </div>
-                <div className={`shrink-0 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${toneBadgeClass(data?.annualInsights?.narrative?.tone ?? "attention")}`}>
-                  {toneLabel(data?.annualInsights?.narrative?.tone ?? "attention")}
-                </div>
-              </div>
-              <p className="mt-3 text-sm leading-6 text-white/70">{data?.annualInsights?.narrative?.focus ?? "Concentração, ritmo e pontos de pressão do período."}</p>
-            </article>
+        <div className="page-intro max-w-3xl">
+          <div className="eyebrow">{isYearScope ? "Relatório anual" : "Relatórios"}</div>
+          <h1 className="page-title">{data?.labels?.periodTitle ?? `Leitura financeira de ${periodLabel}`}</h1>
+          <p className="max-w-3xl text-sm leading-7 text-white/80">
+            {data?.labels?.periodSubtitle ?? "Use o mês ativo para uma leitura mensal ou o ano do mês ativo para um consolidado anual com comparativos."}
+          </p>
+          <div className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-white/65">
+            <span>{data?.labels?.scopeLabel ?? (isYearScope ? "Consolidado anual" : "Leitura mensal")}</span>
+            <span>•</span>
+            <span>{`Base: ${data?.labels?.baseMonthLabel ?? monthLabel}`}</span>
+            <span>•</span>
+            <span>{`${data?.summary?.transactions ?? 0} lançamentos`}</span>
           </div>
         </div>
         <div className="filter-shell mt-8">

@@ -3,8 +3,6 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowRight, BellRing, CreditCard, Landmark, Target } from "lucide-react";
 
-import { AwuMascot } from "@/components/brand/awu-mascot";
-import { SummaryCards } from "@/features/dashboard/components/summary-cards";
 import { syncDueSubscriptionTransactions } from "@/lib/automation/subscriptions";
 import { requireEndUserDashboardPageUser } from "@/lib/auth/session";
 import {
@@ -294,7 +292,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                     naturezas diferentes.
                   </p>
                 </div>
-                <AwuMascot className="hidden w-28 lg:block" title="Awu acompanhando o painel" variant="default" />
               </div>
             </div>
 
@@ -393,16 +390,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           </div>
         </article>
       </section>
-
-      <SummaryCards
-        data={{
-          openingBalance: data.periodBalances.opening,
-          closingBalance: data.periodBalances.closing,
-          income: data.income,
-          expenses: data.expenses,
-          averageDailyExpense: data.averageDailyExpense
-        }}
-      />
 
       <section className="grid gap-4 xl:grid-cols-2">
         <article className="surface content-section">

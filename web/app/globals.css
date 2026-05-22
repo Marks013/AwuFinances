@@ -580,6 +580,10 @@ button {
   align-items: start;
 }
 
+.admin-hero-grid-simple {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .admin-hero-rail {
   display: grid;
   gap: 0.9rem;
@@ -616,6 +620,20 @@ button {
 }
 
 @media (max-width: 767px) {
+  .page-shell {
+    width: min(100% - 1rem, 44rem);
+  }
+
+  .eyebrow {
+    padding: 0.42rem 0.7rem;
+    font-size: 0.68rem;
+  }
+
+  .page-intro,
+  .section-stack {
+    gap: 0.75rem;
+  }
+
   .display-title {
     font-size: clamp(1.9rem, 7.8vw, 3.15rem);
     line-height: 1.08;
@@ -624,12 +642,14 @@ button {
   }
 
   .page-title {
-    font-size: clamp(1.7rem, 8vw, 2.5rem);
+    font-size: clamp(1.55rem, 7vw, 2.05rem);
+    line-height: 1.08;
   }
 
   .page-copy,
   .section-copy {
-    line-height: 1.75;
+    font-size: 0.92rem;
+    line-height: 1.58;
   }
 
   .surface,
@@ -641,6 +661,14 @@ button {
   .content-section {
     border-radius: 1.35rem;
     padding: 1rem;
+  }
+
+  .surface-strong.hero-grid {
+    background-image: none;
+  }
+
+  .surface-strong.hero-grid .filter-shell {
+    margin-top: 1rem;
   }
 
   .metric-grid {
@@ -660,6 +688,7 @@ button {
   .editorial-panel,
   .muted-panel {
     border-radius: 1.25rem;
+    padding: 0.9rem;
   }
 
   .metric-value,
@@ -891,6 +920,10 @@ button {
   .admin-hero-grid {
     grid-template-columns: minmax(0, 1fr) minmax(22rem, 0.9fr);
     align-items: stretch;
+  }
+
+  .admin-hero-grid-simple {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .admin-hero-rail {

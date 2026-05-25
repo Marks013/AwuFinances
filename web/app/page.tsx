@@ -34,18 +34,9 @@ function WhatsAppGlyph() {
 export default function HomePage() {
   return (
     <main id="main-content" className="home-page page-shell py-4 md:py-8">
-      <Image
-        alt=""
-        aria-hidden="true"
-        className="pointer-events-none absolute -left-40 top-2 z-0 hidden w-36 opacity-95 drop-shadow-[0_18px_34px_rgba(18,79,74,0.2)] xl:block 2xl:-left-52 2xl:w-44"
-        height={220}
-        src="/brand/home-money-bag.webp"
-        unoptimized
-        width={220}
-      />
       <section className="overflow-hidden rounded-[26px] border border-[#7eb5ae]/45 bg-[#d7e8e5] shadow-[0_28px_80px_rgba(22,54,52,0.22)]">
         <h1 className="sr-only">Awu Finances: economia e financas com controle financeiro diario.</h1>
-        <div className="relative aspect-[16/9] bg-[#519f9d]">
+        <div className="relative isolate aspect-[16/9] overflow-hidden bg-[#519f9d]">
           <Image
             src="/brand/home-hero.webp"
             alt="Awu Finances, economias e financas"
@@ -53,7 +44,18 @@ export default function HomePage() {
             height={900}
             priority
             sizes="(max-width: 768px) calc(100vw - 32px), 1360px"
-            className="h-full w-full object-cover object-center"
+            className="relative z-0 h-full w-full object-cover object-center"
+          />
+
+          <Image
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none absolute left-[27%] top-[52%] z-[1] w-[15%] min-w-24 max-w-52 -translate-x-1/2 -translate-y-1/2 opacity-45 mix-blend-multiply drop-shadow-[0_18px_34px_rgba(18,79,74,0.12)] max-[640px]:left-[32%] max-[640px]:top-[50%] max-[640px]:w-[22%] max-[420px]:opacity-35"
+            data-testid="home-money-bag-gif"
+            height={220}
+            src="/brand/home-money-bag.webp"
+            unoptimized
+            width={220}
           />
 
           <div className="home-hero-actions absolute bottom-[8.5%] left-[8.9%] z-10 flex flex-wrap gap-3 max-[520px]:bottom-4 max-[520px]:left-4 max-[520px]:right-4">

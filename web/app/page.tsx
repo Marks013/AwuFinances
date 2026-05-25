@@ -34,9 +34,18 @@ function WhatsAppGlyph() {
 export default function HomePage() {
   return (
     <main id="main-content" className="home-page page-shell py-4 md:py-8">
+      <Image
+        alt=""
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-40 top-2 z-0 hidden w-36 opacity-95 drop-shadow-[0_18px_34px_rgba(18,79,74,0.2)] xl:block 2xl:-left-52 2xl:w-44"
+        height={220}
+        src="/brand/home-money-bag.webp"
+        unoptimized
+        width={220}
+      />
       <section className="overflow-hidden rounded-[26px] border border-[#7eb5ae]/45 bg-[#d7e8e5] shadow-[0_28px_80px_rgba(22,54,52,0.22)]">
         <h1 className="sr-only">Awu Finances: economia e financas com controle financeiro diario.</h1>
-        <div className="aspect-[4/3] bg-[#519f9d] p-3 sm:aspect-[16/8] sm:p-4 lg:aspect-[16/7]">
+        <div className="relative aspect-[16/9] bg-[#519f9d]">
           <Image
             src="/brand/home-hero.webp"
             alt="Awu Finances, economias e financas"
@@ -44,31 +53,31 @@ export default function HomePage() {
             height={900}
             priority
             sizes="(max-width: 768px) calc(100vw - 32px), 1360px"
-            className="h-full w-full rounded-[18px] object-contain object-center shadow-[0_20px_54px_rgba(22,54,52,0.24)]"
+            className="h-full w-full object-cover object-center"
           />
-        </div>
 
-        <div className="home-hero-actions flex flex-wrap gap-3 bg-[#d7e8e5] px-5 py-4 sm:px-6 md:px-8">
-          <Button asChild>
-            <Link href="/login">
-              Entrar
-              <ArrowRight className="size-4" />
-            </Link>
-          </Button>
-          <Button
-            asChild
-            variant="secondary"
-            className="border-transparent bg-[#122325] text-white shadow-[0_12px_28px_rgba(18,35,37,0.16)] hover:bg-[#183032]"
-          >
-            <Link href="/planos">Ver planos</Link>
-          </Button>
-          <Button
-            asChild
-            variant="secondary"
-            className="border-transparent bg-[#122325] text-white shadow-[0_12px_28px_rgba(18,35,37,0.16)] hover:bg-[#183032]"
-          >
-            <PlanCheckoutLink>Assinar Premium</PlanCheckoutLink>
-          </Button>
+          <div className="home-hero-actions absolute bottom-[8.5%] left-[8.9%] z-10 flex flex-wrap gap-3 max-[520px]:bottom-4 max-[520px]:left-4 max-[520px]:right-4">
+            <Button asChild>
+              <Link href="/login">
+                Entrar
+                <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="secondary"
+              className="border-transparent bg-[#122325] text-white shadow-[0_12px_28px_rgba(18,35,37,0.16)] hover:bg-[#183032]"
+            >
+              <Link href="/planos">Ver planos</Link>
+            </Button>
+            <Button
+              asChild
+              variant="secondary"
+              className="border-transparent bg-[#122325] text-white shadow-[0_12px_28px_rgba(18,35,37,0.16)] hover:bg-[#183032]"
+            >
+              <PlanCheckoutLink>Assinar Premium</PlanCheckoutLink>
+            </Button>
+          </div>
         </div>
       </section>
 

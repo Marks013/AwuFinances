@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   description: "Plataforma financeira para contas, cartões, metas, relatórios, automações e rotina operacional.",
   icons: {
     icon: [
+      { url: "/brand/awu-favicon.webp", sizes: "512x512", type: "image/webp" },
       { url: "/favicon.ico" },
       { url: "/icon.png", sizes: "512x512", type: "image/png" }
     ],

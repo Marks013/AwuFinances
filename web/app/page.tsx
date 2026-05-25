@@ -36,7 +36,7 @@ export default function HomePage() {
             height={900}
             priority
             sizes="(max-width: 768px) calc(100vw - 32px), 1360px"
-            className="h-full w-full rounded-[18px] object-cover object-center shadow-[0_20px_54px_rgba(22,54,52,0.24)]"
+            className="h-full w-full rounded-[18px] object-contain object-center shadow-[0_20px_54px_rgba(22,54,52,0.24)]"
           />
         </div>
 

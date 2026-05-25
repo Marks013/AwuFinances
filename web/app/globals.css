@@ -183,16 +183,16 @@ p {
 
 body:has(.home-page) {
   background:
-    radial-gradient(circle at top left, rgba(81, 159, 157, 0.34), transparent 28%),
-    radial-gradient(circle at top right, rgba(247, 230, 185, 0.16), transparent 26%),
-    linear-gradient(180deg, #1a3030 0%, #203b3a 48%, #284645 100%);
+    radial-gradient(circle at top left, rgba(215, 232, 229, 0.32), transparent 28%),
+    radial-gradient(circle at top right, rgba(247, 230, 185, 0.2), transparent 26%),
+    linear-gradient(180deg, #519f9d 0%, #438986 48%, #2f6663 100%);
 }
 
 :root[data-theme="light"] body:has(.home-page) {
   background:
-    radial-gradient(circle at top left, rgba(81, 159, 157, 0.18), transparent 26%),
-    radial-gradient(circle at top right, rgba(247, 230, 185, 0.32), transparent 24%),
-    linear-gradient(180deg, #eef8f5 0%, #dcefeb 54%, #d1e5df 100%);
+    radial-gradient(circle at top left, rgba(215, 232, 229, 0.42), transparent 26%),
+    radial-gradient(circle at top right, rgba(247, 230, 185, 0.3), transparent 24%),
+    linear-gradient(180deg, #62aba8 0%, #519f9d 48%, #d7e8e5 100%);
 }
 
 a {

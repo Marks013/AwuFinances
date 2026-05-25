@@ -28,7 +28,7 @@ export default function HomePage() {
     <main id="main-content" className="home-page page-shell py-4 md:py-8">
       <section className="overflow-hidden rounded-[26px] border border-[#7eb5ae]/45 bg-[#d7e8e5] shadow-[0_28px_80px_rgba(22,54,52,0.22)]">
         <h1 className="sr-only">Awu Finances: economia e financas com controle financeiro diario.</h1>
-        <div className="bg-[#519f9d] p-3 sm:p-4">
+        <div className="aspect-[4/3] bg-[#519f9d] p-3 sm:aspect-[16/8] sm:p-4 lg:aspect-[16/7]">
           <Image
             src="/brand/home-hero.webp"
             alt="Awu Finances, economias e financas"
@@ -36,7 +36,7 @@ export default function HomePage() {
             height={900}
             priority
             sizes="(max-width: 768px) calc(100vw - 32px), 1360px"
-            className="h-auto w-full rounded-[18px] object-cover shadow-[0_20px_54px_rgba(22,54,52,0.24)]"
+            className="h-full w-full rounded-[18px] object-cover object-center shadow-[0_20px_54px_rgba(22,54,52,0.24)]"
           />
         </div>
 

@@ -200,6 +200,11 @@ a {
   text-decoration: none;
 }
 
+.home-hero-actions a,
+.home-floating-whatsapp {
+  color: #ffffff;
+}
+
 button {
   cursor: pointer;
 }

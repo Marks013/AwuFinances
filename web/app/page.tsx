@@ -48,7 +48,7 @@ export default function HomePage() {
           />
         </div>
 
-        <div className="flex flex-wrap gap-3 bg-[#d7e8e5] px-5 py-4 sm:px-6 md:px-8">
+        <div className="home-hero-actions flex flex-wrap gap-3 bg-[#d7e8e5] px-5 py-4 sm:px-6 md:px-8">
           <Button asChild>
             <Link href="/login">
               Entrar
@@ -103,7 +103,7 @@ export default function HomePage() {
 
       <Link
         aria-label="Abrir WhatsApp financeiro"
-        className="fixed bottom-5 right-5 z-[95] inline-flex size-14 items-center justify-center rounded-full border border-white/35 bg-[#25d366] text-white shadow-[0_18px_38px_rgba(9,79,42,0.26)] transition hover:-translate-y-0.5 hover:bg-[#1fbd59] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#25d366]/35"
+        className="home-floating-whatsapp fixed bottom-5 right-5 z-[95] inline-flex size-14 items-center justify-center rounded-full border border-white/35 bg-[#25d366] text-white shadow-[0_18px_38px_rgba(9,79,42,0.26)] transition hover:-translate-y-0.5 hover:bg-[#1fbd59] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#25d366]/35"
         href="/dashboard/whatsapp"
         title="Abrir WhatsApp financeiro"
       >

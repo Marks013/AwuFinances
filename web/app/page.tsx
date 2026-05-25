@@ -55,10 +55,17 @@ export default function HomePage() {
           </div>
 
           <article className="rounded-[22px] border border-white/12 bg-white/10 p-5 text-white">
-            <p className="metric-label text-white/72">Premium Completo</p>
-            <p className="mt-3 text-balance text-2xl font-semibold leading-tight">WhatsApp, automacoes e limites ampliados.</p>
+            <div className="flex items-start justify-between gap-4">
+              <p className="metric-label text-white/72">Premium Completo</p>
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_14px_34px_rgba(37,211,102,0.26)]">
+                <MessageCircleMore className="size-5" aria-hidden="true" />
+              </span>
+            </div>
+            <p className="mt-3 text-balance text-2xl font-semibold leading-tight">
+              Lance gastos pelo WhatsApp e automatize sua rotina financeira.
+            </p>
             <p className="mt-3 text-pretty text-sm leading-6 text-white/78">
-              Checkout Mercado Pago com liberacao automatica apos confirmacao do pagamento.
+              Premium com limites ampliados e liberacao automatica apos confirmacao do pagamento.
             </p>
           </article>
         </div>

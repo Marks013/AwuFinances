@@ -12,8 +12,8 @@ type ThemeContextValue = {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-const STORAGE_KEY = "awu-finances-theme";
-const DEFAULT_THEME: Theme = "dark";
+const STORAGE_KEY = "awu-finances-theme-v2";
+const DEFAULT_THEME: Theme = "light";
 
 function applyTheme(theme: Theme) {
   document.documentElement.dataset.theme = theme;
@@ -51,7 +51,11 @@ export function ThemeProvider({ children, initialTheme = DEFAULT_THEME }: { chil
 
     const stored = readStoredTheme();
     const serverTheme = document.documentElement.dataset.theme;
-    return stored === "light" || serverTheme === "light" ? "light" : DEFAULT_THEME;
+    if (stored === "light" || stored === "dark") {
+      return stored;
+    }
+
+    return serverTheme === "dark" ? "dark" : DEFAULT_THEME;
   });
 
   useEffect(() => {

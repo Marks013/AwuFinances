@@ -23,7 +23,7 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
       <span className="inline-flex size-6 items-center justify-center rounded-full bg-[var(--color-primary)] text-[var(--color-primary-foreground)]">
         {theme === "light" ? <MoonStar className="size-3.5" /> : <SunMedium className="size-3.5" />}
       </span>
-      <span>{theme === "light" ? "Dark" : "Claro"}</span>
+      <span>{theme === "light" ? "Escuro" : "Claro"}</span>
     </button>
   );
 }

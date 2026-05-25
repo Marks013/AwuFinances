@@ -28,9 +28,9 @@ type RootLayoutProps = {
 
 export default async function RootLayout({ children }: RootLayoutProps) {
   const [cookieStore, headerStore] = await Promise.all([cookies(), headers()]);
-  const storedTheme = cookieStore.get("awu-finances-theme")?.value;
+  const storedTheme = cookieStore.get("awu-finances-theme-v2")?.value;
   const nonce = headerStore.get("x-nonce") ?? undefined;
-  const initialTheme = storedTheme === "light" ? "light" : "dark";
+  const initialTheme = storedTheme === "dark" ? "dark" : "light";
   const initialSession = await auth().catch((error) => {
     captureUnexpectedError(error, {
       surface: "server-layout",

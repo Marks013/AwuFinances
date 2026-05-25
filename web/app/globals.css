@@ -41,7 +41,7 @@
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 :root[data-theme="light"] {

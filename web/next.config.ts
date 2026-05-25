@@ -41,6 +41,10 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   output: "standalone",
   typedRoutes: true,
+  images: {
+    formats: ["image/webp"],
+    minimumCacheTTL: 31536000
+  },
   experimental: {
     turbopackFileSystemCacheForDev: true
   } as NextConfig["experimental"],

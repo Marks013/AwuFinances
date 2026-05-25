@@ -136,6 +136,23 @@ Variaveis usadas no smoke:
 - `SMOKE_MONTH`
 - `AUDIT_BASE_URL`
 
+## Politica de imagens
+
+Para evitar consumo alto de memoria, trafego e disco, imagens publicas de conteudo devem entrar como `WebP`.
+
+- Use `web/app/icon.png`, `web/app/apple-icon.png` e `web/app/favicon.ico` apenas para icones exigidos pelo Next/navegador.
+- Para imagens em `web/public`, prefira `WebP` com qualidade equilibrada e dimensoes reais de uso.
+- Antes de publicar imagens novas, rode:
+
+```bash
+cd web
+npm run images:optimize
+npm run audit:images
+```
+
+O otimizador converte `PNG/JPG/JPEG` em `WebP` e limita largura por padrao a 1600px.
+Para recomprimir WebP existente manualmente, use `npm run images:optimize -- --recompress-webp` e revise visualmente antes do commit.
+
 Fluxo recomendado apos `docker compose up -d --build web`:
 
 ```bash

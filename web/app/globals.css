@@ -181,6 +181,20 @@ p {
     linear-gradient(180deg, #fcf6ed 0%, #f3e7d3 54%, #ecddc4 100%);
 }
 
+body:has(.home-page) {
+  background:
+    radial-gradient(circle at top left, rgba(81, 159, 157, 0.34), transparent 28%),
+    radial-gradient(circle at top right, rgba(247, 230, 185, 0.16), transparent 26%),
+    linear-gradient(180deg, #1a3030 0%, #203b3a 48%, #284645 100%);
+}
+
+:root[data-theme="light"] body:has(.home-page) {
+  background:
+    radial-gradient(circle at top left, rgba(81, 159, 157, 0.18), transparent 26%),
+    radial-gradient(circle at top right, rgba(247, 230, 185, 0.32), transparent 24%),
+    linear-gradient(180deg, #eef8f5 0%, #dcefeb 54%, #d1e5df 100%);
+}
+
 a {
   color: inherit;
   text-decoration: none;

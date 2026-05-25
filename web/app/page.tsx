@@ -1,7 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BarChart3, CreditCard, MessageCircleMore, ShieldCheck } from "lucide-react";
 
-import { BrandMark } from "@/components/layout/brand-mark";
 import { Button } from "@/components/ui/button";
 import { PlanCheckoutLink } from "@/features/billing/components/plan-checkout-link";
 
@@ -25,49 +25,42 @@ const features = [
 
 export default function HomePage() {
   return (
-    <main id="main-content" className="page-shell py-4 md:py-8">
-      <section className="surface-strong overflow-hidden rounded-[26px] px-5 py-6 md:px-8 md:py-8">
-        <div className="grid gap-6 lg:grid-cols-[1fr_22rem] lg:items-end">
-          <div className="max-w-3xl space-y-5">
-            <BrandMark inverted />
-            <div className="eyebrow border-white/18 bg-white/10 text-white">Awu Finances</div>
-            <h1 className="text-balance text-4xl font-semibold leading-tight text-white md:text-5xl">
-              Controle financeiro claro para operar todo dia.
-            </h1>
-            <p className="max-w-2xl text-pretty text-sm leading-7 text-white/82 md:text-base">
-              Organize contas, cartoes, metas, faturas e recorrencias em uma experiencia direta, visualmente limpa e
-              pronta para uso no desktop ou celular.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild>
-                <Link href="/login">
-                  Entrar
-                  <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="secondary">
-                <Link href="/planos">Ver planos</Link>
-              </Button>
-              <Button asChild variant="secondary">
-                <PlanCheckoutLink>Assinar Premium</PlanCheckoutLink>
-              </Button>
-            </div>
-          </div>
+    <main id="main-content" className="home-page page-shell py-4 md:py-8">
+      <section className="overflow-hidden rounded-[26px] border border-[#7eb5ae]/45 bg-[#d7e8e5] shadow-[0_28px_80px_rgba(22,54,52,0.22)]">
+        <h1 className="sr-only">Awu Finances: economia e financas com controle financeiro diario.</h1>
+        <div className="bg-[#519f9d] p-3 sm:p-4">
+          <Image
+            src="/brand/home-hero.webp"
+            alt="Awu Finances, economias e financas"
+            width={1600}
+            height={900}
+            priority
+            sizes="(max-width: 768px) calc(100vw - 32px), 1360px"
+            className="h-auto w-full rounded-[18px] object-cover shadow-[0_20px_54px_rgba(22,54,52,0.24)]"
+          />
+        </div>
 
-          <article className="rounded-[22px] border border-white/12 bg-white/10 p-5 text-white">
-            <div className="flex items-start justify-between gap-4">
-              <p className="metric-label text-white/72">Premium Completo</p>
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_14px_34px_rgba(37,211,102,0.26)]">
-                <MessageCircleMore className="size-5" aria-hidden="true" />
-              </span>
-            </div>
-            <p className="mt-3 text-balance text-2xl font-semibold leading-tight">
-              Lance gastos pelo WhatsApp e automatize sua rotina financeira.
-            </p>
-            <p className="mt-3 text-pretty text-sm leading-6 text-white/78">
-              Premium com limites ampliados e liberacao automatica apos confirmacao do pagamento.
-            </p>
-          </article>
+        <div className="flex flex-wrap gap-3 bg-[#d7e8e5] px-5 py-4 sm:px-6 md:px-8">
+          <Button asChild>
+            <Link href="/login">
+              Entrar
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="secondary"
+            className="border-transparent bg-[#122325] text-white shadow-[0_12px_28px_rgba(18,35,37,0.16)] hover:bg-[#183032]"
+          >
+            <Link href="/planos">Ver planos</Link>
+          </Button>
+          <Button
+            asChild
+            variant="secondary"
+            className="border-transparent bg-[#122325] text-white shadow-[0_12px_28px_rgba(18,35,37,0.16)] hover:bg-[#183032]"
+          >
+            <PlanCheckoutLink>Assinar Premium</PlanCheckoutLink>
+          </Button>
         </div>
       </section>
 

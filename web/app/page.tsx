@@ -1,27 +1,67 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, BarChart3, CreditCard, MessageCircleMore, ShieldCheck } from "lucide-react";
+import type { Route } from "next";
+import { ArrowRight, Check, ShieldCheck, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { PlanCheckoutLink } from "@/features/billing/components/plan-checkout-link";
+import { getBillingSettings } from "@/lib/billing/settings";
 
-const features = [
+const planCards = [
   {
-    title: "Rotina financeira",
-    copy: "Contas, cartoes, transacoes, recorrencias e metas no mesmo painel.",
-    icon: CreditCard
+    name: "Gratuito",
+    label: "Para comecar",
+    price: "R$ 0",
+    cadence: "sem cobranca",
+    href: "/cadastro?plan=free" as Route,
+    cta: "Criar conta gratuita",
+    features: [
+      { label: "1 conta financeira", enabled: true },
+      { label: "1 cartao", enabled: true },
+      { label: "Transacoes e relatorios", enabled: true },
+      { label: "WhatsApp financeiro", enabled: false },
+      { label: "Automacoes e PDF", enabled: false }
+    ]
   },
   {
-    title: "Leitura mensal",
-    copy: "Relatorios, faturas e categorias com foco em decisao rapida.",
-    icon: BarChart3
+    name: "Premium Completo",
+    label: "Para uso diario completo",
+    price: "Assinatura",
+    cadence: "via Mercado Pago",
+    href: "/cadastro?plan=pro" as Route,
+    cta: "Assinar mensal",
+    annualHref: "/cadastro?plan=pro_annual" as Route,
+    annualCta: "Pagar anual",
+    features: [
+      { label: "Contas e cartoes ilimitados", enabled: true },
+      { label: "WhatsApp financeiro", enabled: true },
+      { label: "Automacoes e recorrencias", enabled: true },
+      { label: "Relatorios e PDF", enabled: true },
+      { label: "Suporte por chamado", enabled: true }
+    ]
   },
   {
-    title: "WhatsApp",
-    copy: "Lancamentos e consultas por mensagem, sempre iniciados pelo usuario.",
-    icon: MessageCircleMore
+    name: "Avaliacao",
+    label: "Para testar antes de assinar",
+    price: "14 dias",
+    cadence: "quando liberado",
+    href: "/cadastro?plan=trial" as Route,
+    cta: "Criar avaliacao",
+    features: [
+      { label: "Recursos premium liberados", enabled: true },
+      { label: "WhatsApp financeiro", enabled: true },
+      { label: "Automacoes e PDF", enabled: true },
+      { label: "Cobranca automatica sem contratar", enabled: false }
+    ]
   }
 ];
+
+function formatMoney(amount: number, currencyId: string) {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: currencyId
+  }).format(amount);
+}
 
 function WhatsAppGlyph() {
   return (
@@ -31,7 +71,11 @@ function WhatsAppGlyph() {
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const billingSettings = await getBillingSettings();
+  const premiumMonthlyPrice = formatMoney(billingSettings.monthlyAmount, billingSettings.currencyId);
+  const premiumAnnualPrice = formatMoney(billingSettings.annualAmount, billingSettings.currencyId);
+
   return (
     <main id="main-content" className="home-page page-shell py-4 md:py-8">
       <section className="overflow-hidden rounded-[26px] border border-[#7eb5ae]/45 bg-[#d7e8e5] shadow-[0_28px_80px_rgba(22,54,52,0.22)]">
@@ -83,17 +127,56 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mt-4 grid gap-3 md:grid-cols-3">
-        {features.map((feature) => {
-          const Icon = feature.icon;
+      <section className="mt-4 grid gap-3 xl:grid-cols-3">
+        {planCards.map((plan) => {
+          const isPremium = plan.name === "Premium Completo";
 
           return (
-            <article key={feature.title} className="surface rounded-[22px] p-5">
-              <div className="flex size-10 items-center justify-center rounded-[0.9rem] bg-[var(--color-accent)] text-[var(--color-accent-foreground)]">
-                <Icon className="size-5" />
+            <article key={plan.name} className={isPremium ? "surface-strong rounded-[24px] p-5 text-white" : "surface rounded-[24px] p-5"}>
+              <p className={isPremium ? "text-sm font-semibold uppercase text-white/72" : "eyebrow"}>{plan.label}</p>
+              <h2 className="mt-3 text-balance text-xl font-semibold leading-tight">{plan.name}</h2>
+              <div className="mt-4">
+                <p className="text-3xl font-semibold leading-tight tabular-nums">{isPremium ? premiumMonthlyPrice : plan.price}</p>
+                <p className={isPremium ? "text-sm text-white/72" : "text-sm text-[var(--color-muted-foreground)]"}>
+                  {isPremium ? `mensal ou ${premiumAnnualPrice} anual` : plan.cadence}
+                </p>
               </div>
-              <h2 className="mt-4 text-lg font-semibold leading-tight text-[var(--color-foreground)]">{feature.title}</h2>
-              <p className="mt-2 text-pretty text-sm leading-6 text-[var(--color-muted-foreground)]">{feature.copy}</p>
+
+              <div className="mt-5 space-y-2.5">
+                {plan.features.map((feature) => {
+                  const Icon = feature.enabled ? Check : X;
+
+                  return (
+                    <div key={feature.label} className="flex items-start gap-2.5 text-sm leading-6">
+                      <span className={feature.enabled ? "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-[var(--color-primary-foreground)]" : "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-muted)_70%,transparent)] text-[var(--color-muted-foreground)]"}>
+                        <Icon className="size-3.5" />
+                      </span>
+                      <span className={isPremium ? "text-white/84" : "text-[var(--color-ink-700)]"}>{feature.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <Button asChild className="mt-5 w-full" variant={isPremium ? "default" : "secondary"}>
+                {isPremium ? (
+                  <PlanCheckoutLink>
+                    {plan.cta}
+                    <ArrowRight className="size-4" />
+                  </PlanCheckoutLink>
+                ) : (
+                  <Link href={plan.href}>
+                    {plan.cta}
+                    <ArrowRight className="size-4" />
+                  </Link>
+                )}
+              </Button>
+              {isPremium && "annualCta" in plan ? (
+                <Button asChild className="mt-3 w-full" variant="secondary">
+                  <PlanCheckoutLink hrefWhenLoggedIn="/billing?intent=checkout&cycle=annual" hrefWhenLoggedOut={plan.annualHref}>
+                    {plan.annualCta}
+                  </PlanCheckoutLink>
+                </Button>
+              ) : null}
             </article>
           );
         })}

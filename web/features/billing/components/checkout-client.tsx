@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ensureApiResponse } from "@/lib/observability/http";
 
+const MERCADO_PAGO_SCRIPT_SRC = "https://sdk.mercadopago.com/js/v2";
+
 type CheckoutPromotion = {
   id: string;
   title: string;
@@ -68,6 +70,12 @@ type CardPaymentAdditionalData = {
   cardholderName?: string;
   paymentTypeId?: string;
 };
+
+declare global {
+  interface Window {
+    MercadoPago?: unknown;
+  }
+}
 
 async function createSubscription(body: Record<string, unknown>) {
   const response = await fetch("/api/billing/checkout/create-subscription", {
@@ -182,6 +190,51 @@ function resolveCheckoutReturnFeedback(checkoutReturn: CheckoutReturnSnapshot): 
   };
 }
 
+function loadMercadoPagoScript(): Promise<void> {
+  if (typeof window === "undefined") {
+    return Promise.resolve();
+  }
+
+  if (window.MercadoPago) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve, reject) => {
+    const existingScript = document.querySelector<HTMLScriptElement>(`script[src^="${MERCADO_PAGO_SCRIPT_SRC}"]`);
+    const script = existingScript ?? document.createElement("script");
+
+    function cleanup() {
+      script.removeEventListener("load", handleLoad);
+      script.removeEventListener("error", handleError);
+    }
+
+    function handleLoad() {
+      cleanup();
+
+      if (window.MercadoPago) {
+        resolve();
+        return;
+      }
+
+      reject(new Error("Mercado Pago carregou, mas o SDK nao ficou disponivel."));
+    }
+
+    function handleError() {
+      cleanup();
+      reject(new Error("Nao foi possivel carregar MercadoPago.js. Verifique bloqueadores, extensoes ou tente novamente."));
+    }
+
+    script.addEventListener("load", handleLoad, { once: true });
+    script.addEventListener("error", handleError, { once: true });
+
+    if (!existingScript) {
+      script.async = true;
+      script.src = MERCADO_PAGO_SCRIPT_SRC;
+      document.head.appendChild(script);
+    }
+  });
+}
+
 function CheckoutFeedbackPanel({
   children,
   feedback
@@ -213,6 +266,7 @@ export function CheckoutClient({
   const queryClient = useQueryClient();
   const annualAutoStartedRef = useRef(false);
   const [isBrickReady, setIsBrickReady] = useState(false);
+  const [isMercadoPagoScriptReady, setIsMercadoPagoScriptReady] = useState(false);
   const [brickError, setBrickError] = useState<string | null>(null);
   const [brickDiagnostic, setBrickDiagnostic] = useState<string | null>(null);
   const [couponCode, setCouponCode] = useState("");
@@ -332,16 +386,44 @@ export function CheckoutClient({
       return;
     }
 
+    let isMounted = true;
     const timer = window.setTimeout(() => {
+      setIsMercadoPagoScriptReady(false);
       setIsBrickReady(false);
       setBrickError(null);
       setBrickDiagnostic(null);
-      initMercadoPago(publicKey, {
-        locale: "pt-BR"
-      });
+
+      loadMercadoPagoScript()
+        .then(() => {
+          if (!isMounted) {
+            return;
+          }
+
+          setIsBrickReady(false);
+          setBrickError(null);
+          setBrickDiagnostic(null);
+          initMercadoPago(publicKey, {
+            locale: "pt-BR"
+          });
+          setIsMercadoPagoScriptReady(true);
+        })
+        .catch((error: unknown) => {
+          if (!isMounted) {
+            return;
+          }
+
+          const message = error instanceof Error ? error.message : "Falha ao carregar o checkout do Mercado Pago";
+
+          setIsMercadoPagoScriptReady(false);
+          setBrickError(message);
+          setBrickDiagnostic(null);
+        });
     }, 0);
 
-    return () => window.clearTimeout(timer);
+    return () => {
+      isMounted = false;
+      window.clearTimeout(timer);
+    };
   }, [publicKey]);
 
   useEffect(() => {
@@ -354,7 +436,13 @@ export function CheckoutClient({
   }, [activeCoupon, createAnnualPaymentMutation, initialCycle]);
 
   useEffect(() => {
-    if (!publicKey || typeof monthlyCheckoutAmount !== "number" || monthlyCheckoutAmount <= 0 || isBrickReady) {
+    if (
+      !publicKey ||
+      !isMercadoPagoScriptReady ||
+      typeof monthlyCheckoutAmount !== "number" ||
+      monthlyCheckoutAmount <= 0 ||
+      isBrickReady
+    ) {
       return;
     }
 
@@ -372,7 +460,7 @@ export function CheckoutClient({
     }, 9000);
 
     return () => window.clearTimeout(timer);
-  }, [isBrickReady, monthlyCheckoutAmount, publicKey]);
+  }, [isBrickReady, isMercadoPagoScriptReady, monthlyCheckoutAmount, publicKey]);
 
   const cardPaymentInitialization = useMemo(
     () => ({
@@ -685,14 +773,16 @@ export function CheckoutClient({
           </div>
         ) : null}
         <div className="min-h-[520px]">
-        <CardPayment
-          id="awu-finances-card-payment-brick"
-          initialization={cardPaymentInitialization}
-          locale="pt-BR"
-          onError={handleBrickError}
-          onReady={handleBrickReady}
-          onSubmit={handleSubmit}
-        />
+          {isMercadoPagoScriptReady && !brickError ? (
+            <CardPayment
+              id="awu-finances-card-payment-brick"
+              initialization={cardPaymentInitialization}
+              locale="pt-BR"
+              onError={handleBrickError}
+              onReady={handleBrickReady}
+              onSubmit={handleSubmit}
+            />
+          ) : null}
         </div>
       </div>
 

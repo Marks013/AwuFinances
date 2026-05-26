@@ -61,7 +61,7 @@
     "color": "#0F8A5F",
     "type": "expense",
     "isDefault": true,
-    "keywords": ["supermercado", "mercado", "mercadinho", "hipermercado", "atacadao", "atacadão", "assai", "assaí", "carrefour", "extra", "pao de acucar", "pão de açúcar", "sonda", "dia", "oba", "savegnago", "coop", "big", "sam s club", "sams club", "mateus", "guanabara", "st marche", "st marche", "super nosso", "verdemar", "arroz", "feijao", "feijão", "macarrao", "macarrão", "leite", "queijo", "presunto", "manteiga", "carne", "frango", "ovo", "biscoito", "bolacha", "detergente", "sabao", "sabão", "papel higienico", "papel higiênico", "compra do mes", "compra do mês", "rancho"]
+    "keywords": ["supermercado", "mercado", "mercadinho", "hipermercado", "atacadao", "atacadão", "assai", "assaí", "carrefour", "extra", "pao de acucar", "pão de açúcar", "sonda", "dia", "oba", "savegnago", "coop", "big", "sam s club", "sams club", "mateus", "guanabara", "st marche", "st marche", "super nosso", "verdemar", "arroz", "feijao", "feijão", "macarrao", "macarrão", "leite", "queijo", "presunto", "manteiga", "carne", "frango", "ovo", "biscoito", "bolacha", "refrigerante", "coca cola", "coca-cola", "guarana", "fanta", "sprite", "suco", "agua mineral", "bebida nao alcoolica", "detergente", "sabao", "sabão", "papel higienico", "papel higiênico", "compra do mes", "compra do mês", "rancho"]
   },
   {
     "name": "Feira e hortifruti",

@@ -10,6 +10,10 @@ import { ensureTenantCardStatementSnapshots } from "@/lib/cards/snapshot-sync";
 import { getAccountsWithComputedBalance } from "@/lib/finance/accounts";
 import { BenefitWalletRuleError, validateBenefitWalletTransaction } from "@/lib/finance/benefit-wallet";
 import { FOOD_BENEFIT_CATEGORY_SYSTEM_KEYS } from "@/lib/finance/benefit-wallet-rules";
+import {
+  upsertAiLearnedCategoryRule,
+  upsertGlobalAiLearnedCategoryRule
+} from "@/lib/finance/category-rules";
 import { normalizeClassificationText } from "@/lib/finance/classification-normalization";
 import { ensureFallbackCategory } from "@/lib/finance/default-categories";
 import { getFinanceReport } from "@/lib/finance/reports";
@@ -54,6 +58,14 @@ type AssistantResult = {
   response: string;
 };
 
+type HandleAssistantOptions = {
+  suppressGreeting?: boolean;
+};
+
+type CreateTransactionOptions = {
+  suppressGreeting?: boolean;
+};
+
 type AssistantLogContext = {
   tenantId: string;
   userId: string;
@@ -69,6 +81,7 @@ type IncomingTextMessage = {
 };
 
 const WHATSAPP_CONTEXT_WINDOW_MINUTES = 15;
+const PENDING_CONTEXT_STATUSES = ["needs_account", "needs_card", "needs_amount"] as const;
 
 const regExpConstructor = RegExp as RegExpConstructor & {
   escape?: (value: string) => string;
@@ -144,12 +157,18 @@ function formatPaymentTargetPrompt(input: {
     return "⚠️ Você precisa ter ao menos uma conta ativa para usar o assistente no WhatsApp.";
   }
 
-  const lines = ["🟡 Qual forma de pagamento foi?", ""];
+  const lines = ["🟡 Qual forma de pagamento foi?", "Escolha uma das opções já cadastradas:"];
   if (cardNames.length > 0) {
-    lines.push(`💳 Cartões: ${cardNames.join(", ")}.`);
+    lines.push("", "💳 Cartões:");
+    cardNames.forEach((name, index) => {
+      lines.push(`${index + 1}. ${name}`);
+    });
   }
   if (accountNames.length > 0) {
-    lines.push(`🏦 Contas: ${accountNames.join(", ")}.`);
+    lines.push("", "🏦 Contas:");
+    accountNames.forEach((name, index) => {
+      lines.push(`${index + 1}. ${name}`);
+    });
   }
   lines.push("", `Responda só com o nome, exemplo: ${cardNames[0] ?? accountNames[0] ?? "PicPay Black"}.`);
 
@@ -157,7 +176,13 @@ function formatPaymentTargetPrompt(input: {
 }
 
 function parseCurrencyValue(text: string) {
-  const match = text.match(/(\d{1,3}(?:\.\d{3})*(?:,\d{2})|\d+(?:,\d{2})|\d+(?:\.\d{2})?)/);
+  const moneyPattern = String.raw`(\d{1,3}(?:\.\d{3})*(?:,\d{2})|\d{1,7}(?:,\d{2})|\d{1,7}(?:\.\d{2})?|\d{1,7})`;
+  const patterns = [
+    new RegExp(String.raw`(?:^|[^\d])(?:r\$\s*)${moneyPattern}(?!\d)`, "i"),
+    new RegExp(String.raw`(?:^|[^\d])(?:por|valor de|valor|de|a)\s+(?:r\$\s*)?${moneyPattern}(?!\d)`, "i"),
+    new RegExp(String.raw`(?:^|[^\d])${moneyPattern}(?!\d)`, "i")
+  ];
+  const match = patterns.map((pattern) => text.match(pattern)).find(Boolean);
   if (!match) {
     return null;
   }
@@ -238,16 +263,73 @@ function shouldUseRecentContext(body: string) {
   return hasTransactionDetail(body);
 }
 
+function isStrongStandaloneQuery(normalized: string) {
+  return /\b(?:saldo|saldos|fatura|faturas|limite|limites|relatorio|relatorio|resumo|extrato|parcelas|parcelados|assinaturas|recorrencias|quanto|onde|quando|listar|mostrar|ver)\b/.test(
+    normalized
+  );
+}
+
+function shouldUsePendingContext(body: string, normalized: string, pendingStatus: string | null) {
+  if (
+    !normalized ||
+    isGreeting(normalized) ||
+    isExpenseIntent(normalized) ||
+    isIncomeIntent(normalized) ||
+    isLaunchIntent(normalized) ||
+    isStrongStandaloneQuery(normalized)
+  ) {
+    return false;
+  }
+
+  if (pendingStatus === "needs_amount") {
+    return Boolean(parseCurrencyValue(body));
+  }
+
+  return isTransactionDetailFollowUp(body, normalized) || hasTransactionDetail(body);
+}
+
 async function buildContextualAssistantBody(
   user: WhatsAppUser,
   body: string,
   currentMessageRowId: string
 ) {
+  const normalized = normalizeText(body);
+  const since = new Date(Date.now() - WHATSAPP_CONTEXT_WINDOW_MINUTES * 60 * 1000);
+  const pendingInbound = await prisma.whatsAppMessage.findFirst({
+    where: {
+      tenantId: user.tenantId,
+      userId: user.id,
+      direction: "inbound",
+      id: {
+        not: currentMessageRowId
+      },
+      status: {
+        in: [...PENDING_CONTEXT_STATUSES]
+      },
+      createdAt: {
+        gte: since
+      }
+    },
+    orderBy: {
+      createdAt: "desc"
+    },
+    select: {
+      body: true,
+      status: true
+    }
+  });
+
+  if (
+    pendingInbound?.body &&
+    shouldUsePendingContext(body, normalized, pendingInbound.status)
+  ) {
+    return `${pendingInbound.body} ${body}`;
+  }
+
   if (!shouldUseRecentContext(body)) {
     return body;
   }
 
-  const since = new Date(Date.now() - WHATSAPP_CONTEXT_WINDOW_MINUTES * 60 * 1000);
   const recentInbound = await prisma.whatsAppMessage.findFirst({
     where: {
       tenantId: user.tenantId,
@@ -503,7 +585,8 @@ async function createExpenseOrIncomeFromText(
   user: WhatsAppUser,
   body: string,
   type: "income" | "expense",
-  messageId?: string | null
+  messageId?: string | null,
+  options: CreateTransactionOptions = {}
 ) {
   const amountData = parseCurrencyValue(body);
 
@@ -622,6 +705,7 @@ async function createExpenseOrIncomeFromText(
           id: resolvedCategoryId
         },
         select: {
+          systemKey: true,
           name: true,
           monthlyLimit: true
         }
@@ -672,6 +756,7 @@ async function createExpenseOrIncomeFromText(
   const affectedCompetences: string[] = [];
   const usedCardStatementKeys = new Set<string>();
   let nextCardInstallmentOffset = 0;
+  let firstCreatedTransactionId: string | null = null;
 
   for (let index = 0; index < installments; index += 1) {
     const installmentNumber = index + 1;
@@ -746,6 +831,35 @@ async function createExpenseOrIncomeFromText(
 
     if (index === 0) {
       parentId = created.id;
+      firstCreatedTransactionId = created.id;
+    }
+  }
+
+  if (firstCreatedTransactionId && classification.aiClassified && resolvedCategoryId) {
+    try {
+      await upsertAiLearnedCategoryRule({
+        tenantId: user.tenantId,
+        categoryId: resolvedCategoryId,
+        type,
+        description,
+        notes: null,
+        confidence: classification.confidence,
+        createdFromTransactionId: firstCreatedTransactionId
+      });
+
+      if (resolvedCategory?.systemKey) {
+        await upsertGlobalAiLearnedCategoryRule({
+          categorySystemKey: resolvedCategory.systemKey,
+          type,
+          description,
+          notes: null,
+          confidence: classification.confidence,
+          createdFromTenantId: user.tenantId,
+          createdFromTransactionId: firstCreatedTransactionId
+        });
+      }
+    } catch (error) {
+      console.warn("Failed to persist WhatsApp category learning", error);
     }
   }
 
@@ -790,7 +904,7 @@ async function createExpenseOrIncomeFromText(
   return {
     intent: type === "income" ? "launch_income" : "launch_expense",
     status: "created",
-    response: withGreeting([
+    response: (options.suppressGreeting ? composeMessage : withGreeting)([
       type === "income" ? "✅ Entrada registrada com sucesso" : "✅ Despesa registrada com sucesso",
       `💰 Valor: ${formatCurrency(amountData.value)}`,
       selectedCard ? `💳 Destino: ${targetLabel}` : `🏦 Destino: ${targetLabel}`,
@@ -1188,7 +1302,12 @@ function buildHelpResponse() {
   );
 }
 
-async function handleAssistantCommand(user: WhatsAppUser, body: string, messageId?: string | null) {
+async function handleAssistantCommand(
+  user: WhatsAppUser,
+  body: string,
+  messageId?: string | null,
+  options: HandleAssistantOptions = {}
+) {
   const normalized = normalizeText(body);
   const hasTransactionalIntent = isLaunchIntent(normalized) || isExpenseIntent(normalized) || isIncomeIntent(normalized);
 
@@ -1237,19 +1356,19 @@ async function handleAssistantCommand(user: WhatsAppUser, body: string, messageI
   }
 
   if (isLaunchIntent(normalized) && isIncomeIntent(normalized)) {
-    return createExpenseOrIncomeFromText(user, body, "income", messageId);
+    return createExpenseOrIncomeFromText(user, body, "income", messageId, options);
   }
 
   if (isLaunchIntent(normalized) && (isExpenseIntent(normalized) || Boolean(parseCurrencyValue(body)))) {
-    return createExpenseOrIncomeFromText(user, body, "expense", messageId);
+    return createExpenseOrIncomeFromText(user, body, "expense", messageId, options);
   }
 
   if (isExpenseIntent(normalized)) {
-    return createExpenseOrIncomeFromText(user, body, "expense", messageId);
+    return createExpenseOrIncomeFromText(user, body, "expense", messageId, options);
   }
 
   if (isIncomeIntent(normalized)) {
-    return createExpenseOrIncomeFromText(user, body, "income", messageId);
+    return createExpenseOrIncomeFromText(user, body, "income", messageId, options);
   }
 
   if (isInstallmentsIntent(normalized)) {
@@ -1329,7 +1448,25 @@ export async function processIncomingWhatsAppTextMessage(message: IncomingTextMe
   });
 
   const assistantBody = await buildContextualAssistantBody(user, message.body, inboundMessage.id);
-  const result = await handleAssistantCommand(user, assistantBody, message.messageId);
+  const isContextualFollowUp = assistantBody !== message.body;
+  const result = await handleAssistantCommand(user, assistantBody, message.messageId, {
+    suppressGreeting: isContextualFollowUp
+  });
+
+  await prisma.whatsAppMessage
+    .update({
+      where: {
+        id: inboundMessage.id
+      },
+      data: {
+        intent: result.intent,
+        status: result.status,
+        response: result.response
+      }
+    })
+    .catch((error) => {
+      console.warn("Failed to update inbound WhatsApp assistant status", error);
+    });
 
   return {
     handled: true,

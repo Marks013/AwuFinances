@@ -5,6 +5,7 @@ import { normalizeWhatsAppPhone } from "@/lib/whatsapp/phone";
 
 const EVOLUTION_SEND_TIMEOUT_MS = 10_000;
 const UNLINKED_PHONE_REPLY_LIMIT_PER_HOUR = 2;
+const DUPLICATE_REPLY_WINDOW_MS = 45_000;
 
 type SendWhatsAppReplyInput = {
   to: string;
@@ -113,7 +114,8 @@ async function assertReplyAllowed(input: SendWhatsAppReplyInput) {
 
   const sinceMinute = new Date(Date.now() - 60_000);
   const sinceDay = new Date(Date.now() - 24 * 60 * 60_000);
-  const [minuteCount, dayCount, inboundReplyCount] = await Promise.all([
+  const duplicateSince = new Date(Date.now() - DUPLICATE_REPLY_WINDOW_MS);
+  const [minuteCount, dayCount, inboundReplyCount, duplicateBodyCount] = await Promise.all([
     prisma.whatsAppMessage.count({
       where: {
         phoneNumber: normalizedPhone,
@@ -134,6 +136,18 @@ async function assertReplyAllowed(input: SendWhatsAppReplyInput) {
       where: {
         idempotencyKey: `outbound:${input.inboundEventId}`,
         direction: "outbound",
+        status: { in: ["sending", "sent"] }
+      }
+    }),
+    prisma.whatsAppMessage.count({
+      where: {
+        phoneNumber: normalizedPhone,
+        direction: "outbound",
+        body: input.body,
+        createdAt: { gte: duplicateSince },
+        idempotencyKey: {
+          not: `outbound:${input.inboundEventId}`
+        },
         status: { in: ["sending", "sent"] }
       }
     })
@@ -166,6 +180,16 @@ async function assertReplyAllowed(input: SendWhatsAppReplyInput) {
       messageId: null,
       skipped: true,
       reason: "WhatsApp daily reply rate limit reached."
+    };
+  }
+
+  if (duplicateBodyCount > 0) {
+    return {
+      ok: false,
+      status: 429,
+      messageId: null,
+      skipped: true,
+      reason: "WhatsApp duplicate reply suppressed in short safety window."
     };
   }
 

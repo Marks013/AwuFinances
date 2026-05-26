@@ -381,3 +381,61 @@ export async function upsertAiLearnedCategoryRule(input: {
     }
   });
 }
+
+export async function upsertGlobalAiLearnedCategoryRule(input: {
+  categorySystemKey: string;
+  type: "income" | "expense";
+  description: string;
+  notes?: string | null;
+  existingKeyword?: string | null;
+  confidence?: number | null;
+  createdFromTenantId?: string | null;
+  createdFromTransactionId?: string | null;
+}) {
+  const normalizedKeyword = deriveAiLearnedRuleKeyword({
+    existingKeyword: input.existingKeyword,
+    description: input.description,
+    notes: input.notes ?? null
+  });
+
+  if (!normalizedKeyword) {
+    return null;
+  }
+
+  const confidence = Math.max(0.51, Math.min(input.confidence ?? 0.84, 0.99));
+  const now = new Date();
+
+  return prisma.globalCategoryRule.upsert({
+    where: {
+      type_normalizedKeyword_matchMode: {
+        type: input.type,
+        normalizedKeyword,
+        matchMode: "exact_phrase"
+      }
+    },
+    update: {
+      categorySystemKey: input.categorySystemKey,
+      priority: 700,
+      confidence,
+      acceptedCount: {
+        increment: 1
+      },
+      createdFromTenantId: input.createdFromTenantId ?? undefined,
+      createdFromTransactionId: input.createdFromTransactionId ?? undefined,
+      lastAcceptedAt: now,
+      isActive: true
+    },
+    create: {
+      type: input.type,
+      categorySystemKey: input.categorySystemKey,
+      normalizedKeyword,
+      matchMode: "exact_phrase",
+      priority: 700,
+      confidence,
+      acceptedCount: 1,
+      createdFromTenantId: input.createdFromTenantId ?? null,
+      createdFromTransactionId: input.createdFromTransactionId ?? null,
+      lastAcceptedAt: now
+    }
+  });
+}

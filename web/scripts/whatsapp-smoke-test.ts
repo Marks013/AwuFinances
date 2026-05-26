@@ -142,10 +142,25 @@ async function main() {
 
     if (
       !incompleteExpense.response.includes("Qual forma de pagamento foi") ||
+      !incompleteExpense.response.includes("Escolha uma das opções") ||
       !incompleteExpense.response.includes("Cartao Smoke") ||
       !incompleteExpense.response.includes(account.name)
     ) {
       throw new Error(`Resposta de forma de pagamento incompleta: ${incompleteExpense.response}`);
+    }
+
+    const completedExpense = await processIncomingWhatsAppTextMessage({
+      phoneNumber: testPhone,
+      body: "Cartao Smoke"
+    });
+
+    if (
+      !completedExpense.response.includes("Despesa registrada com sucesso") ||
+      !completedExpense.response.includes("Cartao Smoke") ||
+      !completedExpense.response.includes("Supermercado") ||
+      /Bom dia|Boa tarde|Boa noite/.test(completedExpense.response)
+    ) {
+      throw new Error(`Resposta contextual de despesa incompleta: ${completedExpense.response}`);
     }
 
     const expense = await processIncomingWhatsAppTextMessage({
@@ -168,6 +183,7 @@ async function main() {
         {
           saldo: saldo.response,
           incompleteExpense: incompleteExpense.response,
+          completedExpense: completedExpense.response,
           expense: expense.response,
           income: income.response,
           card: card.response

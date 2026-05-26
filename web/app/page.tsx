@@ -5,10 +5,12 @@ import { ArrowRight, Check, ShieldCheck, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PlanCheckoutLink } from "@/features/billing/components/plan-checkout-link";
 import { getBillingSettings } from "@/lib/billing/settings";
+import { cn } from "@/lib/utils";
 
 const planCards = [
   {
     name: "Gratuito",
+    tone: "free",
     label: "Para comecar",
     price: "R$ 0",
     cadence: "sem cobranca",
@@ -24,6 +26,7 @@ const planCards = [
   },
   {
     name: "Premium Completo",
+    tone: "premium",
     label: "Para uso diario completo",
     price: "Assinatura",
     cadence: "via Mercado Pago",
@@ -41,6 +44,7 @@ const planCards = [
   },
   {
     name: "Avaliacao",
+    tone: "trial",
     label: "Para testar antes de assinar",
     price: "14 dias",
     cadence: "quando liberado",
@@ -53,7 +57,7 @@ const planCards = [
       { label: "Cobranca automatica sem contratar", enabled: false }
     ]
   }
-];
+] as const;
 
 function formatMoney(amount: number, currencyId: string) {
   return new Intl.NumberFormat("pt-BR", {
@@ -118,37 +122,42 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mt-4 grid gap-3 xl:grid-cols-3">
+      <section className="home-plans-grid mt-4 grid gap-4 xl:grid-cols-3">
         {planCards.map((plan) => {
-          const isPremium = plan.name === "Premium Completo";
+          const isPremium = plan.tone === "premium";
 
           return (
-            <article key={plan.name} className={isPremium ? "surface-strong rounded-[24px] p-5 text-white" : "surface rounded-[24px] p-5"}>
-              <p className={isPremium ? "text-sm font-semibold uppercase text-white/72" : "eyebrow"}>{plan.label}</p>
-              <h2 className="mt-3 text-balance text-xl font-semibold leading-tight">{plan.name}</h2>
-              <div className="mt-4">
-                <p className="text-3xl font-semibold leading-tight tabular-nums">{isPremium ? premiumMonthlyPrice : plan.price}</p>
-                <p className={isPremium ? "text-sm text-white/72" : "text-sm text-[var(--color-muted-foreground)]"}>
+            <article key={plan.name} className={cn("home-plan-card", `home-plan-card--${plan.tone}`)}>
+              <p className="home-plan-badge">{plan.label}</p>
+              <h2 className="mt-4 text-balance text-xl font-semibold leading-tight">{plan.name}</h2>
+              <div className="mt-5">
+                <p className="home-plan-price">{isPremium ? premiumMonthlyPrice : plan.price}</p>
+                <p className="home-plan-cadence">
                   {isPremium ? `mensal ou ${premiumAnnualPrice} anual` : plan.cadence}
                 </p>
               </div>
 
-              <div className="mt-5 space-y-2.5">
+              <div className="mt-6 space-y-3">
                 {plan.features.map((feature) => {
                   const Icon = feature.enabled ? Check : X;
 
                   return (
-                    <div key={feature.label} className="flex items-start gap-2.5 text-sm leading-6">
-                      <span className={feature.enabled ? "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary)] text-[var(--color-primary-foreground)]" : "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-muted)_70%,transparent)] text-[var(--color-muted-foreground)]"}>
+                    <div key={feature.label} className="home-plan-feature">
+                      <span
+                        className={cn(
+                          "home-plan-feature-icon",
+                          feature.enabled ? "home-plan-feature-icon--yes" : "home-plan-feature-icon--no"
+                        )}
+                      >
                         <Icon className="size-3.5" />
                       </span>
-                      <span className={isPremium ? "text-white/84" : "text-[var(--color-ink-700)]"}>{feature.label}</span>
+                      <span>{feature.label}</span>
                     </div>
                   );
                 })}
               </div>
 
-              <Button asChild className="mt-5 w-full" variant={isPremium ? "default" : "secondary"}>
+              <Button asChild className="home-plan-action mt-auto" variant={isPremium ? "default" : "secondary"}>
                 {isPremium ? (
                   <PlanCheckoutLink>
                     {plan.cta}
@@ -162,7 +171,7 @@ export default async function HomePage() {
                 )}
               </Button>
               {isPremium && "annualCta" in plan ? (
-                <Button asChild className="mt-3 w-full" variant="secondary">
+                <Button asChild className="home-plan-action home-plan-action--secondary mt-3" variant="secondary">
                   <PlanCheckoutLink hrefWhenLoggedIn="/billing?intent=checkout&cycle=annual" hrefWhenLoggedOut={plan.annualHref}>
                     {plan.annualCta}
                   </PlanCheckoutLink>

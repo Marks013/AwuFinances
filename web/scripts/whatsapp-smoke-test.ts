@@ -24,6 +24,10 @@ async function main() {
   const testPhone = "5511999999998";
   const tempCardId = "smoke-whatsapp-card";
   const tempCardTxId = "smoke-whatsapp-card-transaction";
+  const smokeRunKey = `smoke-${Date.now()}`;
+  const smokeStartedAt = new Date();
+  const smokeExpenseDescription = `mercado ${smokeRunKey}`;
+  const smokeIncomeDescription = `salario ${smokeRunKey}`;
   let tempAccountId: string | null = null;
   let createdTempAccount = false;
 
@@ -131,14 +135,27 @@ async function main() {
       body: "saldo"
     });
 
+    const incompleteExpense = await processIncomingWhatsAppTextMessage({
+      phoneNumber: testPhone,
+      body: `Lançar coca-cola ${smokeRunKey} a R$ 15,00`
+    });
+
+    if (
+      !incompleteExpense.response.includes("Qual forma de pagamento foi") ||
+      !incompleteExpense.response.includes("Cartao Smoke") ||
+      !incompleteExpense.response.includes(account.name)
+    ) {
+      throw new Error(`Resposta de forma de pagamento incompleta: ${incompleteExpense.response}`);
+    }
+
     const expense = await processIncomingWhatsAppTextMessage({
       phoneNumber: testPhone,
-      body: `gastei 42,50 mercado na ${account.name}`
+      body: `gastei 42,50 ${smokeExpenseDescription} na ${account.name}`
     });
 
     const income = await processIncomingWhatsAppTextMessage({
       phoneNumber: testPhone,
-      body: `recebi 1500 salario no ${account.name}`
+      body: `recebi 1500 ${smokeIncomeDescription} no ${account.name}`
     });
 
     const card = await processIncomingWhatsAppTextMessage({
@@ -150,6 +167,7 @@ async function main() {
       JSON.stringify(
         {
           saldo: saldo.response,
+          incompleteExpense: incompleteExpense.response,
           expense: expense.response,
           income: income.response,
           card: card.response
@@ -159,39 +177,49 @@ async function main() {
       )
     );
   } finally {
+    const deleteSmokeTransactions = async () => {
+      const createdTransactions = await prisma.transaction.findMany({
+        where: {
+          tenantId: admin.tenantId,
+          userId: admin.id,
+          source: TransactionSource.whatsapp,
+          createdAt: {
+            gte: smokeStartedAt
+          }
+        },
+        select: {
+          id: true,
+          description: true
+        }
+      });
+
+      const ids = [
+        tempCardTxId,
+        ...createdTransactions
+          .filter((transaction) => transaction.description.toLowerCase().includes(smokeRunKey))
+          .map((transaction) => transaction.id)
+      ].filter(Boolean);
+
+      if (ids.length > 0) {
+        await prisma.transaction.deleteMany({
+          where: {
+            id: {
+              in: ids
+            }
+          }
+        });
+      }
+    };
+
     await prisma.whatsAppMessage.deleteMany({
       where: {
         phoneNumber: testPhone
       }
     });
 
-    await prisma.transaction.deleteMany({
-      where: {
-        OR: [
-          {
-            id: tempCardTxId
-          },
-          {
-            tenantId: admin.tenantId,
-            userId: admin.id,
-            source: TransactionSource.whatsapp,
-            description: {
-              contains: "mercado",
-              mode: "insensitive"
-            }
-          },
-          {
-            tenantId: admin.tenantId,
-            userId: admin.id,
-            source: TransactionSource.whatsapp,
-            description: {
-              contains: "salario",
-              mode: "insensitive"
-            }
-          }
-        ]
-      }
-    });
+    await deleteSmokeTransactions();
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await deleteSmokeTransactions();
 
     await prisma.card.deleteMany({
       where: {

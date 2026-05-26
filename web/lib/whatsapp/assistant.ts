@@ -125,6 +125,37 @@ function withGreeting(lines: Array<string | null | undefined | false>) {
   return composeMessage([getGreeting(), "", ...lines]);
 }
 
+function formatPaymentTargetPrompt(input: {
+  accounts: Array<{ name: string; isActive?: boolean }>;
+  cards: Array<{ name: string }>;
+  mode: "expense" | "income" | "card-only" | "account-only";
+}) {
+  const accountNames = input.accounts
+    .filter((account) => account.isActive !== false)
+    .map((account) => account.name)
+    .filter(Boolean)
+    .slice(0, 8);
+  const cardNames =
+    input.mode === "expense" || input.mode === "card-only"
+      ? input.cards.map((card) => card.name).filter(Boolean).slice(0, 8)
+      : [];
+
+  if (input.mode !== "card-only" && accountNames.length === 0 && cardNames.length === 0) {
+    return "⚠️ Você precisa ter ao menos uma conta ativa para usar o assistente no WhatsApp.";
+  }
+
+  const lines = ["🟡 Qual forma de pagamento foi?", ""];
+  if (cardNames.length > 0) {
+    lines.push(`💳 Cartões: ${cardNames.join(", ")}.`);
+  }
+  if (accountNames.length > 0) {
+    lines.push(`🏦 Contas: ${accountNames.join(", ")}.`);
+  }
+  lines.push("", `Responda só com o nome, exemplo: ${cardNames[0] ?? accountNames[0] ?? "PicPay Black"}.`);
+
+  return lines.join("\n");
+}
+
 function parseCurrencyValue(text: string) {
   const match = text.match(/(\d{1,3}(?:\.\d{3})*(?:,\d{2})|\d+(?:,\d{2})|\d+(?:\.\d{2})?)/);
   if (!match) {
@@ -190,10 +221,6 @@ function isTransactionDetailFollowUp(body: string, normalized: string) {
 function shouldUseRecentContext(body: string) {
   const normalized = normalizeText(body);
 
-  if (isTransactionDetailFollowUp(body, normalized)) {
-    return true;
-  }
-
   if (
     !normalized ||
     isExpenseIntent(normalized) ||
@@ -202,6 +229,10 @@ function shouldUseRecentContext(body: string) {
     isGreeting(normalized)
   ) {
     return false;
+  }
+
+  if (isTransactionDetailFollowUp(body, normalized)) {
+    return true;
   }
 
   return hasTransactionDetail(body);
@@ -520,7 +551,7 @@ async function createExpenseOrIncomeFromText(
   const account =
     !card && matchedAccount?.score > 0
       ? matchedAccount.account
-      : !card && activeAccounts.length === 1
+      : !card && activeAccounts.length === 1 && (type === "income" || cards.length === 0)
         ? activeAccounts[0]
         : null;
   const mentionsCard =
@@ -539,7 +570,7 @@ async function createExpenseOrIncomeFromText(
     return {
       intent: "launch_expense",
       status: "needs_card",
-      response: "🟡 Me diga qual cartão usar.\n\nExemplo:\n`gastei 120 farmácia no Nubank Visa`"
+      response: formatPaymentTargetPrompt({ accounts: activeAccounts, cards, mode: "card-only" })
     } satisfies AssistantResult;
   }
 
@@ -549,10 +580,11 @@ async function createExpenseOrIncomeFromText(
     return {
       intent: type === "income" ? "launch_income" : "launch_expense",
       status: "needs_account",
-      response:
-        accounts.length > 1
-          ? "🟡 Me diga em qual conta lançar.\n\nExemplo:\n`recebi 3200 salário no Itaú`"
-          : "⚠️ Você precisa ter ao menos uma conta ativa para usar o assistente no WhatsApp."
+      response: formatPaymentTargetPrompt({
+        accounts: activeAccounts,
+        cards,
+        mode: type === "income" ? "account-only" : "expense"
+      })
     } satisfies AssistantResult;
   }
 
@@ -1122,7 +1154,9 @@ function isIncomeIntent(normalized: string) {
 }
 
 function isLaunchIntent(normalized: string) {
-  return /\b(lanca|lança|registra|registre|anota|adicione|adiciona|cadastra|cadastre)\b/.test(normalized);
+  return /\b(lanca|lança|lancar|lançar|registra|registrar|registre|anota|anotar|adicione|adiciona|adicionar|cadastra|cadastrar|cadastre)\b/.test(
+    normalized
+  );
 }
 
 function isMutationBlockedOnWhatsAppIntent(normalized: string) {
@@ -1156,6 +1190,7 @@ function buildHelpResponse() {
 
 async function handleAssistantCommand(user: WhatsAppUser, body: string, messageId?: string | null) {
   const normalized = normalizeText(body);
+  const hasTransactionalIntent = isLaunchIntent(normalized) || isExpenseIntent(normalized) || isIncomeIntent(normalized);
 
   if (!normalized) {
     return {
@@ -1187,6 +1222,18 @@ async function handleAssistantCommand(user: WhatsAppUser, body: string, messageI
 
   if (isLastExpenseIntent(normalized)) {
     return replyWithLastExpense(user);
+  }
+
+  if (!hasTransactionalIntent && isInstallmentsIntent(normalized)) {
+    return replyWithCardInstallments(user, body);
+  }
+
+  if (!hasTransactionalIntent && isCardIntent(normalized)) {
+    return replyWithCardInfo(user, body);
+  }
+
+  if (!hasTransactionalIntent && isBalanceIntent(normalized)) {
+    return replyWithBalance(user, body);
   }
 
   if (isLaunchIntent(normalized) && isIncomeIntent(normalized)) {

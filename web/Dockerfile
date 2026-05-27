@@ -13,10 +13,6 @@ RUN npm ci --no-audit --no-fund
 
 FROM base AS builder
 
-ENV DATABASE_URL=postgresql://awufinances:changeme@postgres:5432/awufinances
-ENV AUTH_SECRET=build-only-secret
-ENV AUTOMATION_CRON_SECRET=build-only-secret
-ENV AUTH_TRUST_HOST=true
 ARG NEXT_PUBLIC_SENTRY_DSN
 ARG NEXT_PUBLIC_SENTRY_TRACES_SAMPLE_RATE=0.2
 ARG SENTRY_ENVIRONMENT=production
@@ -26,18 +22,21 @@ ENV SENTRY_ENVIRONMENT=$SENTRY_ENVIRONMENT
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npx prisma generate && npm run build
+RUN export DATABASE_URL=postgresql://awufinances:changeme@postgres:5432/awufinances; \
+    export AUTH_SECRET=build-only-placeholder; \
+    export AUTOMATION_CRON_SECRET=build-only-placeholder; \
+    export AUTH_TRUST_HOST=true; \
+    npx prisma generate && npm run build
 
 FROM base AS tools
 
-ENV DATABASE_URL=postgresql://awufinances:changeme@postgres:5432/awufinances
-ENV AUTH_SECRET=build-only-secret
-ENV AUTOMATION_CRON_SECRET=build-only-secret
-ENV AUTH_TRUST_HOST=true
-
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npx prisma generate
+RUN export DATABASE_URL=postgresql://awufinances:changeme@postgres:5432/awufinances; \
+    export AUTH_SECRET=build-only-placeholder; \
+    export AUTOMATION_CRON_SECRET=build-only-placeholder; \
+    export AUTH_TRUST_HOST=true; \
+    npx prisma generate
 
 FROM node:24-alpine AS runner
 

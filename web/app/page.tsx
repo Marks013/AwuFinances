@@ -76,7 +76,7 @@ export default async function HomePage() {
     <main id="main-content" className="home-page page-shell py-4 md:py-8">
       <section className="home-hero-banner overflow-hidden rounded-[26px] border border-[#7eb5ae]/45 bg-[#d7e8e5] shadow-[0_28px_80px_rgba(22,54,52,0.22)]">
         <h1 className="sr-only">Awu Finances: economia e financas com controle financeiro diario.</h1>
-        <div className="relative isolate aspect-[16/9] overflow-hidden bg-[#519f9d]">
+        <div className="home-hero-media relative isolate overflow-hidden bg-[#519f9d]">
           <video
             aria-label="Awu Finances, economias e financas"
             autoPlay
@@ -89,29 +89,29 @@ export default async function HomePage() {
           >
             <source src="/brand/home-hero.mp4" type="video/mp4" />
           </video>
+        </div>
 
-          <div className="home-hero-actions absolute bottom-[8.5%] left-[8.9%] z-10 flex flex-wrap gap-3 max-[520px]:bottom-4 max-[520px]:left-4 max-[520px]:right-4">
-            <Button asChild>
-              <Link href="/login">
-                Entrar
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="secondary"
-              className="border-transparent bg-[#122325] text-white shadow-[0_12px_28px_rgba(18,35,37,0.16)] hover:bg-[#183032]"
-            >
-              <Link href="/planos">Ver planos</Link>
-            </Button>
-            <Button
-              asChild
-              variant="secondary"
-              className="border-transparent bg-[#122325] text-white shadow-[0_12px_28px_rgba(18,35,37,0.16)] hover:bg-[#183032]"
-            >
-              <PlanCheckoutLink>Assinar Premium</PlanCheckoutLink>
-            </Button>
-          </div>
+        <div className="home-hero-actions z-10 flex flex-wrap gap-3">
+          <Button asChild>
+            <Link href="/login">
+              Entrar
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="secondary"
+            className="border-transparent bg-[#122325] text-white shadow-[0_12px_28px_rgba(18,35,37,0.16)] hover:bg-[#183032]"
+          >
+            <Link href="/planos">Ver planos</Link>
+          </Button>
+          <Button
+            asChild
+            variant="secondary"
+            className="border-transparent bg-[#122325] text-white shadow-[0_12px_28px_rgba(18,35,37,0.16)] hover:bg-[#183032]"
+          >
+            <PlanCheckoutLink>Assinar Premium</PlanCheckoutLink>
+          </Button>
         </div>
       </section>
 

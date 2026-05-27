@@ -207,9 +207,20 @@ a {
 }
 
 .home-hero-banner {
+  position: relative;
   border-bottom-color: rgba(126, 181, 174, 0.58);
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
+}
+
+.home-hero-media {
+  aspect-ratio: 16 / 9;
+}
+
+.home-hero-actions {
+  position: absolute;
+  bottom: 8.5%;
+  left: 8.9%;
 }
 
 .home-testimonial {
@@ -442,6 +453,57 @@ a {
   background: rgba(244, 255, 252, 0.9);
   color: #102e35;
   box-shadow: none;
+}
+
+@media (max-width: 640px) {
+  .home-page.page-shell {
+    padding-top: 4.75rem;
+  }
+
+  .home-hero-banner {
+    border-radius: 20px 20px 0 0;
+  }
+
+  .home-hero-media video {
+    object-position: center top;
+  }
+
+  .home-hero-actions {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+    padding: 0.75rem;
+    background:
+      radial-gradient(circle at 18% 0%, rgba(213, 255, 248, 0.34), transparent 34%),
+      linear-gradient(180deg, #dff5f1 0%, #c9ece6 100%);
+  }
+
+  .home-hero-actions > :last-child {
+    grid-column: 1 / -1;
+  }
+
+  .home-hero-actions a {
+    width: 100%;
+    min-height: 2.65rem;
+    justify-content: center;
+    padding-inline: 0.65rem;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  .home-hero-actions svg {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+
+  .home-testimonial-video {
+    height: clamp(16rem, 76vw, 20rem);
+  }
+
+  .home-plan-card {
+    min-height: auto;
+  }
 }
 
 button {

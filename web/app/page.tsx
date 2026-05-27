@@ -74,7 +74,7 @@ export default async function HomePage() {
 
   return (
     <main id="main-content" className="home-page page-shell py-4 md:py-8">
-      <section className="overflow-hidden rounded-[26px] border border-[#7eb5ae]/45 bg-[#d7e8e5] shadow-[0_28px_80px_rgba(22,54,52,0.22)]">
+      <section className="home-hero-banner overflow-hidden rounded-[26px] border border-[#7eb5ae]/45 bg-[#d7e8e5] shadow-[0_28px_80px_rgba(22,54,52,0.22)]">
         <h1 className="sr-only">Awu Finances: economia e financas com controle financeiro diario.</h1>
         <div className="relative isolate aspect-[16/9] overflow-hidden bg-[#519f9d]">
           <video
@@ -115,7 +115,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section aria-label="Depoimento Awu Finances" className="home-testimonial mt-4">
+      <section aria-label="Depoimento Awu Finances" className="home-testimonial">
         <video
           aria-label="Depoimento sobre o Awu Finances"
           autoPlay

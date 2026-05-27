@@ -206,25 +206,34 @@ a {
   color: #ffffff;
 }
 
+.home-hero-banner {
+  border-bottom-color: rgba(126, 181, 174, 0.58);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
 .home-testimonial {
+  margin-top: -1px;
   overflow: hidden;
-  border-radius: 24px;
-  border: 1px solid rgba(151, 239, 226, 0.48);
+  border: 1px solid rgba(126, 181, 174, 0.58);
+  border-top: 0;
+  border-radius: 0 0 26px 26px;
   background:
-    radial-gradient(circle at 12% 8%, rgba(181, 246, 235, 0.2), transparent 30%),
-    linear-gradient(145deg, rgba(12, 48, 47, 0.94), rgba(20, 136, 124, 0.86));
+    radial-gradient(circle at 14% 12%, rgba(213, 255, 248, 0.28), transparent 30%),
+    radial-gradient(circle at 86% 18%, rgba(117, 222, 211, 0.32), transparent 34%),
+    linear-gradient(180deg, #4fa7a1 0%, #68c8bd 54%, #5abcb2 100%);
   box-shadow:
-    0 24px 62px rgba(10, 58, 54, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    0 26px 66px rgba(10, 58, 54, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .home-testimonial-video {
   display: block;
   width: 100%;
-  max-height: min(52rem, 64svh);
-  aspect-ratio: 16 / 9;
-  object-fit: contain;
-  background: #0c302f;
+  height: clamp(18rem, 38vw, 44rem);
+  object-fit: cover;
+  object-position: center;
+  background: #5abcb2;
 }
 
 .home-plans-grid {

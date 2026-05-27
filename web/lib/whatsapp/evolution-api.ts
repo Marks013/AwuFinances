@@ -1,11 +1,14 @@
 import { serverEnv } from "@/lib/env/server";
 import { prisma } from "@/lib/prisma/client";
-import { takeThrottleHit } from "@/lib/security/request-throttle";
+import { peekThrottleState, takeThrottleHit } from "@/lib/security/request-throttle";
 import { normalizeWhatsAppPhone } from "@/lib/whatsapp/phone";
 
 const EVOLUTION_SEND_TIMEOUT_MS = 10_000;
 const UNLINKED_PHONE_REPLY_LIMIT_PER_HOUR = 2;
 const DUPLICATE_REPLY_WINDOW_MS = 45_000;
+const EVOLUTION_CIRCUIT_KEY = "global";
+const EVOLUTION_FAILURE_NAMESPACE = "whatsapp-evolution-delivery-failure";
+const EVOLUTION_CIRCUIT_NAMESPACE = "whatsapp-evolution-delivery-circuit";
 
 type SendWhatsAppReplyInput = {
   to: string;
@@ -48,6 +51,45 @@ async function fetchWithTimeout(input: string, init: RequestInit, timeoutMs: num
   } finally {
     clearTimeout(timeout);
   }
+}
+
+async function isEvolutionCircuitOpen() {
+  const circuit = await peekThrottleState({
+    key: EVOLUTION_CIRCUIT_KEY,
+    limit: 1,
+    namespace: EVOLUTION_CIRCUIT_NAMESPACE,
+    windowMs: serverEnv.WHATSAPP_DELIVERY_CIRCUIT_OPEN_MS
+  });
+
+  return !circuit.allowed;
+}
+
+async function recordEvolutionDeliveryFailure() {
+  const failureWindow = await takeThrottleHit({
+    key: EVOLUTION_CIRCUIT_KEY,
+    limit: serverEnv.WHATSAPP_DELIVERY_FAILURE_THRESHOLD,
+    namespace: EVOLUTION_FAILURE_NAMESPACE,
+    windowMs: serverEnv.WHATSAPP_DELIVERY_FAILURE_WINDOW_MS
+  });
+
+  if (failureWindow.allowed && failureWindow.remaining > 0) {
+    return;
+  }
+
+  await takeThrottleHit({
+    key: EVOLUTION_CIRCUIT_KEY,
+    limit: 1,
+    namespace: EVOLUTION_CIRCUIT_NAMESPACE,
+    windowMs: serverEnv.WHATSAPP_DELIVERY_CIRCUIT_OPEN_MS
+  });
+}
+
+async function clearEvolutionDeliveryFailures() {
+  await prisma.$executeRaw`
+    DELETE FROM "RequestThrottle"
+    WHERE "namespace" = ${EVOLUTION_FAILURE_NAMESPACE}
+      AND "key" = ${EVOLUTION_CIRCUIT_KEY}
+  `;
 }
 
 async function assertReplyAllowed(input: SendWhatsAppReplyInput) {
@@ -109,6 +151,16 @@ async function assertReplyAllowed(input: SendWhatsAppReplyInput) {
       messageId: null,
       skipped: true,
       reason: "Invalid WhatsApp destination."
+    };
+  }
+
+  if (await isEvolutionCircuitOpen()) {
+    return {
+      ok: false,
+      status: 503,
+      messageId: null,
+      skipped: true,
+      reason: "WhatsApp delivery circuit is open after repeated Evolution API failures."
     };
   }
 
@@ -270,37 +322,54 @@ export async function sendWhatsAppReply(input: SendWhatsAppReplyInput) {
     };
   }
 
-  const response = await fetchWithTimeout(
-    `${baseUrl}/message/sendText/${encodeURIComponent(instance)}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: apiKey
+  try {
+    const response = await fetchWithTimeout(
+      `${baseUrl}/message/sendText/${encodeURIComponent(instance)}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: apiKey
+        },
+        body: JSON.stringify({
+          number: normalizedPhone,
+          text: input.body,
+          delay: getReplyDelayMs(),
+          linkPreview: false
+        })
       },
-      body: JSON.stringify({
-        number: normalizedPhone,
-        text: input.body,
-        delay: getReplyDelayMs(),
-        linkPreview: false
-      })
-    },
-    EVOLUTION_SEND_TIMEOUT_MS
-  );
+      EVOLUTION_SEND_TIMEOUT_MS
+    );
 
-  const payload = (await response.json().catch(() => null)) as
-    | {
-        key?: {
-          id?: string;
-        };
-      }
-    | null;
+    const payload = (await response.json().catch(() => null)) as
+      | {
+          key?: {
+            id?: string;
+          };
+        }
+      | null;
 
-  return {
-    ok: response.ok,
-    status: response.status,
-    messageId: payload?.key?.id ?? null,
-    skipped: false,
-    reason: response.ok ? null : "Evolution API rejected reply."
-  };
+    if (response.ok) {
+      await clearEvolutionDeliveryFailures();
+    } else {
+      await recordEvolutionDeliveryFailure();
+    }
+
+    return {
+      ok: response.ok,
+      status: response.status,
+      messageId: payload?.key?.id ?? null,
+      skipped: false,
+      reason: response.ok ? null : "Evolution API rejected reply."
+    };
+  } catch (error) {
+    await recordEvolutionDeliveryFailure();
+    return {
+      ok: false,
+      status: 503,
+      messageId: null,
+      skipped: false,
+      reason: error instanceof Error ? error.message : "Evolution API delivery failed."
+    };
+  }
 }

@@ -114,6 +114,39 @@ function formatColoredBalance(value: number) {
   return `${value < 0 ? "🔴" : "🔵"} ${formatCurrency(value)}`;
 }
 
+function formatSignedTransactionAmount(type: TransactionType, amount: number) {
+  return `${type === TransactionType.income ? "🟢 +" : "🔴 -"}${formatCurrency(amount)}`;
+}
+
+function buildFinancialGuidance(input: {
+  income: number;
+  expense: number;
+  balance: number;
+  topCategory?: { name: string; total: number } | null;
+}) {
+  if (input.expense <= 0 && input.income <= 0) {
+    return "💡 Sugestão: comece registrando receitas e despesas do mês para eu conseguir te orientar melhor.";
+  }
+
+  if (input.balance < 0) {
+    return "💡 Sugestão: seu mês está negativo. Priorize revisar gastos variáveis e adie compras não essenciais até equilibrar o caixa.";
+  }
+
+  if (input.income > 0 && input.expense >= input.income * 0.85) {
+    return "💡 Sugestão: suas despesas já estão muito próximas da receita. Vale segurar novos gastos e conferir as categorias mais pesadas.";
+  }
+
+  if (input.topCategory && input.expense > 0 && input.topCategory.total >= input.expense * 0.35) {
+    return `💡 Sugestão: ${input.topCategory.name} concentra boa parte dos gastos. Se fizer sentido, defina ou reduza um limite mensal para essa categoria.`;
+  }
+
+  if (input.balance > 0) {
+    return "💡 Sugestão: há sobra no período. Considere separar parte para reserva, meta ou pagamento antecipado de fatura.";
+  }
+
+  return null;
+}
+
 function getGreeting() {
   const hour = Number(
     new Intl.DateTimeFormat("en-US", {
@@ -1013,9 +1046,14 @@ async function replyWithCardInfo(user: WhatsAppUser, body: string) {
     response: withGreeting([
       `💳 Cartão ${bold(card.name)}`,
       `• Fatura atual: ${formatCurrency(statement.totalAmount)}`,
+      `• Falta pagar: ${formatCurrency(statement.statementOutstandingAmount)}`,
       `• Limite disponível: ${formatCurrency(statement.availableLimit)} de ${formatCurrency(Number(card.limitAmount))}`,
       `• Fecha em: ${formatDate(statement.closeDate)}`,
-      `• Vence em: ${formatDate(statement.dueDate)}`
+      `• Vence em: ${formatDate(statement.dueDate)}`,
+      statement.availableLimit < 0 ? "⚠️ Atenção: o uso do cartão passou do limite cadastrado." : null,
+      statement.statementOutstandingAmount > 0 && statement.dueDate.getTime() < Date.now()
+        ? "⚠️ Atenção: essa fatura parece vencida e ainda tem valor em aberto."
+        : null
     ])
   } satisfies AssistantResult;
 }
@@ -1139,6 +1177,134 @@ async function replyWithCardInstallments(user: WhatsAppUser, body: string) {
   } satisfies AssistantResult;
 }
 
+
+async function replyWithRecentTransactions(user: WhatsAppUser, body: string) {
+  const normalized = normalizeText(body);
+  const currentMonthOnly = /\b(mes|mês|competencia|competência|este mes|esse mes|mês atual|mes atual)\b/.test(normalized);
+  const previousMonthOnly = /\b(mes passado|mês passado|ultimo mes|último mês|anterior)\b/.test(normalized);
+  const requestedMonth = previousMonthOnly ? getPreviousMonthKey(getCurrentMonthKey()) : getCurrentMonthKey();
+  const monthStart = new Date(`${requestedMonth}-01T00:00:00`);
+  const monthEnd = new Date(monthStart);
+  monthEnd.setMonth(monthEnd.getMonth() + 1);
+
+  const transactions = await prisma.transaction.findMany({
+    where: {
+      tenantId: user.tenantId,
+      ...(currentMonthOnly || previousMonthOnly
+        ? {
+            date: {
+              gte: monthStart,
+              lt: monthEnd
+            }
+          }
+        : {})
+    },
+    include: {
+      category: {
+        select: {
+          name: true
+        }
+      },
+      financialAccount: {
+        select: {
+          name: true
+        }
+      },
+      card: {
+        select: {
+          name: true
+        }
+      }
+    },
+    orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+    take: 6
+  });
+
+  if (!transactions.length) {
+    return {
+      intent: "recent_transactions",
+      status: "empty",
+      response: withGreeting(["🧾 Não encontrei lançamentos recentes nessa carteira."])
+    } satisfies AssistantResult;
+  }
+
+  const lines = transactions.map((transaction) => {
+    const target = transaction.financialAccount?.name ?? transaction.card?.name ?? "sem origem";
+    const category = transaction.category?.name ?? "sem categoria";
+    return `• ${formatDate(transaction.date)} · ${formatSignedTransactionAmount(transaction.type, Number(transaction.amount))} · ${bold(transaction.description)} · ${category} · ${target}`;
+  });
+
+  return {
+    intent: "recent_transactions",
+    status: "ok",
+    response: withGreeting([
+      currentMonthOnly || previousMonthOnly
+        ? `🧾 Lançamentos de ${bold(getMonthLabel(requestedMonth))}`
+        : "🧾 Últimos lançamentos registrados",
+      ...lines,
+      "",
+      "Para ajustar ou excluir algum lançamento, use o site para confirmar com segurança."
+    ])
+  } satisfies AssistantResult;
+}
+
+async function replyWithWalletStatus(user: WhatsAppUser, body: string) {
+  await ensureTenantCardStatementSnapshots(user.tenantId);
+  const [accounts, cards, report] = await Promise.all([
+    getAccountsWithComputedBalance(user.tenantId),
+    prisma.card.findMany({
+      where: {
+        tenantId: user.tenantId,
+        isActive: true
+      },
+      orderBy: {
+        name: "asc"
+      }
+    }),
+    getFinanceReport(user.tenantId, { month: getCurrentMonthKey() })
+  ]);
+  const activeAccounts = accounts.filter((item) => item.isActive);
+  const cashTotal = activeAccounts.reduce((sum, item) => sum + item.currentBalance, 0);
+  const topCategory = report.spendingInsights.topCategory;
+  const cardSnapshots = await Promise.all(
+    cards.slice(0, 4).map(async (card) => ({
+      card,
+      statement: await getCardStatementSnapshot({
+        tenantId: user.tenantId,
+        card,
+        month: getCurrentPayableStatementMonth(card, new Date()),
+        client: prisma
+      })
+    }))
+  );
+  const totalCardOpen = cardSnapshots.reduce((sum, item) => sum + item.statement.statementOutstandingAmount, 0);
+  const guidance = buildFinancialGuidance({
+    income: report.summary.income,
+    expense: report.summary.expense,
+    balance: report.summary.balance,
+    topCategory
+  });
+
+  return {
+    intent: "wallet_status",
+    status: "ok",
+    response: withGreeting([
+      `📍 Status financeiro de ${bold(getMonthLabel(getCurrentMonthKey()))}`,
+      `• Caixa em contas: ${formatColoredBalance(cashTotal)}`,
+      `• Receitas no mês: ${formatCurrency(report.summary.income)}`,
+      `• Despesas no mês: ${formatCurrency(report.summary.expense)}`,
+      `• Resultado do mês: ${formatColoredBalance(report.summary.balance)}`,
+      cards.length
+        ? `• Faturas em aberto: ${formatCurrency(totalCardOpen)} em ${cards.length} cartão${cards.length === 1 ? "" : "s"}`
+        : "• Nenhum cartão ativo cadastrado.",
+      topCategory ? `• Categoria mais pesada: ${bold(topCategory.name)} (${formatCurrency(topCategory.total)})` : null,
+      guidance ? `\n${guidance}` : null,
+      "",
+      "Posso detalhar com: `últimos lançamentos`, `fatura PicPay`, `saldo` ou `relatório do mês`."
+    ])
+  } satisfies AssistantResult;
+}
+
 async function replyWithFinanceReport(user: WhatsAppUser, body: string) {
   const normalized = normalizeText(body);
   const requestedMonth =
@@ -1158,6 +1324,13 @@ async function replyWithFinanceReport(user: WhatsAppUser, body: string) {
     .map((alert) => `• ${bold(alert.title)}: ${alert.detail}`)
     .join("\n");
 
+  const guidance = buildFinancialGuidance({
+    income: report.summary.income,
+    expense: report.summary.expense,
+    balance: report.summary.balance,
+    topCategory
+  });
+
   return {
     intent: "finance_report",
     status: "ok",
@@ -1168,7 +1341,8 @@ async function replyWithFinanceReport(user: WhatsAppUser, body: string) {
       `• Saldo: ${formatColoredBalance(report.summary.balance)}`,
       topCategory ? `🏷️ Categoria mais pesada: ${bold(topCategory.name)} com ${formatCurrency(topCategory.total)}` : null,
       categoryPreview ? `\n📌 Destaques por categoria\n${categoryPreview}` : null,
-      alerts ? `\n⚠️ Alertas\n${alerts}` : null
+      alerts ? `\n⚠️ Alertas\n${alerts}` : null,
+      guidance ? `\n${guidance}` : null
     ])
   } satisfies AssistantResult;
 }
@@ -1243,9 +1417,24 @@ function isBalanceIntent(normalized: string) {
   return /\b(saldo|conta|contas|quanto tenho|como esta meu saldo|como está meu saldo)\b/.test(normalized);
 }
 
+function isRecentTransactionsIntent(normalized: string) {
+  return /\b(extrato|lancamentos|lançamentos|movimentacoes|movimentações|ultimas movimentacoes|últimas movimentações|ultimos lancamentos|últimos lançamentos|transacoes recentes|transações recentes|historico|histórico)\b/.test(normalized);
+}
+
+function isWalletStatusIntent(normalized: string) {
+  return (
+    /\b(status|situacao|situação|panorama|carteira|visao geral|visão geral|diagnostico rapido|diagnóstico rápido)\b/.test(normalized) &&
+    /\b(financeir|financas|finanças|dinheiro|carteira|contas|cartoes|cartões)\b/.test(normalized)
+  );
+}
+
 function isReportIntent(normalized: string) {
-  return /\b(relatorio|relatório|resumo|fechamento|como estou|visao do mes|visão do mês|gastos do mes|gastos do mês|maiores categorias|categoria .*gastei mais|gastei mais .*mes|gastei mais .*mês|maior gasto .*mes|maior gasto .*mês|onde gastei mais)\b/.test(
-    normalized
+  return (
+    /\b(relatorio|relatório|resumo|fechamento|balanco|balanço|diagnostico|diagnóstico|analise financeira|análise financeira|saude financeira|saúde financeira|como estou|visao do mes|visão do mês|gastos do mes|gastos do mês|maiores categorias|categoria .*gastei mais|gastei mais .*mes|gastei mais .*mês|maior gasto .*mes|maior gasto .*mês|onde gastei mais)\b/.test(
+      normalized
+    ) ||
+    /\b(como|qual)\b.*\b(esta|está|estao|estão|estou|ando|vai|vao|vão)\b.*\b(financas|finanças|financeiro|dinheiro|gastos|contas)\b/.test(normalized) ||
+    /\b(minhas financas|minhas finanças|meu financeiro|minha vida financeira)\b/.test(normalized)
   );
 }
 
@@ -1297,6 +1486,8 @@ function buildHelpResponse() {
     "• recebi 3200 salario no Itau\n" +
     "• me mostra meu saldo\n" +
     "• resumo do mês\n" +
+    "• status da carteira\n" +
+    "• últimos lançamentos\n" +
     "• relatorio do mes passado\n" +
     "• fatura Visa"
   );
@@ -1335,8 +1526,16 @@ async function handleAssistantCommand(
     } satisfies AssistantResult;
   }
 
+  if (isWalletStatusIntent(normalized)) {
+    return replyWithWalletStatus(user, body);
+  }
+
   if (isReportIntent(normalized)) {
     return replyWithFinanceReport(user, body);
+  }
+
+  if (isRecentTransactionsIntent(normalized)) {
+    return replyWithRecentTransactions(user, body);
   }
 
   if (isLastExpenseIntent(normalized)) {

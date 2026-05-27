@@ -1,5 +1,7 @@
 import { NotificationChannel, type Prisma } from "@prisma/client";
 
+import { createHash } from "node:crypto";
+
 import { logAdminAudit } from "@/lib/admin/audit";
 import { deliverNotification } from "@/lib/notifications/delivery";
 import { prisma } from "@/lib/prisma/client";
@@ -7,6 +9,7 @@ import { prisma } from "@/lib/prisma/client";
 const DAY_MS = 24 * 60 * 60 * 1000;
 const WARNING_PREFIX = "Awu Finances: retenção de conta";
 const RETENTION_POLICY_KEY = "retention.policy";
+const RETENTION_LEGACY_SUPPRESSION_DAYS = 7;
 
 type RetentionReason = "inactivity" | "trial_nonpayment";
 type RetentionStage = 1 | 2 | 3;
@@ -341,18 +344,40 @@ export async function updateRetentionPolicy(input: { enabled: boolean; closureDa
   return policy;
 }
 
-async function wasWarningAlreadyAttempted(input: {
+function buildRetentionWarningDedupeKey(input: {
   tenantId: string;
   userId: string;
   reason: RetentionReason;
   stage: RetentionStage;
 }) {
+  return `retention:${createHash("sha256")
+    .update([input.tenantId, input.userId, input.reason, input.stage].join("|"))
+    .digest("hex")}`;
+}
+
+async function wasWarningAlreadyAttempted(input: {
+  tenantId: string;
+  userId: string;
+  reason: RetentionReason;
+  stage: RetentionStage;
+  dedupeKey: string;
+}) {
+  const legacySuppressionSince = subtractDays(new Date(), RETENTION_LEGACY_SUPPRESSION_DAYS);
   const count = await prisma.notificationDelivery.count({
     where: {
       tenantId: input.tenantId,
       userId: input.userId,
       channel: NotificationChannel.email,
-      subject: subjectFor(input.reason, input.stage)
+      OR: [
+        { dedupeKey: input.dedupeKey },
+        {
+          // Older retention notices were saved without a deterministic key. Subjects are encrypted
+          // with a random IV, so exact subject comparison cannot dedupe them reliably.
+          dedupeKey: null,
+          providerEventStatus: "email.sent",
+          createdAt: { gte: legacySuppressionSince }
+        }
+      ]
     }
   });
 
@@ -401,11 +426,18 @@ async function sendWarnings(input: {
       continue;
     }
 
-    const alreadyAttempted = await wasWarningAlreadyAttempted({
+    const dedupeKey = buildRetentionWarningDedupeKey({
       tenantId: input.tenant.id,
       userId: recipient.id,
       reason: input.reason,
       stage: input.stage
+    });
+    const alreadyAttempted = await wasWarningAlreadyAttempted({
+      tenantId: input.tenant.id,
+      userId: recipient.id,
+      reason: input.reason,
+      stage: input.stage,
+      dedupeKey
     });
 
     if (alreadyAttempted) {
@@ -416,6 +448,7 @@ async function sendWarnings(input: {
     const delivery = await deliverNotification({
       tenantId: input.tenant.id,
       userId: recipient.id,
+      dedupeKey,
       channel: NotificationChannel.email,
       target: recipient.email,
       subject: subjectFor(input.reason, input.stage),
@@ -491,8 +524,8 @@ export async function getRetentionStats(now = new Date()): Promise<RetentionStat
   const warningEmailsLast30Days = await prisma.notificationDelivery.count({
     where: {
       channel: NotificationChannel.email,
-      subject: {
-        startsWith: WARNING_PREFIX
+      dedupeKey: {
+        startsWith: "retention:"
       },
       createdAt: {
         gte: warningCutoff

@@ -1,5 +1,7 @@
 import { NotificationChannel, PaymentMethod, Prisma, TransactionSource, TransactionType } from "@prisma/client";
 
+import { createHash } from "node:crypto";
+
 import { deliverNotification } from "@/lib/notifications/delivery";
 import {
   buildCardBillingSnapshotForDate,
@@ -37,12 +39,14 @@ async function alreadyDeliveredSince({
   userId,
   channel,
   subject,
+  dedupeKey,
   since
 }: {
   tenantId: string;
   userId: string;
   channel: NotificationChannel;
   subject: string;
+  dedupeKey: string;
   since: Date;
 }) {
   const existing = await prisma.notificationDelivery.findFirst({
@@ -50,7 +54,13 @@ async function alreadyDeliveredSince({
       tenantId,
       userId,
       channel,
-      subject,
+      OR: [
+        { dedupeKey },
+        {
+          dedupeKey: null,
+          subject
+        }
+      ],
       createdAt: {
         gte: since
       }
@@ -61,6 +71,25 @@ async function alreadyDeliveredSince({
   });
 
   return Boolean(existing);
+}
+
+function buildNotificationDedupeKey({
+  tenantId,
+  userId,
+  channel,
+  subject,
+  dedupeSince
+}: {
+  tenantId: string;
+  userId: string;
+  channel: NotificationChannel;
+  subject: string;
+  dedupeSince: Date;
+}) {
+  const windowKey = dedupeSince.toISOString().slice(0, 10);
+  return createHash("sha256")
+    .update([tenantId, userId, channel, subject, windowKey].join("|"))
+    .digest("hex");
 }
 
 async function sendUserNotifications({
@@ -85,11 +114,19 @@ async function sendUserNotifications({
   const deliveries: Array<{ id: string; channel: string; status: string; target: string }> = [];
 
   if (sendEmail && email) {
+    const dedupeKey = buildNotificationDedupeKey({
+      tenantId,
+      userId,
+      channel: NotificationChannel.email,
+      subject,
+      dedupeSince
+    });
     const skip = await alreadyDeliveredSince({
       tenantId,
       userId,
       channel: NotificationChannel.email,
       subject,
+      dedupeKey,
       since: dedupeSince
     });
 
@@ -98,6 +135,7 @@ async function sendUserNotifications({
         tenantId,
         userId,
         goalId: goalId ?? null,
+        dedupeKey,
         channel: NotificationChannel.email,
         target: email,
         subject,

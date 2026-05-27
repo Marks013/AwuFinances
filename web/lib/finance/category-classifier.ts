@@ -37,8 +37,8 @@ type GeminiRefinementResult = {
   failureReason: string | null;
 };
 
-const DEFAULT_GEMINI_TIMEOUT_MS = 2_500;
-const DEFAULT_GEMINI_RETRY_ATTEMPTS = 1;
+const DEFAULT_GEMINI_TIMEOUT_MS = 10_000;
+const DEFAULT_GEMINI_RETRY_ATTEMPTS = 2;
 const DEFAULT_GEMINI_CANDIDATE_LIMIT = 24;
 const MIN_TRUSTWORTHY_FALLBACK_SCORE = 4;
 
@@ -474,6 +474,10 @@ function resolveBoundedNumberFromEnv(params: {
   min: number;
   max: number;
 }) {
+  if (!params.value?.trim()) {
+    return params.fallback;
+  }
+
   const parsed = Number(params.value);
 
   if (!Number.isFinite(parsed)) {

@@ -714,6 +714,7 @@ model NotificationDelivery {
   target       String
   subject      String
   message      String
+  dedupeKey    String?             @unique
   responseCode Int?
   errorMessage String?
   providerMessageId String? @unique
@@ -729,6 +730,7 @@ model NotificationDelivery {
   @@index([tenantId, createdAt])
   @@index([userId, createdAt])
   @@index([goalId, createdAt])
+  @@index([dedupeKey])
 }
 
 model WhatsAppMessage {

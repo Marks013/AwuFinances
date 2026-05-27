@@ -9,6 +9,7 @@ type NotificationInput = {
   tenantId: string;
   userId?: string | null;
   goalId?: string | null;
+  dedupeKey?: string | null;
   channel: NotificationChannel;
   target: string;
   subject: string;
@@ -252,6 +253,7 @@ export async function deliverNotification(input: NotificationInput) {
         tenantId: input.tenantId,
         userId: input.userId ?? null,
         goalId: input.goalId ?? null,
+        dedupeKey: input.dedupeKey ?? null,
         channel: input.channel,
         status: delivery.skipped
           ? NotificationStatus.skipped
@@ -288,6 +290,7 @@ export async function deliverNotification(input: NotificationInput) {
         tenantId: input.tenantId,
         userId: input.userId ?? null,
         goalId: input.goalId ?? null,
+        dedupeKey: input.dedupeKey ?? null,
         channel: input.channel,
         status: NotificationStatus.failed,
         target: input.target,

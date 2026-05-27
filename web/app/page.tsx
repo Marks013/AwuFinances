@@ -115,6 +115,20 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section aria-label="Depoimento Awu Finances" className="home-testimonial mt-4">
+        <video
+          aria-label="Depoimento sobre o Awu Finances"
+          autoPlay
+          className="home-testimonial-video"
+          loop
+          muted
+          playsInline
+          preload="metadata"
+        >
+          <source src="/brand/home-testimonial.mp4" type="video/mp4" />
+        </video>
+      </section>
+
       <section className="home-plans-grid mt-4 grid gap-4 xl:grid-cols-3">
         {planCards.map((plan) => {
           const isPremium = plan.tone === "premium";

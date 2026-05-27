@@ -183,17 +183,17 @@ p {
 
 body:has(.home-page) {
   background:
-    radial-gradient(circle at 12% 6%, rgba(247, 230, 185, 0.2), transparent 22%),
-    radial-gradient(circle at 88% 16%, rgba(217, 123, 85, 0.18), transparent 24%),
-    linear-gradient(180deg, #315f61 0%, #3f8f8b 42%, #1b342f 100%);
+    radial-gradient(circle at 12% 6%, rgba(117, 222, 211, 0.22), transparent 22%),
+    radial-gradient(circle at 88% 16%, rgba(247, 230, 185, 0.18), transparent 24%),
+    linear-gradient(180deg, #174d4f 0%, #1f9488 42%, #123735 100%);
 }
 
 :root[data-theme="light"] body:has(.home-page) {
   background:
     radial-gradient(circle at 14% 8%, rgba(255, 248, 236, 0.64), transparent 24%),
-    radial-gradient(circle at 92% 18%, rgba(217, 123, 85, 0.24), transparent 22%),
-    radial-gradient(circle at 52% 106%, rgba(247, 230, 185, 0.46), transparent 28%),
-    linear-gradient(180deg, #4b9d98 0%, #6bb5ad 44%, #dceee8 100%);
+    radial-gradient(circle at 92% 18%, rgba(117, 222, 211, 0.32), transparent 22%),
+    radial-gradient(circle at 52% 106%, rgba(247, 230, 185, 0.42), transparent 28%),
+    linear-gradient(180deg, #4eb2aa 0%, #78cfc5 44%, #e0f4f0 100%);
 }
 
 a {
@@ -214,18 +214,22 @@ a {
   position: relative;
   isolation: isolate;
   display: flex;
-  min-height: 31.5rem;
+  min-height: 33.25rem;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 22px;
-  border: 1px solid rgba(229, 205, 164, 0.9);
-  padding: clamp(1.35rem, 2.5vw, 1.8rem);
-  color: #18201b;
+  border-radius: 20px;
+  border: 1px solid rgba(178, 218, 209, 0.92);
+  padding: clamp(1.45rem, 2.6vw, 2rem);
+  color: #14201f;
   background:
-    linear-gradient(180deg, rgba(255, 252, 246, 0.96) 0%, rgba(248, 241, 230, 0.94) 100%);
+    linear-gradient(180deg, rgba(255, 253, 248, 0.98) 0%, rgba(246, 250, 243, 0.95) 100%);
   box-shadow:
-    0 22px 54px rgba(37, 55, 42, 0.12),
+    0 24px 58px rgba(21, 72, 67, 0.13),
     inset 0 1px 0 rgba(255, 255, 255, 0.72);
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
 }
 
 .home-plan-card::before {
@@ -234,39 +238,49 @@ a {
   inset: 0;
   z-index: -1;
   background:
-    linear-gradient(90deg, rgba(19, 111, 79, 0.16), transparent 42%),
-    radial-gradient(circle at 92% 10%, rgba(175, 126, 32, 0.16), transparent 28%);
-  opacity: 0.6;
+    linear-gradient(92deg, rgba(18, 174, 156, 0.16), transparent 42%),
+    radial-gradient(circle at 92% 10%, rgba(247, 230, 185, 0.24), transparent 28%);
+  opacity: 0.68;
+}
+
+@media (hover: hover) {
+  .home-plan-card:hover {
+    border-color: rgba(73, 201, 187, 0.78);
+    box-shadow:
+      0 28px 66px rgba(21, 72, 67, 0.17),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
+  }
 }
 
 .home-plan-card--trial {
-  border-color: rgba(174, 211, 190, 0.95);
+  border-color: rgba(164, 223, 213, 0.95);
   background:
-    linear-gradient(180deg, rgba(253, 255, 248, 0.98) 0%, rgba(240, 247, 238, 0.96) 100%);
+    linear-gradient(180deg, rgba(250, 255, 250, 0.98) 0%, rgba(236, 249, 244, 0.96) 100%);
 }
 
 .home-plan-card--trial::before {
   background:
-    linear-gradient(90deg, rgba(70, 136, 199, 0.12), transparent 44%),
-    radial-gradient(circle at 92% 12%, rgba(19, 111, 79, 0.16), transparent 30%);
+    linear-gradient(90deg, rgba(54, 178, 197, 0.14), transparent 44%),
+    radial-gradient(circle at 92% 12%, rgba(18, 174, 156, 0.2), transparent 30%);
 }
 
 .home-plan-card--premium {
-  border-color: rgba(239, 207, 145, 0.62);
-  color: #fffaf1;
+  border-color: rgba(117, 222, 211, 0.62);
+  color: #f4fffc;
   background:
-    radial-gradient(circle at 86% 10%, rgba(241, 223, 173, 0.2), transparent 28%),
-    radial-gradient(circle at 12% 88%, rgba(70, 136, 199, 0.18), transparent 30%),
-    linear-gradient(145deg, #102821 0%, #176143 52%, #1d2931 100%);
+    radial-gradient(circle at 86% 10%, rgba(125, 235, 222, 0.24), transparent 30%),
+    radial-gradient(circle at 14% 86%, rgba(247, 230, 185, 0.12), transparent 30%),
+    linear-gradient(145deg, #0c302f 0%, #0d6f65 52%, #102e35 100%);
   box-shadow:
-    0 28px 70px rgba(13, 37, 31, 0.3),
+    0 30px 74px rgba(10, 58, 54, 0.34),
     inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 .home-plan-card--premium::before {
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.16), transparent 40%),
-    radial-gradient(circle at 84% 18%, rgba(241, 223, 173, 0.18), transparent 30%);
+    linear-gradient(90deg, rgba(255, 255, 255, 0.14), transparent 40%),
+    radial-gradient(circle at 84% 18%, rgba(112, 232, 215, 0.18), transparent 30%);
   opacity: 0.74;
 }
 
@@ -276,10 +290,10 @@ a {
   max-width: 100%;
   align-items: center;
   border-radius: 999px;
-  border: 1px solid rgba(218, 198, 165, 0.95);
+  border: 1px solid rgba(218, 198, 165, 0.82);
   background: rgba(255, 252, 245, 0.82);
   padding: 0.62rem 1rem;
-  color: #20231e;
+  color: #172422;
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -288,9 +302,9 @@ a {
 }
 
 .home-plan-card--premium .home-plan-badge {
-  border-color: rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 250, 241, 0.78);
+  border-color: rgba(183, 247, 237, 0.26);
+  background: rgba(197, 255, 246, 0.1);
+  color: rgba(244, 255, 252, 0.82);
 }
 
 .home-plan-price {
@@ -309,7 +323,7 @@ a {
 }
 
 .home-plan-card--premium .home-plan-cadence {
-  color: rgba(255, 250, 241, 0.72);
+  color: rgba(226, 255, 250, 0.72);
 }
 
 .home-plan-feature {
@@ -322,7 +336,7 @@ a {
 }
 
 .home-plan-card--premium .home-plan-feature {
-  color: rgba(255, 250, 241, 0.84);
+  color: rgba(235, 255, 251, 0.84);
 }
 
 .home-plan-feature-icon {
@@ -337,9 +351,9 @@ a {
 }
 
 .home-plan-feature-icon--yes {
-  background: #13714f;
-  color: #f6fff8;
-  box-shadow: 0 0 0 4px rgba(19, 113, 79, 0.08);
+  background: #108c7d;
+  color: #f3fffc;
+  box-shadow: 0 0 0 4px rgba(16, 140, 125, 0.1);
 }
 
 .home-plan-feature-icon--no {
@@ -348,35 +362,50 @@ a {
 }
 
 .home-plan-card--premium .home-plan-feature-icon--yes {
-  background: #2b946e;
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08);
+  background: #26bca8;
+  box-shadow: 0 0 0 4px rgba(183, 247, 237, 0.1);
+}
+
+.home-plan-actions {
+  margin-top: auto;
+  padding-top: clamp(2.15rem, 4vw, 3.4rem);
+}
+
+.home-plan-card--premium .home-plan-actions {
+  padding-top: clamp(2.6rem, 5vw, 3.8rem);
 }
 
 .home-plan-action {
   width: 100%;
   min-height: 3.25rem;
-  border-color: rgba(19, 111, 79, 0.22);
+  border-color: rgba(18, 174, 156, 0.24);
   background: rgba(255, 252, 245, 0.72);
-  color: #18201b;
-  box-shadow: 0 14px 34px rgba(37, 55, 42, 0.1);
+  color: #14201f;
+  box-shadow: 0 14px 34px rgba(21, 72, 67, 0.1);
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
 }
 
 .home-plan-action:hover {
-  border-color: rgba(19, 111, 79, 0.38);
+  border-color: rgba(18, 174, 156, 0.42);
   background: rgba(255, 255, 255, 0.86);
+  transform: translateY(-1px);
 }
 
 .home-plan-card--premium .home-plan-action {
-  border-color: rgba(241, 223, 173, 0.72);
-  background: linear-gradient(135deg, #1f8b64 0%, #55a180 100%);
+  border-color: rgba(168, 246, 235, 0.72);
+  background: linear-gradient(135deg, #13a995 0%, #6edcca 100%);
   color: #ffffff;
-  box-shadow: 0 18px 42px rgba(9, 57, 40, 0.32);
+  box-shadow: 0 18px 42px rgba(7, 78, 71, 0.34);
 }
 
 .home-plan-card--premium .home-plan-action--secondary {
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 250, 241, 0.86);
-  color: #1d2931;
+  border-color: rgba(183, 247, 237, 0.2);
+  background: rgba(244, 255, 252, 0.9);
+  color: #102e35;
   box-shadow: none;
 }
 

@@ -157,26 +157,28 @@ export default async function HomePage() {
                 })}
               </div>
 
-              <Button asChild className="home-plan-action mt-auto" variant={isPremium ? "default" : "secondary"}>
-                {isPremium ? (
-                  <PlanCheckoutLink>
-                    {plan.cta}
-                    <ArrowRight className="size-4" />
-                  </PlanCheckoutLink>
-                ) : (
-                  <Link href={plan.href}>
-                    {plan.cta}
-                    <ArrowRight className="size-4" />
-                  </Link>
-                )}
-              </Button>
-              {isPremium && "annualCta" in plan ? (
-                <Button asChild className="home-plan-action home-plan-action--secondary mt-3" variant="secondary">
-                  <PlanCheckoutLink hrefWhenLoggedIn="/billing?intent=checkout&cycle=annual" hrefWhenLoggedOut={plan.annualHref}>
-                    {plan.annualCta}
-                  </PlanCheckoutLink>
+              <div className="home-plan-actions">
+                <Button asChild className="home-plan-action" variant={isPremium ? "default" : "secondary"}>
+                  {isPremium ? (
+                    <PlanCheckoutLink>
+                      {plan.cta}
+                      <ArrowRight className="size-4" />
+                    </PlanCheckoutLink>
+                  ) : (
+                    <Link href={plan.href}>
+                      {plan.cta}
+                      <ArrowRight className="size-4" />
+                    </Link>
+                  )}
                 </Button>
-              ) : null}
+                {isPremium && "annualCta" in plan ? (
+                  <Button asChild className="home-plan-action home-plan-action--secondary mt-3" variant="secondary">
+                    <PlanCheckoutLink hrefWhenLoggedIn="/billing?intent=checkout&cycle=annual" hrefWhenLoggedOut={plan.annualHref}>
+                      {plan.annualCta}
+                    </PlanCheckoutLink>
+                  </Button>
+                ) : null}
+              </div>
             </article>
           );
         })}

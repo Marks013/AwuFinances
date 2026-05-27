@@ -222,7 +222,9 @@ a {
   padding: clamp(1.45rem, 2.6vw, 2rem);
   color: #14201f;
   background:
-    linear-gradient(180deg, rgba(255, 253, 248, 0.98) 0%, rgba(246, 250, 243, 0.95) 100%);
+    radial-gradient(circle at 12% 8%, rgba(181, 246, 235, 0.42), transparent 34%),
+    radial-gradient(circle at 92% 8%, rgba(255, 252, 244, 0.72), transparent 30%),
+    linear-gradient(180deg, rgba(241, 255, 252, 0.98) 0%, rgba(226, 249, 244, 0.95) 100%);
   box-shadow:
     0 24px 58px rgba(21, 72, 67, 0.13),
     inset 0 1px 0 rgba(255, 255, 255, 0.72);
@@ -238,9 +240,9 @@ a {
   inset: 0;
   z-index: -1;
   background:
-    linear-gradient(92deg, rgba(18, 174, 156, 0.16), transparent 42%),
-    radial-gradient(circle at 92% 10%, rgba(247, 230, 185, 0.24), transparent 28%);
-  opacity: 0.68;
+    linear-gradient(92deg, rgba(18, 174, 156, 0.18), transparent 42%),
+    radial-gradient(circle at 92% 10%, rgba(117, 222, 211, 0.2), transparent 30%);
+  opacity: 0.74;
 }
 
 @media (hover: hover) {
@@ -256,7 +258,9 @@ a {
 .home-plan-card--trial {
   border-color: rgba(164, 223, 213, 0.95);
   background:
-    linear-gradient(180deg, rgba(250, 255, 250, 0.98) 0%, rgba(236, 249, 244, 0.96) 100%);
+    radial-gradient(circle at 10% 8%, rgba(181, 246, 235, 0.46), transparent 34%),
+    radial-gradient(circle at 92% 10%, rgba(235, 255, 251, 0.78), transparent 30%),
+    linear-gradient(180deg, rgba(237, 255, 251, 0.98) 0%, rgba(221, 248, 243, 0.96) 100%);
 }
 
 .home-plan-card--trial::before {
@@ -378,10 +382,10 @@ a {
 .home-plan-action {
   width: 100%;
   min-height: 3.25rem;
-  border-color: rgba(18, 174, 156, 0.24);
-  background: rgba(255, 252, 245, 0.72);
-  color: #14201f;
-  box-shadow: 0 14px 34px rgba(21, 72, 67, 0.1);
+  border-color: rgba(151, 239, 226, 0.72);
+  background: linear-gradient(135deg, #0f8f80 0%, #37c7b5 100%);
+  color: #ffffff;
+  box-shadow: 0 18px 38px rgba(10, 108, 98, 0.2);
   transition:
     background-color 180ms ease,
     border-color 180ms ease,
@@ -390,8 +394,9 @@ a {
 }
 
 .home-plan-action:hover {
-  border-color: rgba(18, 174, 156, 0.42);
-  background: rgba(255, 255, 255, 0.86);
+  border-color: rgba(190, 255, 246, 0.86);
+  background: linear-gradient(135deg, #0c7f73 0%, #59d9c8 100%);
+  box-shadow: 0 20px 44px rgba(10, 108, 98, 0.26);
   transform: translateY(-1px);
 }
 

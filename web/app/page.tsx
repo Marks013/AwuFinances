@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { ArrowRight, Check, ShieldCheck, X } from "lucide-react";
 
+import { FloatingWhatsAppAssistant } from "@/components/home/floating-whatsapp-assistant";
 import { Button } from "@/components/ui/button";
 import { PlanCheckoutLink } from "@/features/billing/components/plan-checkout-link";
 import { getBillingSettings } from "@/lib/billing/settings";
@@ -64,14 +65,6 @@ function formatMoney(amount: number, currencyId: string) {
     style: "currency",
     currency: currencyId
   }).format(amount);
-}
-
-function WhatsAppGlyph() {
-  return (
-    <svg aria-hidden="true" className="size-7" fill="currentColor" viewBox="0 0 32 32">
-      <path d="M16.04 4C9.42 4 4.04 9.31 4.04 15.84c0 2.08.55 4.11 1.59 5.9L4 28l6.42-1.56a12.1 12.1 0 0 0 5.62 1.39c6.62 0 12-5.31 12-11.84S22.66 4 16.04 4Zm0 21.73c-1.75 0-3.47-.46-4.96-1.34l-.36-.21-3.81.93.98-3.61-.24-.38a9.71 9.71 0 0 1-1.5-5.28c0-5.37 4.43-9.74 9.89-9.74s9.89 4.37 9.89 9.74-4.43 9.89-9.89 9.89Zm5.43-7.3c-.3-.15-1.76-.86-2.03-.95-.27-.1-.47-.15-.67.15-.2.29-.77.95-.94 1.15-.17.2-.35.22-.64.07-.3-.15-1.25-.45-2.38-1.45-.88-.77-1.47-1.73-1.64-2.02-.17-.29-.02-.45.13-.6.13-.13.3-.34.45-.51.15-.17.2-.29.3-.49.1-.19.05-.37-.03-.52-.07-.15-.67-1.59-.92-2.18-.24-.57-.49-.49-.67-.5h-.57c-.2 0-.52.07-.79.37-.27.29-1.04 1-1.04 2.44s1.07 2.84 1.22 3.03c.15.2 2.11 3.18 5.12 4.46.72.31 1.28.49 1.72.63.72.23 1.37.2 1.89.12.58-.09 1.76-.71 2-1.39.25-.68.25-1.27.17-1.39-.07-.13-.27-.2-.57-.34Z" />
-    </svg>
-  );
 }
 
 export default async function HomePage() {
@@ -197,14 +190,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <Link
-        aria-label="Abrir WhatsApp financeiro"
-        className="home-floating-whatsapp fixed bottom-5 right-5 z-[95] inline-flex size-14 items-center justify-center rounded-full border border-white/35 bg-[#25d366] text-white shadow-[0_18px_38px_rgba(9,79,42,0.26)] transition hover:-translate-y-0.5 hover:bg-[#1fbd59] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#25d366]/35"
-        href="/dashboard/whatsapp"
-        title="Abrir WhatsApp financeiro"
-      >
-        <WhatsAppGlyph />
-      </Link>
+      <FloatingWhatsAppAssistant />
     </main>
   );
 }

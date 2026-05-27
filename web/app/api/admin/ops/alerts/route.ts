@@ -1,9 +1,13 @@
+import { createHash } from "node:crypto";
+
+import type { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { serverEnv } from "@/lib/env/server";
 import { buildGenericNotificationEmail } from "@/lib/notifications/email-template";
 import { captureRequestError } from "@/lib/observability/sentry";
+import { prisma } from "@/lib/prisma/client";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -12,6 +16,12 @@ const ALERT_EMAIL_TIMEOUT_MS = 8_000;
 const MAX_TEXT_LENGTH = 600;
 const MAX_ARRAY_ITEMS = 8;
 const MAX_DEPTH = 4;
+const WARNING_CONSECUTIVE_THRESHOLD = 2;
+const WARNING_REPEAT_WINDOW_MS = 6 * 60 * 60 * 1000;
+const CRITICAL_REPEAT_WINDOW_MS = 60 * 60 * 1000;
+const INFO_REPEAT_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+type AlertSeverity = "info" | "warning" | "critical";
 
 const alertPayloadSchema = z
   .object({
@@ -20,6 +30,9 @@ const alertPayloadSchema = z
     title: z.string().max(160).optional(),
     status: z.string().max(80).optional(),
     state: z.string().max(80).optional(),
+    severity: z.enum(["info", "warning", "critical"]).optional(),
+    fingerprint: z.string().max(160).optional(),
+    dedupeKey: z.string().max(160).optional(),
     alerts: z.array(z.unknown()).optional(),
     issues: z.array(z.unknown()).optional(),
     summary: z.record(z.string(), z.unknown()).optional(),
@@ -86,6 +99,91 @@ function resolveEmailSender() {
   }
 
   return serverEnv.EMAIL_FROM_NAME ? `${serverEnv.EMAIL_FROM_NAME} <${serverEnv.EMAIL_FROM}>` : serverEnv.EMAIL_FROM;
+}
+
+function hashText(value: string) {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+function normalizeToken(value: string | undefined, fallback: string) {
+  const sanitized = sanitizeText(value ?? fallback).toLowerCase();
+  return sanitized || fallback;
+}
+
+function resolveSeverity(payload: z.infer<typeof alertPayloadSchema>): AlertSeverity {
+  if (payload.severity) {
+    return payload.severity;
+  }
+
+  const status = `${payload.status ?? ""} ${payload.state ?? ""}`.toLowerCase();
+
+  if (/critical|fatal|down|failed|failure|error|erro|offline|unavailable/.test(status)) {
+    return "critical";
+  }
+
+  if (/degraded|warn|warning|attention|alert|pending|stale|old|atrasado|degradado/.test(status)) {
+    return "warning";
+  }
+
+  const issueCount = (payload.issues?.length ?? 0) + (payload.alerts?.length ?? 0);
+  if (issueCount > 0) {
+    return "warning";
+  }
+
+  return "info";
+}
+
+function isRecoveryStatus(payload: z.infer<typeof alertPayloadSchema>, severity: AlertSeverity) {
+  const status = `${payload.status ?? ""} ${payload.state ?? ""}`.toLowerCase();
+  return severity === "info" && /ok|healthy|success|resolved|recovered|normal/.test(status);
+}
+
+function buildAlertFingerprint(payload: z.infer<typeof alertPayloadSchema>, service: string, alertType: string) {
+  const explicit = payload.fingerprint ?? payload.dedupeKey;
+  if (explicit) {
+    return `ops:${hashText(sanitizeText(explicit))}`;
+  }
+
+  return `ops:${hashText([service, alertType].join("|"))}`;
+}
+
+function repeatWindowMs(severity: AlertSeverity) {
+  if (severity === "critical") {
+    return CRITICAL_REPEAT_WINDOW_MS;
+  }
+  if (severity === "warning") {
+    return WARNING_REPEAT_WINDOW_MS;
+  }
+  return INFO_REPEAT_WINDOW_MS;
+}
+
+function shouldDeliver(params: {
+  severity: AlertSeverity;
+  consecutiveCount: number;
+  lastDeliveredAt: Date | null;
+  recovery: boolean;
+  hadOpenIncident: boolean;
+}) {
+  if (params.recovery) {
+    return params.hadOpenIncident ? { deliver: true, reason: "recovery" } : { deliver: false, reason: "healthy_without_open_incident" };
+  }
+
+  if (params.severity === "info") {
+    return { deliver: false, reason: "info_suppressed" };
+  }
+
+  if (params.severity === "warning" && params.consecutiveCount < WARNING_CONSECUTIVE_THRESHOLD) {
+    return { deliver: false, reason: "waiting_for_recurrence" };
+  }
+
+  if (params.lastDeliveredAt) {
+    const elapsed = Date.now() - params.lastDeliveredAt.getTime();
+    if (elapsed < repeatWindowMs(params.severity)) {
+      return { deliver: false, reason: "dedupe_window" };
+    }
+  }
+
+  return { deliver: true, reason: params.severity };
 }
 
 async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit, timeoutMs: number) {
@@ -173,17 +271,78 @@ export async function POST(request: Request) {
     }
 
     const payload = alertPayloadSchema.parse(await request.json());
-    const sanitizedPayload = sanitizeValue(payload);
-    const service = sanitizeText(payload.service ?? "automation-hub");
-    const alertType = sanitizeText(payload.type ?? payload.title ?? "operational-alert");
-    const status = sanitizeText(payload.status ?? payload.state ?? "attention");
-    const subject = `[Awu Ops] ${service} - ${alertType} - ${status}`.slice(0, 180);
-    const message = JSON.stringify(sanitizedPayload, null, 2);
-    const delivery = await sendAlertEmail(subject, message);
+    const sanitizedPayload = sanitizeValue(payload) as Prisma.InputJsonValue;
+    const service = normalizeToken(payload.service, "automation-hub");
+    const alertType = normalizeToken(payload.type ?? payload.title, "operational-alert");
+    const status = normalizeToken(payload.status ?? payload.state, "attention");
+    const severity = resolveSeverity(payload);
+    const recovery = isRecoveryStatus(payload, severity);
+    const fingerprint = buildAlertFingerprint(payload, service, alertType);
+
+    const previous = await prisma.operationalAlertState.findUnique({
+      where: { fingerprint }
+    });
+    const hadOpenIncident = Boolean(previous && !previous.resolvedAt && previous.consecutiveCount > 0);
+    const consecutiveCount = recovery ? 0 : (previous?.consecutiveCount ?? 0) + 1;
+
+    const decision = shouldDeliver({
+      severity,
+      consecutiveCount,
+      lastDeliveredAt: previous?.lastDeliveredAt ?? null,
+      recovery,
+      hadOpenIncident
+    });
+
+    const subjectPrefix = recovery ? "Recuperado" : severity === "critical" ? "Critico" : "Atencao";
+    const subject = `[Awu Ops] ${subjectPrefix}: ${service} - ${alertType}`.slice(0, 180);
+    const message = JSON.stringify(
+      {
+        service,
+        type: alertType,
+        status,
+        severity,
+        consecutiveCount,
+        decision: decision.reason,
+        payload: sanitizedPayload
+      },
+      null,
+      2
+    );
+
+    const delivery = decision.deliver ? await sendAlertEmail(subject, message) : { sent: false, reason: decision.reason };
+
+    await prisma.operationalAlertState.upsert({
+      where: { fingerprint },
+      create: {
+        fingerprint,
+        service,
+        type: alertType,
+        severity,
+        status,
+        consecutiveCount,
+        resolvedAt: recovery ? new Date() : null,
+        lastDeliveredAt: delivery.sent ? new Date() : null,
+        lastPayload: sanitizedPayload
+      },
+      update: {
+        service,
+        type: alertType,
+        severity,
+        status,
+        consecutiveCount,
+        resolvedAt: recovery ? new Date() : null,
+        lastDeliveredAt: delivery.sent ? new Date() : previous?.lastDeliveredAt ?? null,
+        lastPayload: sanitizedPayload
+      }
+    });
 
     return NextResponse.json({
       ok: true,
       delivered: delivery.sent,
+      suppressed: !delivery.sent,
+      severity,
+      consecutiveCount,
+      decision: decision.reason,
       delivery,
       timestamp: new Date().toISOString()
     });

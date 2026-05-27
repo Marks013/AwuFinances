@@ -982,3 +982,25 @@ model AdminAuditLog {
   @@index([targetTenantId, createdAt])
   @@index([entityType, entityId])
 }
+
+
+model OperationalAlertState {
+  id               String    @id @default(cuid())
+  fingerprint      String    @unique
+  service          String
+  type             String
+  severity         String
+  status           String
+  consecutiveCount Int       @default(0)
+  firstSeenAt      DateTime  @default(now())
+  lastSeenAt       DateTime  @updatedAt
+  lastDeliveredAt  DateTime?
+  resolvedAt       DateTime?
+  lastPayload      Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([service, type])
+  @@index([severity, status])
+  @@index([lastSeenAt])
+}

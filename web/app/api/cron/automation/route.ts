@@ -12,7 +12,11 @@ function isAuthorized(request: Request) {
   const bearerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice("Bearer ".length).trim() : null;
   const fallbackToken = request.headers.get("x-automation-secret");
 
-  return bearerToken === serverEnv.AUTOMATION_CRON_SECRET || fallbackToken === serverEnv.AUTOMATION_CRON_SECRET;
+  const validSecrets = [serverEnv.AWU_AUTOMATION_SECRET, serverEnv.AUTOMATION_CRON_SECRET].filter(
+    (value): value is string => Boolean(value)
+  );
+
+  return validSecrets.some((secret) => bearerToken === secret || fallbackToken === secret);
 }
 
 async function pruneWebhookEvents() {

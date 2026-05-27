@@ -241,10 +241,11 @@ a {
 .home-testimonial-video {
   display: block;
   width: 100%;
-  height: clamp(18rem, 38vw, 44rem);
-  object-fit: cover;
+  height: auto;
+  aspect-ratio: 99 / 40;
+  object-fit: contain;
   object-position: center;
-  background: #5abcb2;
+  background: #e0b0a4;
 }
 
 .home-plans-grid {
@@ -495,10 +496,6 @@ a {
   .home-hero-actions svg {
     width: 0.95rem;
     height: 0.95rem;
-  }
-
-  .home-testimonial-video {
-    height: clamp(16rem, 76vw, 20rem);
   }
 
   .home-plan-card {

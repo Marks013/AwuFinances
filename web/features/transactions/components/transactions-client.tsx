@@ -166,8 +166,8 @@ async function updateTransaction(id: string, values: TransactionUpdateValues) {
   return response.json();
 }
 
-async function deleteTransaction(id: string) {
-  const response = await fetch(`/api/transactions/${id}`, {
+async function deleteTransaction({ id, scope }: { id: string; scope?: "single" | "group" }) {
+  const response = await fetch(`/api/transactions/${id}${scope === "group" ? "?scope=group" : ""}`, {
     method: "DELETE"
   });
 
@@ -416,7 +416,7 @@ export function TransactionsClient() {
     setIsEditorOpen(true);
     setEditingId(transaction.id);
     setIsCreditEditLocked(transaction.paymentMethod === "credit_card" || Boolean(transaction.card));
-    setEditingScope("single");
+    setEditingScope(transaction.installmentsTotal > 1 ? "group" : "single");
     setEditingInstallmentsTotal(transaction.installmentsTotal);
     form.reset({
       date: normalizeCalendarDate(transaction.date),
@@ -1270,11 +1270,16 @@ export function TransactionsClient() {
                     </Button>
                     <Button
                       disabled={deleteMutation.isPending}
-                      onClick={() => deleteMutation.mutate(transaction.id)}
+                      onClick={() =>
+                        deleteMutation.mutate({
+                          id: transaction.id,
+                          scope: transaction.installmentsTotal > 1 ? "group" : "single"
+                        })
+                      }
                       type="button"
                       variant="ghost"
                     >
-                      Excluir
+                      {transaction.installmentsTotal > 1 ? "Excluir parcelamento" : "Excluir"}
                     </Button>
                   </div>
                 </div>

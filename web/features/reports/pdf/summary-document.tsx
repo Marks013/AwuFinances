@@ -62,6 +62,13 @@ type SummaryDocumentProps = {
       items: number;
       share: number;
     } | null;
+    categoryBreakdown?: Array<{
+      id: string | null;
+      name: string;
+      total: number;
+      items: number;
+      share: number;
+    }>;
   };
   comparison: {
     averageIncome: number;
@@ -565,7 +572,7 @@ export function SummaryDocument({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <View style={styles.hero}>
+        <View style={styles.hero} wrap={false}>
           <Text style={styles.eyebrow}>Awu Finances</Text>
           <Text style={styles.title}>{labels?.periodTitle ?? title}</Text>
           <Text style={styles.subtitle}>{labels?.periodSubtitle ?? subtitle}</Text>
@@ -576,7 +583,7 @@ export function SummaryDocument({
           </View>
         </View>
 
-        <View style={styles.executivePanel}>
+        <View style={styles.executivePanel} wrap={false}>
           <Text style={toneStyle(resolvedNarrative.tone)}>{resolvedNarrative.headline ?? "Leitura executiva do periodo"}</Text>
           <Text style={styles.executiveSummary}>
             {resolvedNarrative.summary ??
@@ -589,23 +596,23 @@ export function SummaryDocument({
           ))}
         </View>
 
-        <View style={styles.metricsGrid}>
-          <View style={styles.metricCard}>
+        <View style={styles.metricsGrid} wrap={false}>
+          <View style={styles.metricCard} wrap={false}>
             <Text style={styles.metricLabel}>Resultado do periodo</Text>
             <Text style={metricToneStyle(summary.balance)}>{money(summary.balance)}</Text>
             <Text style={styles.metricSupport}>{cadenceLabel}</Text>
           </View>
-          <View style={styles.metricCard}>
+          <View style={styles.metricCard} wrap={false}>
             <Text style={styles.metricLabel}>Receitas</Text>
             <Text style={[styles.metricValue, styles.positive]}>{money(summary.income)}</Text>
             <Text style={styles.metricSupport}>Taxa de poupanca de {percent(summary.savingsRate)}</Text>
           </View>
-          <View style={styles.metricCard}>
+          <View style={styles.metricCard} wrap={false}>
             <Text style={styles.metricLabel}>Despesas</Text>
             <Text style={[styles.metricValue, styles.negative]}>{money(summary.expense)}</Text>
             <Text style={styles.metricSupport}>{concentrationLabel}</Text>
           </View>
-          <View style={styles.metricCard}>
+          <View style={styles.metricCard} wrap={false}>
             <Text style={styles.metricLabel}>Transferencias</Text>
             <Text style={styles.metricValue}>{money(summary.transfer)}</Text>
             <Text style={styles.metricSupport}>Fluxo interno de {percent(comparison.transferShare)}</Text>
@@ -621,7 +628,7 @@ export function SummaryDocument({
           </View>
           <View style={styles.highlightGrid}>
             {resolvedHighlights.map((item) => (
-              <View key={`${item.label}-${item.value}`} style={styles.highlightCard}>
+              <View key={`${item.label}-${item.value}`} style={styles.highlightCard} wrap={false}>
                 <Text style={styles.highlightLabel}>{item.label}</Text>
                 <Text style={styles.highlightValue}>{item.value}</Text>
                 {item.support ? <Text style={styles.highlightSupport}>{item.support}</Text> : null}
@@ -629,6 +636,28 @@ export function SummaryDocument({
             ))}
           </View>
         </View>
+
+        {(spendingInsights.categoryBreakdown?.length ?? 0) > 0 ? (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader} wrap={false}>
+              <Text style={styles.sectionTitle}>Composicao das despesas</Text>
+              <Text style={styles.sectionMeta}>Categorias que explicam o resultado</Text>
+            </View>
+            <View style={styles.panel}>
+              {(spendingInsights.categoryBreakdown ?? []).slice(0, 6).map((item, index, list) => (
+                <View key={item.id ?? item.name} style={rowStyle(index === list.length - 1)} wrap={false}>
+                  <View style={styles.rowContent}>
+                    <Text style={styles.rowTitle}>{item.name}</Text>
+                    <Text style={styles.rowMeta}>
+                      {item.items} lancamentos • {percent(item.share)} das despesas
+                    </Text>
+                  </View>
+                  <Text style={amountStyle(-item.total)}>{money(item.total)}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        ) : null}
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -642,7 +671,7 @@ export function SummaryDocument({
               <View style={styles.panel}>
                 {resolvedQuarters.length > 0 ? (
                   resolvedQuarters.slice(0, 4).map((item, index) => (
-                    <View key={item.label} style={rowStyle(index === resolvedQuarters.slice(0, 4).length - 1)}>
+                    <View key={item.label} style={rowStyle(index === resolvedQuarters.slice(0, 4).length - 1)} wrap={false}>
                       <View style={styles.rowContent}>
                         <Text style={styles.rowTitle}>{item.label}</Text>
                         <Text style={styles.rowMeta}>
@@ -661,7 +690,7 @@ export function SummaryDocument({
               <View style={styles.panel}>
                 {byAccount.length > 0 ? (
                   byAccount.slice(0, 4).map((item, index) => (
-                    <View key={item.id} style={rowStyle(index === byAccount.slice(0, 4).length - 1)}>
+                    <View key={item.id} style={rowStyle(index === byAccount.slice(0, 4).length - 1)} wrap={false}>
                       <View style={styles.rowContent}>
                         <Text style={styles.rowTitle}>{item.name}</Text>
                         <Text style={styles.rowMeta}>
@@ -692,7 +721,7 @@ export function SummaryDocument({
               <View style={styles.panel}>
                 {byCard.length > 0 ? (
                   byCard.slice(0, 4).map((item, index) => (
-                    <View key={item.id} style={rowStyle(index === byCard.slice(0, 4).length - 1)}>
+                    <View key={item.id} style={rowStyle(index === byCard.slice(0, 4).length - 1)} wrap={false}>
                       <View style={styles.rowContent}>
                         <Text style={styles.rowTitle}>{item.name}</Text>
                         <Text style={styles.rowMeta}>
@@ -711,7 +740,7 @@ export function SummaryDocument({
               <View style={styles.panel}>
                 {recent.length > 0 ? (
                   recent.slice(0, 4).map((item, index) => (
-                    <View key={`${item.date}-${item.description}-${index}`} style={rowStyle(index === recent.slice(0, 4).length - 1)}>
+                    <View key={`${item.date}-${item.description}-${index}`} style={rowStyle(index === recent.slice(0, 4).length - 1)} wrap={false}>
                       <View style={styles.rowContent}>
                         <Text style={styles.rowTitle}>{item.description}</Text>
                         <Text style={styles.rowMeta}>

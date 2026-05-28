@@ -69,6 +69,16 @@ function buildEmptySubscriptionValues(): SubscriptionFormValues {
   };
 }
 
+function getBillingDayFromDateKey(value: string) {
+  const parsed = new Date(`${value}T12:00:00`);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  return parsed.getDate();
+}
+
 function getOccurrenceDateForMonth(item: SubscriptionItem, monthKey: string) {
   if (item.activeMonthDate) {
     return new Date(item.activeMonthDate);
@@ -292,6 +302,7 @@ export function SubscriptionsClient() {
   const selectedType = useWatch({ control: form.control, name: "type" }) ?? "expense";
   const selectedAccountId = useWatch({ control: form.control, name: "accountId" }) ?? "";
   const selectedCardId = useWatch({ control: form.control, name: "cardId" }) ?? "";
+  const selectedNextBillingDate = useWatch({ control: form.control, name: "nextBillingDate" }) ?? "";
   const selectedAccount = (accountsQuery.data?.items ?? []).find((item) => item.id === selectedAccountId) ?? null;
   const isBenefitWalletSelected = selectedAccount?.usage === "benefit_food";
   const filteredCategories = (categoriesQuery.data?.items ?? []).filter((item) => {
@@ -308,6 +319,10 @@ export function SubscriptionsClient() {
   const isEditing = editingId !== null;
   const showEditor = isEditorOpen || isEditing || subscriptions.length === 0;
   const selectedName = useWatch({ control: form.control, name: "name" }) ?? "";
+  const selectedOccurrenceDay = getBillingDayFromDateKey(selectedNextBillingDate);
+  const selectedOccurrenceMonth = selectedNextBillingDate
+    ? formatMonthKeyLabel(selectedNextBillingDate.slice(0, 7))
+    : null;
   const streamingCategoryId =
     (categoriesQuery.data?.items ?? []).find(
       (item) => item.type === "expense" && item.name === "Streaming e assinaturas"
@@ -329,6 +344,18 @@ export function SubscriptionsClient() {
 
     return () => window.clearTimeout(timeout);
   };
+
+  useEffect(() => {
+    const day = getBillingDayFromDateKey(selectedNextBillingDate);
+
+    if (!day) {
+      return;
+    }
+
+    if (Number(form.getValues("billingDay")) !== day) {
+      form.setValue("billingDay", day, { shouldDirty: true, shouldValidate: true });
+    }
+  }, [form, selectedNextBillingDate]);
 
   useEffect(() => {
     if (isBenefitWalletSelected && selectedCardId) {
@@ -426,15 +453,31 @@ export function SubscriptionsClient() {
               <CurrencyInput control={form.control} id="sub-amount" name="amount" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="sub-day">Dia</Label>
-              <Input id="sub-day" type="number" {...form.register("billingDay")} />
+              <Label htmlFor="sub-day">Dia mensal</Label>
+              <Input id="sub-day" readOnly type="number" {...form.register("billingDay")} />
+              <p className="text-xs leading-5 text-[var(--color-muted-foreground)]">
+                Definido automaticamente pela data da primeira ocorrência.
+              </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="sub-next">{selectedType === "income" ? "Próximo recebimento" : "Próxima cobrança"}</Label>
+              <Label htmlFor="sub-next">
+                {isEditing
+                  ? selectedType === "income"
+                    ? "Próximo recebimento real"
+                    : "Próxima cobrança real"
+                  : selectedType === "income"
+                    ? "Primeiro recebimento"
+                    : "Primeira cobrança"}
+              </Label>
               <Input id="sub-next" type="date" {...form.register("nextBillingDate")} />
               {form.formState.errors.nextBillingDate ? (
                 <p className="text-sm text-[var(--color-destructive)]">{form.formState.errors.nextBillingDate.message}</p>
               ) : null}
+              <p className="text-xs leading-5 text-[var(--color-muted-foreground)]">
+                {selectedOccurrenceDay && selectedOccurrenceMonth
+                  ? `Vai começar em ${selectedOccurrenceMonth} e repetir todo dia ${selectedOccurrenceDay}.`
+                  : "Escolha quando esta recorrência deve começar de verdade."}
+              </p>
             </div>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
@@ -491,8 +534,8 @@ export function SubscriptionsClient() {
           ) : null}
           <p className="text-sm text-[var(--color-muted-foreground)]">
             {isBenefitWalletSelected
-              ? "Vale Alimentação aceita créditos recorrentes e consumos pela própria carteira, sem cartão e com categorias elegíveis."
-              : "Vincule a recorrência à conta ou ao cartão correto para que relatórios, fatura e painel reflitam o impacto financeiro no lugar certo."}
+              ? "Vale alimentação pode receber crédito recorrente e consumo pela própria carteira. Ele entra na competência da primeira ocorrência escolhida."
+              : "A data acima é a primeira ocorrência real: se escolher maio, entra em maio; se escolher junho, só começa em junho. Para meses anteriores, use uma transação manual."}
           </p>
           <Button className="w-full" disabled={saveMutation.isPending} type="submit">
             {saveMutation.isPending ? "Salvando..." : isEditing ? "Salvar assinatura" : "Criar assinatura"}

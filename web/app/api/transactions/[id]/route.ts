@@ -328,17 +328,22 @@ export async function DELETE(request: Request, context: Params) {
   try {
     const user = await requireSessionUser();
     const { id } = await context.params;
+    const { searchParams } = new URL(request.url);
+    const deleteScope = searchParams.get("scope") === "group" ? "group" : "single";
     const existingTransaction = await prisma.transaction.findFirstOrThrow({
       where: {
         id,
         tenantId: user.tenantId
       },
       select: {
+        id: true,
         competence: true,
         date: true,
         titheAmount: true,
         notes: true,
-        userId: true
+        userId: true,
+        parentId: true,
+        installmentsTotal: true
       }
     });
 
@@ -352,22 +357,44 @@ export async function DELETE(request: Request, context: Params) {
       );
     }
 
-    await prisma.transaction.delete({
-      where: {
-        id
+    const groupRootId =
+      deleteScope === "group" && existingTransaction.installmentsTotal > 1
+        ? existingTransaction.parentId ?? existingTransaction.id
+        : null;
+    const deleteWhere: Prisma.TransactionWhereInput = groupRootId
+      ? {
+          tenantId: user.tenantId,
+          OR: [{ id: groupRootId }, { parentId: groupRootId }]
+        }
+      : {
+          id,
+          tenantId: user.tenantId
+        };
+    const affectedTransactions = await prisma.transaction.findMany({
+      where: deleteWhere,
+      select: {
+        competence: true,
+        titheAmount: true
       }
     });
+    const deleted = await prisma.transaction.deleteMany({
+      where: deleteWhere
+    });
 
-    if (Number(existingTransaction.titheAmount ?? 0) > 0) {
+    const affectedTitheMonthKeys = affectedTransactions
+      .filter((transaction) => Number(transaction.titheAmount ?? 0) > 0)
+      .map((transaction) => transaction.competence);
+
+    if (affectedTitheMonthKeys.length > 0) {
       await syncTitheForMonthKeys({
         tenantId: user.tenantId,
         userId: existingTransaction.userId ?? user.id,
-        monthKeys: [existingTransaction.competence]
+        monthKeys: affectedTitheMonthKeys
       });
     }
     revalidateFinanceReports(user.tenantId);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, deleted: deleted.count, scope: groupRootId ? "group" : "single" });
   } catch (error) {
     if (error instanceof Error && error.message === "Unauthorized") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });

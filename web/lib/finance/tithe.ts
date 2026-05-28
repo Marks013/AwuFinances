@@ -4,7 +4,7 @@ import { buildCategoryKeywords, defaultCategories, getDefaultCategorySystemKey }
 import { prisma } from "@/lib/prisma/client";
 import { formatDateKey } from "@/lib/date";
 
-type TitheClient = Pick<PrismaClient, "category" | "transaction">;
+type TitheClient = Pick<PrismaClient, "category" | "transaction" | "financialAccount">;
 
 export function getMonthKey(date: Date) {
   return formatDateKey(date).slice(0, 7);
@@ -109,14 +109,25 @@ export async function syncMonthlyTitheTransaction({
         id: true,
         accountId: true,
         titheAmount: true,
-        date: true
+        date: true,
+        financialAccount: {
+          select: {
+            usage: true
+          }
+        }
       }
     }),
     client.transaction.findMany({
       where: {
         tenantId,
         type: "expense",
-        notes: notesTag
+        OR: [
+          { notes: notesTag },
+          {
+            competence: monthKey,
+            titheCategoryId
+          }
+        ]
       },
       select: {
         id: true,
@@ -164,7 +175,23 @@ export async function syncMonthlyTitheTransaction({
   const primaryAutoTithe = existingAutoTithes[0] ?? null;
   const duplicateIds = existingAutoTithes.slice(1).map((item) => item.id);
   const preferredAccountId =
-    incomeTransactions.find((transaction) => transaction.accountId)?.accountId ?? null;
+    incomeTransactions.find(
+      (transaction) => transaction.accountId && transaction.financialAccount?.usage !== "benefit_food"
+    )?.accountId ??
+    (
+      await client.financialAccount.findFirst({
+        where: {
+          tenantId,
+          isActive: true,
+          usage: "standard"
+        },
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+        select: {
+          id: true
+        }
+      })
+    )?.id ??
+    null;
   const dueDate = new Date(`${monthKey}-01T12:00:00`);
   dueDate.setMonth(dueDate.getMonth() + 1, 0);
 

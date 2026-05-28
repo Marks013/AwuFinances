@@ -51,6 +51,10 @@ function startOfDay(date: Date) {
   return next;
 }
 
+function formatPercent(value: number) {
+  return `${Math.round(value * 100)}%`;
+}
+
 async function getDashboardData(tenantId: string, month: string) {
   const { start, end } = getMonthRange(month);
   const statementReferenceDate = getStatementReferenceDate(month);
@@ -276,6 +280,34 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const goalSectionTitle = monthPerspective === "current" ? "Metas com prazo próximo" : "Metas com prazo no período";
   const movementSectionCopy =
     "Aqui entram os lançamentos da competência selecionada. Em compras no cartão, a data real e o vencimento aparecem separados.";
+  const topCategory = data.spendingInsights.topCategory;
+  const executiveSignals = [
+    {
+      label: "Leitura do fechamento",
+      value: data.periodResult < 0 ? "Mês pressionado" : data.periodResult > 0 ? "Mês positivo" : "Mês equilibrado",
+      detail:
+        data.periodResult < 0
+          ? `As despesas superam as receitas em ${formatCurrency(Math.abs(data.periodResult))}.`
+          : data.periodResult > 0
+            ? `Sobrou ${formatCurrency(data.periodResult)} na competência.`
+            : "Receitas e despesas empataram no período."
+    },
+    {
+      label: "Principal pressão",
+      value: topCategory?.name ?? "Sem categoria dominante",
+      detail: topCategory
+        ? `${formatCurrency(topCategory.total)} em ${topCategory.items} lançamento(s), ${formatPercent(topCategory.share)} das despesas.`
+        : "Cadastre lançamentos para o painel apontar onde o gasto pesa mais."
+    },
+    {
+      label: "Próximos compromissos",
+      value: data.upcomingProjection.length > 0 ? `${data.upcomingProjection.length} item(ns)` : "Sem pressão imediata",
+      detail:
+        data.upcomingProjection.length > 0
+          ? `${formatCurrency(data.periodExpenseForecast)} em recorrências, faturas e compromissos previstos.`
+          : dueSectionEmpty
+    }
+  ];
 
   return (
     <div className="space-y-6 py-4">
@@ -334,6 +366,31 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 <p className="mt-2 text-sm leading-6 text-[var(--color-ink-700)]">
                   Caixa real das contas após os lançamentos datados no período.
                 </p>
+              </div>
+            </div>
+
+            <div className="muted-panel mt-1 border border-[var(--color-border)]/80 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="metric-label">Leitura executiva</p>
+                  <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
+                    Sinais úteis para fechar o mês sem misturar ruído operacional.
+                  </p>
+                </div>
+                <Link className="text-sm font-medium text-[var(--color-primary)]" href={`/dashboard/reports?month=${month}`}>
+                  Detalhar
+                </Link>
+              </div>
+              <div className="mt-4 grid gap-3 lg:grid-cols-3">
+                {executiveSignals.map((signal) => (
+                  <div key={signal.label} className="rounded-[1rem] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3">
+                    <p className="text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[var(--color-muted-foreground)]">
+                      {signal.label}
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-[var(--color-foreground)]">{signal.value}</p>
+                    <p className="mt-1 text-xs leading-5 text-[var(--color-muted-foreground)]">{signal.detail}</p>
+                  </div>
+                ))}
               </div>
             </div>
 

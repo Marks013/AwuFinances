@@ -17,6 +17,10 @@ function readAccountUsage(account: unknown) {
   return (account as { usage?: "standard" | "benefit_food" }).usage ?? "standard";
 }
 
+function getBillingDayFromOccurrenceDate(date: Date) {
+  return date.getDate();
+}
+
 function getProjectedOccurrenceDate(subscription: { nextBillingDate: Date; billingDay: number }, month: string) {
   const nextBillingMonth = subscription.nextBillingDate.toISOString().slice(0, 7);
 
@@ -79,7 +83,7 @@ export async function GET(request: Request) {
       await Promise.all(
         subscriptions.map(async (subscription) => {
           const generatedTransaction = transactionBySubscriptionId.get(subscription.id) ?? null;
-          const projectedOccurrenceDate = month ? getProjectedOccurrenceDate(subscription, month) : null;
+          const projectedOccurrenceDate = month && subscription.isActive ? getProjectedOccurrenceDate(subscription, month) : null;
           const includeInActiveMonth =
             !monthRange ||
             Boolean(generatedTransaction) || Boolean(projectedOccurrenceDate);
@@ -146,6 +150,7 @@ export async function POST(request: Request) {
     const user = await requireSessionUser({ feature: "automation" });
     const body = subscriptionFormSchema.parse(await request.json());
     const nextBillingDate = new Date(`${body.nextBillingDate}T12:00:00`);
+    const billingDay = getBillingDayFromOccurrenceDate(nextBillingDate);
 
     if (isBeforeCurrentSubscriptionMonth(nextBillingDate)) {
       return NextResponse.json(
@@ -184,7 +189,7 @@ export async function POST(request: Request) {
         userId: user.id,
         name: body.name,
         amount: body.amount,
-        billingDay: body.billingDay,
+        billingDay,
         categoryId: classification.categoryId,
         accountId: body.accountId || null,
         cardId: body.cardId || null,

@@ -478,58 +478,32 @@ a {
 
 .awu-gooey-footer {
   --awu-footer-background: #07827f;
-  --awu-footer-background-soft: #0aa49a;
-  --awu-footer-background-deep: #053f45;
-  --awu-footer-glow: #9df7e5;
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  overflow: visible;
   margin-top: 5rem;
   min-height: 18rem;
-  background:
-    radial-gradient(circle at 18% 8%, rgba(157, 247, 229, 0.28), transparent 27%),
-    radial-gradient(circle at 84% 20%, rgba(70, 188, 199, 0.25), transparent 24%),
-    linear-gradient(180deg, var(--awu-footer-background) 0%, var(--awu-footer-background-deep) 100%);
+  background: var(--awu-footer-background);
   box-shadow: 0 -26px 70px rgba(4, 54, 57, 0.2);
-}
-
-.awu-gooey-footer::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.1), transparent 24%, rgba(255, 255, 255, 0.07) 72%, transparent),
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.2), transparent 34%);
-  opacity: 0.82;
 }
 
 .awu-gooey-footer__bubbles {
   position: absolute;
   inset: 0 0 auto;
-  z-index: 1;
-  height: 1.25rem;
+  z-index: 0;
+  height: 1rem;
   pointer-events: none;
   background: var(--awu-footer-background);
   filter: url("#awu-footer-blob");
-}
-
-.awu-gooey-footer__bubbles::before {
-  content: "";
-  position: absolute;
-  inset: -0.4rem 0 0;
-  background:
-    radial-gradient(circle at 18% 0%, rgba(157, 247, 229, 0.34), transparent 24%),
-    linear-gradient(90deg, var(--awu-footer-background-soft), var(--awu-footer-background), var(--awu-footer-background-soft));
 }
 
 .awu-gooey-footer__bubble {
   position: absolute;
   left: var(--position, 50%);
   border-radius: 999px;
-  background: var(--awu-footer-background-soft);
+  background: var(--awu-footer-background);
   transform: translate(-50%, 100%);
+  will-change: bottom, height, width;
   animation:
     awu-footer-bubble-size var(--time, 4s) ease-in infinite var(--delay, 0s),
     awu-footer-bubble-move var(--time, 4s) ease-in infinite var(--delay, 0s);
@@ -574,7 +548,7 @@ a {
   }
 
   .awu-gooey-footer__bubbles {
-    height: 0.95rem;
+    height: 1rem;
   }
 }
 

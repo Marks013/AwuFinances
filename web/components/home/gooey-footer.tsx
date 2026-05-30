@@ -7,10 +7,10 @@ import { BrandMark } from "@/components/layout/brand-mark";
 type BubbleStyle = CSSProperties & Record<`--${string}`, string>;
 
 const footerBubbles = Array.from({ length: 128 }, (_, index) => {
-  const size = 2 + ((index * 37) % 44) / 10;
-  const distance = 6 + ((index * 53) % 44) / 10;
+  const size = 2 + ((index * 37) % 40) / 10;
+  const distance = 6 + ((index * 53) % 40) / 10;
   const position = -5 + ((index * 29) % 110);
-  const time = 2 + ((index * 17) % 22) / 10;
+  const time = 2 + ((index * 17) % 20) / 10;
   const delay = -1 * (2 + ((index * 31) % 20) / 10);
 
   return {

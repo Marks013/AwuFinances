@@ -451,6 +451,94 @@ a {
   color: #ffffff;
 }
 
+.awu-gooey-footer {
+  --awu-footer-background: #087f7d;
+  --awu-footer-background-deep: #06484d;
+  --awu-footer-glow: #95f5df;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(149, 245, 223, 0.22), transparent 28%),
+    radial-gradient(circle at 84% 30%, rgba(70, 188, 199, 0.22), transparent 24%),
+    linear-gradient(180deg, var(--awu-footer-background) 0%, var(--awu-footer-background-deep) 100%);
+  box-shadow: 0 -26px 70px rgba(4, 54, 57, 0.2);
+}
+
+.awu-gooey-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.1), transparent 24%, rgba(255, 255, 255, 0.06) 72%, transparent),
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.18), transparent 34%);
+  opacity: 0.82;
+}
+
+.awu-gooey-footer__bubbles {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 0;
+  height: 1.25rem;
+  pointer-events: none;
+  background: var(--awu-footer-background);
+  filter: url("#awu-footer-blob");
+}
+
+.awu-gooey-footer__bubble {
+  position: absolute;
+  left: var(--position, 50%);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.42), transparent 28%),
+    linear-gradient(160deg, #18c9b7 0%, var(--awu-footer-background) 62%, #055e62 100%);
+  transform: translate(-50%, 100%);
+  animation:
+    awu-footer-bubble-size var(--time, 4s) ease-in infinite var(--delay, 0s),
+    awu-footer-bubble-move var(--time, 4s) ease-in infinite var(--delay, 0s);
+}
+
+@keyframes awu-footer-bubble-size {
+  0%,
+  75% {
+    width: var(--size, 4rem);
+    height: var(--size, 4rem);
+  }
+
+  100% {
+    width: 0;
+    height: 0;
+  }
+}
+
+@keyframes awu-footer-bubble-move {
+  0% {
+    bottom: -4rem;
+  }
+
+  100% {
+    bottom: var(--distance, 10rem);
+  }
+}
+
+@media (max-width: 640px) {
+  .awu-gooey-footer__bubbles {
+    height: 0.95rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .awu-gooey-footer__bubble {
+    animation: none !important;
+    bottom: 0;
+    width: var(--size, 3rem);
+    height: var(--size, 3rem);
+    opacity: 0.55;
+  }
+}
+
 .home-hero-banner {
   position: relative;
   border-bottom-color: rgba(126, 181, 174, 0.58);

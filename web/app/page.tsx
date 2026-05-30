@@ -3,6 +3,7 @@ import type { Route } from "next";
 import { ArrowRight, Check, ShieldCheck, X } from "lucide-react";
 
 import { FloatingWhatsAppAssistant } from "@/components/home/floating-whatsapp-assistant";
+import { GooeyFooter } from "@/components/home/gooey-footer";
 import { Button } from "@/components/ui/button";
 import { PlanCheckoutLink } from "@/features/billing/components/plan-checkout-link";
 import { getBillingSettings } from "@/lib/billing/settings";
@@ -73,7 +74,8 @@ export default async function HomePage() {
   const premiumAnnualPrice = formatMoney(billingSettings.annualAmount, billingSettings.currencyId);
 
   return (
-    <main id="main-content" className="home-page page-shell py-4 md:py-8">
+    <>
+      <main id="main-content" className="home-page page-shell py-4 md:py-8">
       <section className="home-hero-banner overflow-hidden rounded-[26px] border border-[#7eb5ae]/45 bg-[#d7e8e5] shadow-[0_28px_80px_rgba(22,54,52,0.22)]">
         <h1 className="sr-only">Awu Finances: economia e financas com controle financeiro diario.</h1>
         <div className="home-hero-media relative isolate overflow-hidden bg-[#519f9d]">
@@ -205,6 +207,8 @@ export default async function HomePage() {
       </section>
 
       <FloatingWhatsAppAssistant />
-    </main>
+      </main>
+      <GooeyFooter />
+    </>
   );
 }

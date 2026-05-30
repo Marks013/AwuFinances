@@ -7,23 +7,36 @@ import { cn } from "@/lib/utils";
 
 export function ThemeToggle({ compact = false }: { compact?: boolean }) {
   const { theme, toggleTheme } = useTheme();
+  const targetTheme = theme === "light" ? "dark" : "light";
 
   return (
     <button
       aria-label={theme === "light" ? "Ativar tema escuro" : "Ativar tema claro"}
       className={cn(
-        "inline-flex items-center gap-2 rounded-full border transition-all duration-200 hover:-translate-y-0.5",
-        compact
-          ? "relative z-20 border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-card)_92%,var(--color-muted))] px-3 py-2 text-xs text-[var(--color-foreground)] shadow-[0_12px_28px_rgba(15,23,42,0.18)] backdrop-blur-md"
-          : "fixed right-5 top-5 z-[90] border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-card)_92%,var(--color-muted))] px-4 py-2.5 text-sm text-[var(--color-foreground)] shadow-[0_18px_38px_rgba(15,23,42,0.16)] backdrop-blur-md"
+        "theme-toggle",
+        compact ? "theme-toggle--compact relative z-20" : "theme-toggle--floating fixed right-5 top-5 z-[90]"
       )}
+      data-target-theme={targetTheme}
       onClick={toggleTheme}
       type="button"
     >
-      <span className="inline-flex size-6 items-center justify-center rounded-full bg-[var(--color-primary)] text-[var(--color-primary-foreground)]">
-        {theme === "light" ? <MoonStar className="size-3.5" /> : <SunMedium className="size-3.5" />}
+      <span aria-hidden="true" className="theme-toggle__scene">
+        <span className="theme-toggle__stars">
+          <span />
+          <span />
+          <span />
+          <span />
+        </span>
+        <span className="theme-toggle__clouds">
+          <span />
+          <span />
+          <span />
+        </span>
+        <span className="theme-toggle__orb">
+          {targetTheme === "dark" ? <MoonStar className="size-3.5" /> : <SunMedium className="size-3.5" />}
+        </span>
       </span>
-      <span>{theme === "light" ? "Escuro" : "Claro"}</span>
+      <span className="theme-toggle__label">{targetTheme === "dark" ? "Escuro" : "Claro"}</span>
     </button>
   );
 }

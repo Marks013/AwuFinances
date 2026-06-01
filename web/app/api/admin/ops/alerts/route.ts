@@ -17,8 +17,8 @@ const MAX_TEXT_LENGTH = 600;
 const MAX_ARRAY_ITEMS = 8;
 const MAX_DEPTH = 4;
 const WARNING_CONSECUTIVE_THRESHOLD = 2;
-const WARNING_REPEAT_WINDOW_MS = 6 * 60 * 60 * 1000;
-const CRITICAL_REPEAT_WINDOW_MS = 60 * 60 * 1000;
+const WARNING_REPEAT_WINDOW_MS = 24 * 60 * 60 * 1000;
+const CRITICAL_REPEAT_WINDOW_MS = 6 * 60 * 60 * 1000;
 const INFO_REPEAT_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 type AlertSeverity = "info" | "warning" | "critical";

@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { cn } from "@/lib/utils";
 
 type BrandMarkProps = {
@@ -22,14 +24,17 @@ export function BrandMark({ inverted = false, compact = false, className }: Bran
         <div className="absolute inset-[18%] rounded-[1rem] border border-white/12" />
         <div className="absolute -right-2 -top-2 size-7 rounded-full bg-white/18 blur-md" />
         <div className="absolute -bottom-3 left-1 size-8 rounded-full bg-[rgba(217,123,85,0.34)] blur-md" />
-        <span
+        <Image
+          alt=""
           className={cn(
-            "relative block max-w-[82%] text-center font-semibold leading-none tracking-[-0.06em] whitespace-nowrap",
-            compact ? "text-[0.82rem]" : "text-[1.02rem]"
+            "relative max-w-none object-contain drop-shadow-[0_8px_14px_rgba(3,35,39,0.22)]",
+            compact ? "h-12 w-12" : "h-16 w-16"
           )}
-        >
-          AWU
-        </span>
+          height={96}
+          priority={false}
+          src="/brand/awu-favicon.webp"
+          width={96}
+        />
       </div>
       {compact ? (
         <div className="min-w-0">

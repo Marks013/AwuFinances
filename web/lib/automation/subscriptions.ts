@@ -58,12 +58,12 @@ async function alreadyDeliveredSince({
         { dedupeKey },
         {
           dedupeKey: null,
-          subject
+          subject,
+          createdAt: {
+            gte: since
+          }
         }
-      ],
-      createdAt: {
-        gte: since
-      }
+      ]
     },
     select: {
       id: true
@@ -90,6 +90,10 @@ function buildNotificationDedupeKey({
   return createHash("sha256")
     .update([tenantId, userId, channel, subject, windowKey].join("|"))
     .digest("hex");
+}
+
+function startOfOccurrence(date: Date) {
+  return startOfDay(date);
 }
 
 async function sendUserNotifications({
@@ -611,7 +615,7 @@ export async function runRecurringAutomation(tenantId: string, userId: string) {
         sendEmail: Boolean(tenantUser.preferences?.emailNotifications && tenantUser.preferences?.dueReminders),
         subject,
         message,
-        dedupeSince: startOfDay(now)
+        dedupeSince: startOfOccurrence(subscription.nextBillingDate)
       }))
     );
   }
@@ -675,7 +679,7 @@ export async function runRecurringAutomation(tenantId: string, userId: string) {
         sendEmail: Boolean(tenantUser.preferences?.emailNotifications && tenantUser.preferences?.dueReminders),
         subject,
         message,
-        dedupeSince: startOfDay(now)
+        dedupeSince: startOfOccurrence(dueDate)
       }))
     );
 

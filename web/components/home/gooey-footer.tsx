@@ -1,8 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { ArrowUpRight, AtSign, Mail, MessageCircle, ShieldCheck } from "lucide-react";
-
-import { BrandMark } from "@/components/layout/brand-mark";
 
 type BubbleStyle = CSSProperties & Record<`--${string}`, string>;
 
@@ -81,7 +80,24 @@ export function GooeyFooter() {
       <div className="awu-gooey-footer__content">
         <div className="mx-auto grid w-full max-w-7xl gap-10 px-5 pb-10 pt-16 sm:px-6 md:pt-20 lg:grid-cols-[1.1fr_1.1fr_1fr] lg:px-8">
           <div className="max-w-sm">
-            <BrandMark className="text-white" compact inverted />
+            <Link aria-label="Awu Finances" className="inline-flex items-center gap-3" href="/">
+              <span className="relative flex size-14 shrink-0 items-center justify-center overflow-visible rounded-[1.35rem] border border-white/18 bg-white/12 shadow-[0_18px_38px_rgba(5,45,48,0.24)] backdrop-blur-md">
+                <Image
+                  alt=""
+                  className="h-16 w-16 max-w-none object-contain drop-shadow-[0_10px_18px_rgba(3,35,39,0.22)]"
+                  height={96}
+                  priority={false}
+                  src="/brand/awu-logo-mascot.webp"
+                  width={96}
+                />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-[0.9rem] font-semibold tracking-[-0.035em] text-white">Awu Finances</span>
+                <span className="mt-0.5 block text-[0.63rem] font-medium uppercase leading-5 tracking-[0.12em] text-white/70">
+                  Controle operacional
+                </span>
+              </span>
+            </Link>
             <p className="mt-5 text-sm leading-7 text-white/86">
               Controle financeiro diario para organizar contas, cartoes, recorrencias, relatorios e rotina pelo WhatsApp.
             </p>

@@ -45,7 +45,8 @@ const alertPayloadSchema = z
     tickets: z.record(z.string(), z.unknown()).optional(),
     delivery: z.record(z.string(), z.unknown()).optional(),
     timestamp: z.string().max(80).optional(),
-    generatedAt: z.string().max(80).optional()
+    generatedAt: z.string().max(80).optional(),
+    shouldSend: z.boolean().optional()
   })
   .passthrough();
 
@@ -207,7 +208,12 @@ function shouldDeliver(params: {
   lastDeliveredAt: Date | null;
   recovery: boolean;
   hadOpenDeliveredIncident: boolean;
+  forceDelivery: boolean;
 }) {
+  if (params.forceDelivery && !params.recovery) {
+    return { deliver: true, reason: "scheduled_report" };
+  }
+
   if (params.recovery) {
     return params.hadOpenDeliveredIncident ? { deliver: true, reason: "recovery" } : { deliver: false, reason: "healthy_without_open_incident" };
   }
@@ -341,16 +347,21 @@ function buildAlertEmailContent(params: {
   consecutiveCount: number;
   decisionReason: string;
   recovery: boolean;
+  report: boolean;
   signals: string[];
   previousDeliveredAt: Date | null;
   generatedAt: string;
 }) {
-  const title = params.recovery
-    ? `${params.service} voltou ao normal`
-    : `${params.service} precisa de atencao operacional`;
-  const intro = params.recovery
-    ? `O monitor ${params.alertType} recebeu estado saudavel e o incidente operacional foi marcado como resolvido.`
-    : `O monitor ${params.alertType} detectou um estado ${params.status}. O Awu Ops aplicou deduplicacao, recorrencia minima e janela de repeticao antes de decidir pelo envio.`;
+  const title = params.report
+    ? `Resumo operacional semanal - ${params.service}`
+    : params.recovery
+      ? `${params.service} voltou ao normal`
+      : `${params.service} precisa de atencao operacional`;
+  const intro = params.report
+    ? `Resumo agendado do monitor ${params.alertType}. O Awu Ops consolidou os principais sinais operacionais sem abrir incidente.`
+    : params.recovery
+      ? `O monitor ${params.alertType} recebeu estado saudavel e o incidente operacional foi marcado como resolvido.`
+      : `O monitor ${params.alertType} detectou um estado ${params.status}. O Awu Ops aplicou deduplicacao, recorrencia minima e janela de repeticao antes de decidir pelo envio.`;
   const signalText = params.signals.length
     ? params.signals.map((signal) => `- ${signal}`).join("\n")
     : "- Nenhum erro operacional ativo foi informado no payload sanitizado.";
@@ -358,9 +369,11 @@ function buildAlertEmailContent(params: {
     "Sinais avaliados:",
     signalText,
     "",
-    params.recovery
-      ? "Autogestao: o estado foi zerado e proximos sinais saudaveis ficarao silenciosos."
-      : "Autogestao: novos alertas iguais respeitam a janela anti-repeticao; warnings exigem recorrencia antes de chegar por e-mail."
+    params.report
+      ? "Autogestao: este e um relatorio agendado; ele nao abre incidente e nao altera a janela de alerta."
+      : params.recovery
+        ? "Autogestao: o estado foi zerado e proximos sinais saudaveis ficarao silenciosos."
+        : "Autogestao: novos alertas iguais respeitam a janela anti-repeticao; warnings exigem recorrencia antes de chegar por e-mail."
   ].join("\n");
 
   const text = [
@@ -399,7 +412,8 @@ function buildAlertEmailContent(params: {
     theme: params.recovery ? "report" : params.severity === "critical" ? "security" : "generic"
   });
 
-  return { subject: `[Awu Ops] ${params.recovery ? "Recuperado" : labelSeverity(params.severity)}: ${params.service} - ${params.alertType}`.slice(0, 180), text, html };
+  const subjectPrefix = params.report ? "Relatorio" : params.recovery ? "Recuperado" : labelSeverity(params.severity);
+  return { subject: `[Awu Ops] ${subjectPrefix}: ${params.service} - ${params.alertType}`.slice(0, 180), text, html };
 }
 
 async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit, timeoutMs: number) {
@@ -496,6 +510,7 @@ export async function POST(request: Request) {
     const fingerprint = buildAlertFingerprint(payload, service, alertType);
     const generatedAt = payload.generatedAt ?? payload.timestamp ?? new Date().toISOString();
     const signals = collectOperationalSignals(payload);
+    const report = Boolean(payload.shouldSend && /report|relatorio|relatorio|weekly|semanal/i.test(`${payload.type ?? ""} ${payload.title ?? ""}`));
 
     const previous = await prisma.operationalAlertState.findUnique({
       where: { fingerprint }
@@ -508,7 +523,8 @@ export async function POST(request: Request) {
       consecutiveCount,
       lastDeliveredAt: previous?.lastDeliveredAt ?? null,
       recovery,
-      hadOpenDeliveredIncident
+      hadOpenDeliveredIncident,
+      forceDelivery: report
     });
 
     const email = buildAlertEmailContent({
@@ -519,6 +535,7 @@ export async function POST(request: Request) {
       consecutiveCount,
       decisionReason: decision.reason,
       recovery,
+      report,
       signals,
       previousDeliveredAt: previous?.lastDeliveredAt ?? null,
       generatedAt

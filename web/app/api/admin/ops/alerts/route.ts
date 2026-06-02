@@ -339,6 +339,65 @@ function labelDecision(reason: string) {
   return labels[reason] ?? reason;
 }
 
+function humanizeToken(value: string) {
+  return sanitizeText(value)
+    .split(/[\s:_-]+/)
+    .filter(Boolean)
+    .map((part) => {
+      const lower = part.toLowerCase();
+      if (["awu", "ops", "api", "n8n"].includes(lower)) return lower.toUpperCase();
+      return `${lower.charAt(0).toUpperCase()}${lower.slice(1)}`;
+    })
+    .join(" ");
+}
+
+function labelService(service: string) {
+  const labels: Record<string, string> = {
+    "awu-finances": "Awu Finances",
+    "financial-brain": "Financial Brain",
+    nerdlingolab: "Nerdlingolab",
+    "automation-hub": "Automation Hub"
+  };
+
+  return labels[service] ?? humanizeToken(service);
+}
+
+function labelAlertType(alertType: string) {
+  const labels: Record<string, string> = {
+    "backup-watchdog": "Backup",
+    "health-monitor": "Saude operacional",
+    "support-alerts": "Suporte",
+    "status-alert": "Status operacional",
+    "weekly-operational-report": "Relatorio operacional semanal",
+    "automation-pulse": "Automacoes",
+    "dropshipping-alerts": "Dropshipping",
+    "newsletter-watchdog": "Newsletter"
+  };
+
+  return labels[alertType] ?? humanizeToken(alertType);
+}
+
+function buildPublicUrl(path: string) {
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL?.trim() || process.env.AUTH_URL?.trim() || "https://awufinances.com.br").replace(/\/+$/, "");
+  return path.startsWith("/") ? `${baseUrl}${path}` : `${baseUrl}/${path}`;
+}
+
+function describeNextAction(params: { report: boolean; recovery: boolean; severity: AlertSeverity; signals: string[] }) {
+  if (params.report) {
+    return "Revisar o resumo e acompanhar apenas se algum indicador aparecer fora do esperado.";
+  }
+  if (params.recovery) {
+    return "Nenhuma acao imediata. O incidente foi encerrado e novos sinais saudaveis ficarao silenciosos.";
+  }
+  if (params.severity === "critical") {
+    return "Abrir o painel operacional, verificar o primeiro sinal listado e corrigir a causa antes de forcar nova execucao.";
+  }
+  if (params.signals.length > 0) {
+    return "Acompanhar a proxima execucao do monitor. Se o sinal repetir, o Awu Ops continua aplicando a janela anti-repeticao.";
+  }
+  return "Acompanhar o painel operacional; o payload nao trouxe sinal acionavel alem do estado informado.";
+}
+
 function buildAlertEmailContent(params: {
   service: string;
   alertType: string;
@@ -352,16 +411,19 @@ function buildAlertEmailContent(params: {
   previousDeliveredAt: Date | null;
   generatedAt: string;
 }) {
+  const serviceLabel = labelService(params.service);
+  const alertLabel = labelAlertType(params.alertType);
+  const nextAction = describeNextAction(params);
   const title = params.report
-    ? `Resumo operacional semanal - ${params.service}`
+    ? `Resumo operacional semanal - ${serviceLabel}`
     : params.recovery
-      ? `${params.service} voltou ao normal`
-      : `${params.service} precisa de atencao operacional`;
+      ? `${serviceLabel} voltou ao normal`
+      : `${serviceLabel} precisa de atencao operacional`;
   const intro = params.report
-    ? `Resumo agendado do monitor ${params.alertType}. O Awu Ops consolidou os principais sinais operacionais sem abrir incidente.`
+    ? `Resumo agendado do monitor ${alertLabel}. O Awu Ops consolidou os principais sinais operacionais sem abrir incidente.`
     : params.recovery
-      ? `O monitor ${params.alertType} recebeu estado saudavel e o incidente operacional foi marcado como resolvido.`
-      : `O monitor ${params.alertType} detectou um estado ${params.status}. O Awu Ops aplicou deduplicacao, recorrencia minima e janela de repeticao antes de decidir pelo envio.`;
+      ? `O monitor ${alertLabel} recebeu estado saudavel e o incidente operacional foi marcado como resolvido.`
+      : `O monitor ${alertLabel} detectou um estado ${params.status}. O Awu Ops aplicou recorrencia minima, deduplicacao e janela anti-repeticao antes de decidir pelo envio.`;
   const signalText = params.signals.length
     ? params.signals.map((signal) => `- ${signal}`).join("\n")
     : "- Nenhum erro operacional ativo foi informado no payload sanitizado.";
@@ -381,13 +443,14 @@ function buildAlertEmailContent(params: {
     "",
     intro,
     "",
-    `Servico: ${params.service}`,
-    `Monitor: ${params.alertType}`,
+    `Servico: ${serviceLabel}`,
+    `Monitor: ${alertLabel}`,
     `Estado: ${params.status}`,
     `Severidade: ${labelSeverity(params.severity)}`,
     `Decisao: ${labelDecision(params.decisionReason)}`,
     `Ocorrencias consecutivas: ${params.consecutiveCount}`,
     `Gerado em: ${params.generatedAt}`,
+    `Proxima acao: ${nextAction}`,
     params.previousDeliveredAt ? `Ultimo e-mail anterior: ${params.previousDeliveredAt.toISOString()}` : "Ultimo e-mail anterior: nenhum",
     "",
     note
@@ -399,21 +462,23 @@ function buildAlertEmailContent(params: {
     title,
     intro,
     details: [
-      { label: "Servico", value: params.service },
-      { label: "Monitor", value: params.alertType },
+      { label: "Servico", value: serviceLabel },
+      { label: "Monitor", value: alertLabel },
       { label: "Estado", value: params.status },
       { label: "Severidade", value: labelSeverity(params.severity) },
       { label: "Decisao", value: labelDecision(params.decisionReason) },
       { label: "Ocorrencias", value: String(params.consecutiveCount) },
-      { label: "Gerado em", value: params.generatedAt }
+      { label: "Gerado em", value: params.generatedAt },
+      { label: "Proxima acao", value: nextAction }
     ],
+    action: { label: "Abrir painel operacional", href: buildPublicUrl("/dashboard/admin") },
     note,
     footer: "Mensagem automatica do Awu Ops. Dados sensiveis foram filtrados antes do envio.",
     theme: params.recovery ? "report" : params.severity === "critical" ? "security" : "generic"
   });
 
   const subjectPrefix = params.report ? "Relatorio" : params.recovery ? "Recuperado" : labelSeverity(params.severity);
-  return { subject: `[Awu Ops] ${subjectPrefix}: ${params.service} - ${params.alertType}`.slice(0, 180), text, html };
+  return { subject: `[Awu Ops] ${subjectPrefix}: ${serviceLabel} - ${alertLabel}`.slice(0, 180), text, html };
 }
 
 async function fetchWithTimeout(input: RequestInfo | URL, init: RequestInit, timeoutMs: number) {

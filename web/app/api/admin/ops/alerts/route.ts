@@ -286,7 +286,7 @@ export async function POST(request: Request) {
     const previous = await prisma.operationalAlertState.findUnique({
       where: { fingerprint }
     });
-    const hadOpenIncident = Boolean(previous && !previous.resolvedAt && previous.consecutiveCount > 0);
+    const hadOpenIncident = Boolean(previous && !previous.resolvedAt && previous.consecutiveCount > 0 && previous.lastDeliveredAt);
     const consecutiveCount = recovery ? 0 : (previous?.consecutiveCount ?? 0) + 1;
 
     const decision = shouldDeliver({

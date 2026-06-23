@@ -270,8 +270,11 @@ function collectOperationalSignals(payload: AlertPayload) {
 
   const deadLetters = payload.deadLetters;
   const deadLetterTotal = numberValue(deadLetters?.total);
-  if (deadLetterTotal && deadLetterTotal > 0) {
-    signals.push(`Dead letters: ${deadLetterTotal}`);
+  const activeDeadLetterTotal = numberValue(deadLetters?.active);
+  if (activeDeadLetterTotal && activeDeadLetterTotal > 0) {
+    signals.push(`Dead letters ativos: ${activeDeadLetterTotal}`);
+  } else if (deadLetterTotal && deadLetterTotal > 0) {
+    signals.push(`Dead letters historicos: ${deadLetterTotal}`);
   }
 
   const backup = payload.backup;

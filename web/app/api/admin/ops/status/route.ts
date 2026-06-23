@@ -12,6 +12,7 @@ export const runtime = "nodejs";
 const STALE_PROCESSING_MINUTES = 15;
 const RECENT_FAILURE_LIMIT = 5;
 const EXTERNAL_CHECK_TIMEOUT_MS = 4_000;
+const ACTIVE_DEAD_LETTER_HOURS = 24;
 
 type StatusState = "ok" | "degraded" | "error" | "disabled" | "unknown";
 
@@ -41,11 +42,12 @@ function toIso(value: Date | null | undefined) {
 
 function buildQueueStatus(
   counts: Record<string, number>,
-  deadLetterKeys: string[],
+  _deadLetterKeys: string[],
   failedKeys: string[],
-  staleProcessing: number
+  staleProcessing: number,
+  activeDeadLetters = 0
 ): StatusState {
-  if (deadLetterKeys.some((key) => (counts[key] ?? 0) > 0)) {
+  if (activeDeadLetters > 0) {
     return "error";
   }
 
@@ -302,6 +304,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const externalCheck = url.searchParams.get("external") === "1";
   const staleBefore = new Date(Date.now() - STALE_PROCESSING_MINUTES * 60_000);
+  const activeDeadLetterSince = new Date(Date.now() - ACTIVE_DEAD_LETTER_HOURS * 60 * 60_000);
 
   const [
     database,
@@ -309,6 +312,8 @@ export async function GET(request: Request) {
     billingCounts,
     whatsappDeadLetters,
     billingDeadLetters,
+    activeWhatsAppDeadLetters,
+    activeBillingDeadLetters,
     staleWhatsAppProcessing,
     staleBillingProcessing,
     lastWhatsAppEvent,
@@ -334,6 +339,12 @@ export async function GET(request: Request) {
     countBillingWebhookStatus(),
     prisma.webhookEvent.count({ where: { provider: "WHATSAPP", status: "DEAD_LETTER" } }),
     prisma.billingWebhookEvent.count({ where: { status: "dead_letter" } }),
+    prisma.webhookEvent.count({
+      where: { provider: "WHATSAPP", status: "DEAD_LETTER", updatedAt: { gte: activeDeadLetterSince } }
+    }),
+    prisma.billingWebhookEvent.count({
+      where: { status: "dead_letter", updatedAt: { gte: activeDeadLetterSince } }
+    }),
     prisma.webhookEvent.count({
       where: { provider: "WHATSAPP", status: "PROCESSING", updatedAt: { lt: staleBefore } }
     }),
@@ -401,12 +412,20 @@ export async function GET(request: Request) {
     whatsappCounts,
     ["DEAD_LETTER"],
     ["FAILED"],
-    staleWhatsAppProcessing
+    staleWhatsAppProcessing,
+    activeWhatsAppDeadLetters
   );
-  const billingQueueStatus = buildQueueStatus(billingCounts, ["dead_letter"], ["failed"], staleBillingProcessing);
+  const billingQueueStatus = buildQueueStatus(
+    billingCounts,
+    ["dead_letter"],
+    ["failed"],
+    staleBillingProcessing,
+    activeBillingDeadLetters
+  );
   const deadLettersTotal = whatsappDeadLetters + billingDeadLetters;
+  const activeDeadLettersTotal = activeWhatsAppDeadLetters + activeBillingDeadLetters;
   const healthStatus: StatusState =
-    database.status === "error" || deadLettersTotal > 0
+    database.status === "error" || activeDeadLettersTotal > 0
       ? "error"
       : [whatsappQueueStatus, billingQueueStatus, evolution.status, gemini.status, backup.status].includes("degraded")
         ? "degraded"
@@ -446,7 +465,12 @@ export async function GET(request: Request) {
     deadLetters: {
       total: deadLettersTotal,
       whatsapp: whatsappDeadLetters,
-      billing: billingDeadLetters
+      billing: billingDeadLetters,
+      active: activeDeadLettersTotal,
+      activeWhatsApp: activeWhatsAppDeadLetters,
+      activeBilling: activeBillingDeadLetters,
+      historical: Math.max(0, deadLettersTotal - activeDeadLettersTotal),
+      activeWindowHours: ACTIVE_DEAD_LETTER_HOURS
     },
     backup,
     integrations: {

@@ -15,6 +15,17 @@ require_env() {
   fi
 }
 
+assert_resource_capacity() {
+  local status_file="${RESOURCE_GUARD_STATUS_PATH:-/run/server-resource-guard/status.json}"
+
+  if [[ -r "$status_file" ]] &&
+    find "$status_file" -mmin -10 -print -quit | grep -q . &&
+    [[ "$(jq -r '.acceptingHeavyJobs // true' "$status_file" 2>/dev/null)" == "false" ]]; then
+    log "Backup adiado: o servidor está preservando recursos neste momento."
+    exit 75
+  fi
+}
+
 send_failure_email() {
   local exit_code="$1"
   local failed_command="$2"
@@ -229,6 +240,7 @@ CRITICAL_PATHS="${BACKUP_CRITICAL_PATHS:-.env,docker-compose.yml,DEPLOY_AND_BOOT
 
 require_env POSTGRES_PASSWORD
 require_env BACKUP_ENCRYPTION_PASSPHRASE
+assert_resource_capacity
 
 export PGPASSWORD="$DB_PASSWORD"
 

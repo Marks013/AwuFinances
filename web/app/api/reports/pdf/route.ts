@@ -7,6 +7,10 @@ import { formatDateTimeDisplay } from "@/lib/date";
 import { getFinanceReport } from "@/lib/finance/reports";
 import { normalizeMonthKey } from "@/lib/month";
 import { captureRequestError } from "@/lib/observability/sentry";
+import {
+  assertResourceCapacity,
+  ResourceCapacityError,
+} from "@/lib/system/resource-capacity";
 
 type ExtendedReport = Awaited<ReturnType<typeof getFinanceReport>>;
 type ExecutiveSummary = {
@@ -94,6 +98,7 @@ function buildExecutiveSummary(report: ExtendedReport): ExecutiveSummary {
 export async function GET(request: Request) {
   try {
     const user = await requireSessionUser({ feature: "pdfExport" });
+    await assertResourceCapacity();
     const { searchParams } = new URL(request.url);
     const month = searchParams.get("month");
     const resolvedMonth = month ? normalizeMonthKey(month) : null;
@@ -158,6 +163,13 @@ export async function GET(request: Request) {
       }
     });
   } catch (error) {
+    if (error instanceof ResourceCapacityError) {
+      return Response.json(
+        { code: error.code, message: error.message },
+        { status: 503, headers: { "Retry-After": "300" } },
+      );
+    }
+
     if (error instanceof Error && error.message === "Unauthorized") {
       return new Response("Unauthorized", { status: 401 });
     }

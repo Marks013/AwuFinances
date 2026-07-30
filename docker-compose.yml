@@ -11,6 +11,10 @@ services:
         SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT}
     container_name: awu_finances_web
     restart: unless-stopped
+    cpus: ${AWU_WEB_CPUS:-2.0}
+    mem_limit: ${AWU_WEB_MEMORY_LIMIT:-4g}
+    mem_reservation: ${AWU_WEB_MEMORY_RESERVATION:-1g}
+    pids_limit: ${AWU_WEB_PIDS_LIMIT:-384}
     environment:
       NODE_ENV: production
       HOSTNAME: 0.0.0.0
@@ -103,6 +107,7 @@ services:
       - "${APP_PORT:-3000}:3000"
     volumes:
       - awu_finances_backups:/backups:ro
+      - /var/lib/server-resource-guard/status.json:/run/server-resource-guard/status.json:ro
     networks:
       awu_finances:
       automation_backend:
@@ -220,6 +225,15 @@ services:
       dockerfile: Dockerfile
     container_name: awu_finances_backup
     restart: unless-stopped
+    cpus: ${AWU_BACKUP_CPUS:-0.75}
+    mem_limit: ${AWU_BACKUP_MEMORY_LIMIT:-1g}
+    mem_reservation: ${AWU_BACKUP_MEMORY_RESERVATION:-256m}
+    pids_limit: ${AWU_BACKUP_PIDS_LIMIT:-128}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     healthcheck:
       test: ["CMD-SHELL", "/usr/local/bin/backup-healthcheck.sh"]
       interval: 30m
@@ -237,6 +251,7 @@ services:
     volumes:
       - ./:/workspace:ro
       - awu_finances_backups:/backups
+      - /var/lib/server-resource-guard/status.json:/run/server-resource-guard/status.json:ro
     networks:
       - awu_finances
 
@@ -245,6 +260,9 @@ services:
       context: ./ops/backup
       dockerfile: Dockerfile
     profiles: ["ops"]
+    cpus: ${AWU_BACKUP_CPUS:-0.75}
+    mem_limit: ${AWU_BACKUP_MEMORY_LIMIT:-1g}
+    pids_limit: ${AWU_BACKUP_PIDS_LIMIT:-128}
     depends_on:
       postgres:
         condition: service_healthy
@@ -257,6 +275,7 @@ services:
     volumes:
       - ./:/workspace:ro
       - awu_finances_backups:/backups
+      - /var/lib/server-resource-guard/status.json:/run/server-resource-guard/status.json:ro
     networks:
       - awu_finances
 
@@ -304,6 +323,10 @@ services:
     image: postgres:17-alpine
     container_name: awu_finances_db
     restart: unless-stopped
+    cpus: ${AWU_POSTGRES_CPUS:-2.0}
+    mem_limit: ${AWU_POSTGRES_MEMORY_LIMIT:-4g}
+    mem_reservation: ${AWU_POSTGRES_MEMORY_RESERVATION:-1g}
+    pids_limit: ${AWU_POSTGRES_PIDS_LIMIT:-256}
     env_file:
       - .env
     # Limita os logs do banco de dados

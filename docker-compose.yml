@@ -340,12 +340,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    # Otimização de Memória para sair dos 10% de ociosidade da Oracle Cloud
+    # Mantem folga no cgroup de 4 GiB para conexoes e operacoes concorrentes.
     command: >
-      postgres -c 'shared_buffers=2GB' 
-               -c 'effective_cache_size=6GB'
-               -c 'work_mem=64MB'
-               -c 'maintenance_work_mem=512MB'
+      postgres -c 'shared_buffers=${AWU_POSTGRES_SHARED_BUFFERS:-1GB}'
+               -c 'effective_cache_size=${AWU_POSTGRES_EFFECTIVE_CACHE_SIZE:-3GB}'
+               -c 'work_mem=${AWU_POSTGRES_WORK_MEM:-16MB}'
+               -c 'maintenance_work_mem=${AWU_POSTGRES_MAINTENANCE_WORK_MEM:-256MB}'
     volumes:
       - type: bind
         source: ${POSTGRES_DATA_DIR:-/srv/awufinances/postgres-data}
